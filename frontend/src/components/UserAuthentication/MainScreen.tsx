@@ -1,22 +1,21 @@
+
+import { Box, Flex} from '@chakra-ui/react';
 import React from 'react';
-import './MainScreen.css';
+import { Link } from 'react-router-dom';
+import LoginForm from './LoginForm';
 
 export default function MainScreen():JSX.Element {
+
   return (
-    <>
-      <div className='makeStyles-container-5'>
-        <div className='makeStyles-innerContainer-6'>
-          <h2>Sign in to your account</h2>
+    <div>
+      <LoginForm />
+      <Flex width="full" align="center" justifyContent="center">
+        <Box textAlign="center">
+          <div>{'Don \'t have an account'}</div>
 
-          <div>
-            <button type='button'>Login</button>
-          </div>
-
-          <div>
-            <button type='button'>Register</button>
-          </div>
-        </div>
-      </div>
-    </>
+        </Box>
+      </Flex>
+    </div>
+      
   )
 }

@@ -10,7 +10,7 @@ import React, {
   useReducer,
   useState,
 } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
@@ -322,14 +322,22 @@ function EmbeddedTwilioAppWrapper() {
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <ChakraProvider>
-        <MuiThemeProvider theme={theme}>
-          <AppStateProvider>
-            <EmbeddedTwilioAppWrapper />
-          </AppStateProvider>
-        </MuiThemeProvider>
-      </ChakraProvider>
-      <MainScreen />
+      
+      {/* <MainScreen /> */}
+      <Switch>
+        <Route exact path="/">
+          <MainScreen />
+        </Route>
+        <Route path="/prejoinscreen">
+          <ChakraProvider>
+            <MuiThemeProvider theme={theme}>
+              <AppStateProvider>
+                <EmbeddedTwilioAppWrapper />
+              </AppStateProvider>
+            </MuiThemeProvider>
+          </ChakraProvider>
+        </Route>
+      </Switch>
     </BrowserRouter>
   );
 }
