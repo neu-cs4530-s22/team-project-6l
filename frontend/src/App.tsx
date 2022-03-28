@@ -19,6 +19,7 @@ import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClie
 import Video from './classes/Video/Video';
 import Login from './components/Login/Login';
 import MainScreen from './components/UserAuthentication/MainScreen';
+import Register from './components/UserAuthentication/Register';
 import { ChatProvider } from './components/VideoCall/VideoFrontend/components/ChatProvider';
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import UnsupportedBrowserWarning from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
@@ -322,8 +323,6 @@ function EmbeddedTwilioAppWrapper() {
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      
-      {/* <MainScreen /> */}
       <Switch>
         <Route exact path="/">
           <MainScreen />
@@ -336,6 +335,9 @@ export default function AppStateWrapper(): JSX.Element {
               </AppStateProvider>
             </MuiThemeProvider>
           </ChakraProvider>
+        </Route>
+        <Route exact path="/register">
+          <Register />
         </Route>
       </Switch>
     </BrowserRouter>
