@@ -18,6 +18,7 @@ import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import Login from './components/Login/Login';
+import MainScreen from './components/UserAuthentication/MainScreen';
 import { ChatProvider } from './components/VideoCall/VideoFrontend/components/ChatProvider';
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import UnsupportedBrowserWarning from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
@@ -328,6 +329,7 @@ export default function AppStateWrapper(): JSX.Element {
           </AppStateProvider>
         </MuiThemeProvider>
       </ChakraProvider>
+      <MainScreen />
     </BrowserRouter>
   );
 }
