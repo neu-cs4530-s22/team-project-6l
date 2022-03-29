@@ -14,6 +14,7 @@ export default function MainScreen():JSX.Element {
   };
 
   // TODO: add signOut function
+  // TODO: replace those alert and console.log by UI Modal which indicate the error. 
   return (
     <div>
       <LoginForm />
