@@ -25,7 +25,7 @@ export default function Register() {
   });
 
   const onRegisterClick = (event:React.MouseEvent) => {
-    if (email === '' || password === '' || confirmPassword ==='' || password !== confirmPassword) { 
+    if (!email || !password|| !confirmPassword || password !== confirmPassword) { 
       alert('invalid inputs');
     } else {
       event.preventDefault();
@@ -34,7 +34,6 @@ export default function Register() {
         history.push("/")
       })
       .catch(error => alert(error.message));
-
     }
   }
 
