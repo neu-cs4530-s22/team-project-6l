@@ -9,6 +9,8 @@ export default function SSOForm() {
   const googleProvider = new GoogleAuthProvider();
   const facebookProvider = new FacebookAuthProvider();
 
+  //TODO: ugly codes combine them into reduced function.
+
   const googleSignIn = () => {
     signInWithPopup(auth, googleProvider).then((userCredential) => {
       const user1 = userCredential.user;

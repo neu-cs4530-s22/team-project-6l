@@ -13,6 +13,7 @@ export default function MainScreen():JSX.Element {
     history.push("/register");
   };
 
+  // TODO: add signOut function
   return (
     <div>
       <LoginForm />
