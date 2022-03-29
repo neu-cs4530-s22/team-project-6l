@@ -9,11 +9,22 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import auth from '../../firebase/firebase-config';
 
 export default function LoginForm() {
   const history = useHistory();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+
+  const logInWithEmailAndPassword = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      history.push("/prejoinscreen");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   const onLoginClick = (event:React.MouseEvent) => {
     if (!email && !password) {
@@ -21,7 +32,7 @@ export default function LoginForm() {
       return;
     }
     event.preventDefault();
-    history.push("/prejoinscreen");
+    logInWithEmailAndPassword();
   }
 
   return (
