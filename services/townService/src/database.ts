@@ -1,8 +1,7 @@
-import { MikroORM } from "@mikro-orm/core";
-import { User } from "./entities/User";
-import mikroOrmConfig from "./mikro-orm.config";
+import { Connection, IDatabaseDriver, MikroORM } from '@mikro-orm/core';
+import mikroOrmConfig from './mikro-orm.config';
 
-const initDatabase = async () => {
+async function initDatabase(): Promise<MikroORM<IDatabaseDriver<Connection>>> {
   const orm = await MikroORM.init(mikroOrmConfig);
   await orm.getMigrator().up();
 

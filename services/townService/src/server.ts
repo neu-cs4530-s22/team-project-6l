@@ -2,12 +2,12 @@ import Express from 'express';
 import * as http from 'http';
 import CORS from 'cors';
 import { AddressInfo } from 'net';
+import { ApolloServer } from 'apollo-server-express';
+import { buildSchema } from 'type-graphql';
 import addTownRoutes from './router/towns';
 import CoveyTownsStore from './lib/CoveyTownsStore';
 import initDatabase from './database';
-import { ApolloServer } from "apollo-server-express";
-import { buildSchema } from 'type-graphql';
-import { UsersResolver } from './resolvers/User';
+import  UsersResolver  from './resolvers/User';
 
 
 const main = async () => {
@@ -22,9 +22,9 @@ const main = async () => {
   const apollo = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UsersResolver],
-      validate: false
+      validate: false,
     }),
-    context: () => ({ em: orm.em })
+    context: () => ({ em: orm.em }),
   });
 
 
@@ -40,9 +40,7 @@ const main = async () => {
         .createTown(process.env.DEMO_TOWN_ID, false);
     }
   });
-}
+};
 
-main().catch((err) => {
-  console.error(err)
-});
+main();
 
