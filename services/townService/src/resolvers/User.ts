@@ -1,4 +1,4 @@
-import { Collection } from "@mikro-orm/core";
+import { Collection, wrap } from "@mikro-orm/core";
 import { Arg, Ctx, Field, ID, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import { Avatar, User } from "../entities/User";
 import { MyContext } from "../types/MyContext";
@@ -50,20 +50,7 @@ export class UsersResolver {
     @Ctx() { em }: MyContext): Promise<UserResponse> {
 
     const { username, email, displayName } = new_user;
-    const alreadyExistingUser = await em.findOne(User, { username });
 
-    console.log(alreadyExistingUser);
-
-    if (alreadyExistingUser) {
-      return {
-        errors: [
-          {
-            field: 'username',
-            message: `User with username ${username} already exists.`
-          }
-        ]
-      }
-    }
     if (username.length <= 3) {
       return {
         errors: [
@@ -74,8 +61,33 @@ export class UsersResolver {
         ]
       };
     }
+    if (displayName.length <= 3) {
+      return {
+        errors: [
+          {
+            field: 'displayName',
+            message: 'Display name length must be greater than 3'
+          }
+        ]
+      };
+    }
     const user = em.create(User, { email: email, username: username, displayName: displayName });
-    await em.persistAndFlush(user);
+
+    try {
+      await em.persistAndFlush(user);
+    }
+    catch (err) {
+      const error = err as Error;
+      // duplicate username error
+      if (error.code === '23505') {
+        return {
+          errors: [{
+            field: 'username',
+            message: 'Username has already been taken.'
+          }]
+        }
+      }
+    }
 
     return {
       user
@@ -86,9 +98,11 @@ export class UsersResolver {
   async update(
     @Arg('username', () => String) username: string,
     @Arg('avatar', () => Avatar, { nullable: true }) avatar: Avatar,
+    @Arg('friend', () => String, { nullable: true }) friend: string,
     @Ctx() { em }: MyContext): Promise<UserResponse | null> {
 
     const user = await em.findOne(User, { username });
+    const friendObject = await em.findOne(User, { username: friend }, { populate: ['friends'] });
 
     if (!user) {
       return {
@@ -99,8 +113,12 @@ export class UsersResolver {
       };
     }
 
-    // TODO: need to research how to update the list of friends
-    user.avatar = avatar;
+    if (avatar) user.avatar = avatar;
+    // Add error handling for following cases (display informative errors):
+    // 1. friend argument is empty
+    // 2. could not find user with friend username
+    if (friendObject) user.friends.add(friendObject);
+
     await em.persistAndFlush(user);
 
     return {
