@@ -5,6 +5,24 @@ import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
+import { UserInfo } from 'os';
+ export interface userIDOfUser {
+  userID: string;
+}
+
+/**
+ * The format of a request to add a friend based on the username of the friend currently present in the CoveyTown into the friend list
+ */
+export interface FriendAdd {
+  userID: string;
+}
+
+/**
+ * The format of a request to remove a friend based on the username of the friend currently present in the CoveyTown out of the friend list
+ */
+export interface FriendRemove {
+  userID: string;
+}
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -229,6 +247,56 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
       socket.emit('chatMessage', message);
     },
   };
+}
+
+/**
+ * Represents the request handler to, based on the current presence of the username in the list of the current online
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * therefore updating the list of the friends based on the user choice
+ * @param requestData 
+ * @returns 
+ */
+export async function FriendListHandler(
+  requestData: userIDOfUser,
+): Promise<ResponseEnvelope<UserInfo[]>> {
+  const client: Orm = await .getInstance().getMongoClient();
+  let friendStatuses: UserInfo[];
+  try {
+    const user = await client
+}
+}
+
+/**
+ * Represents the request handler to, based on the current presence of the username in the list of the current online
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * therefore updating the list of the friends based on the user choice
+ * @param requestData 
+ * @returns 
+ */
+ export async function friendIsAddedHandler(
+  requestData: FriendAdd,
+): Promise<ResponseEnvelope<UserInfo[]>> {
+  let friendStatuses: UserInfo[];
+  try {
+    const user = await client
+}
+}
+
+/**
+ * Represents the request handler to, based on the current presence of the username in the list of the current online
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * therefore updating the list of the friends based on the user choice
+ * @param requestData 
+ * @returns 
+ */
+ export async function friendIsRemovedHandler(
+  requestData: FriendRemove,
+): Promise<ResponseEnvelope<UserInfo[]>> {
+  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
+  let friendStatuses: UserInfo[];
+  try {
+    const user = await client
+}
 }
 
 /**
