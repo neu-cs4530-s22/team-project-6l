@@ -9,12 +9,11 @@ export default function SSOForm() {
   const googleProvider = new GoogleAuthProvider();
   const facebookProvider = new FacebookAuthProvider();
 
-  //TODO: ugly codes combine them into reduced function.
-
+  // TODO: ugly codes combine them into reduced function.
   const googleSignIn = () => {
     signInWithPopup(auth, googleProvider).then((userCredential) => {
       const user1 = userCredential.user;
-      console.log(user1);
+      console.log(user1.toJSON());
       history.push("/prejoinscreen");
     }).catch((error) => {
       const errorCode = error.code;

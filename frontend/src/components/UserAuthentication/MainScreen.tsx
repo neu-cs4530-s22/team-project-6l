@@ -1,4 +1,3 @@
-
 import { Box, Button, Flex} from '@chakra-ui/react';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
