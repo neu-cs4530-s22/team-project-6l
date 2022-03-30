@@ -12,8 +12,7 @@ export default function MainScreen():JSX.Element {
     history.push("/register");
   };
 
-  // TODO: add signOut function
-  // TODO: replace those alert and console.log by UI Modal which indicate the error. 
+  // TODO: replace those alert and console.log error modal.
   return (
     <div>
       <LoginForm />
