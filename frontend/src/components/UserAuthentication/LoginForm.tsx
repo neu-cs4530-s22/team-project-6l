@@ -44,12 +44,12 @@ export default function LoginForm() {
         <Box textAlign="left">
           <FormControl>
             <FormLabel>Email</FormLabel>
-            <Input type="email" onChange={(event) => setEmail(event.target.value)}/>
+            <Input id="login-email" type="email" onChange={(event) => setEmail(event.target.value)}/>
           </FormControl>
 
           <FormControl>
             <FormLabel>Password</FormLabel>
-            <Input type="password" onChange={(event) => setPassword(event.target.value)}/>
+            <Input id="login-password" type="password" onChange={(event) => setPassword(event.target.value)}/>
           </FormControl>
 
           <Button width="full" mt={4} type="submit" onClick={e => onLoginClick(e)}>
