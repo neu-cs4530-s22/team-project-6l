@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import { createClient, Provider } from 'urql';
 import './App.css';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
@@ -40,18 +41,18 @@ export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
 type CoveyAppUpdate =
   | {
-      action: 'doConnect';
-      data: {
-        userName: string;
-        townFriendlyName: string;
-        townID: string;
-        townIsPubliclyListed: boolean;
-        sessionToken: string;
-        myPlayerID: string;
-        socket: Socket;
-        emitMovement: (location: UserLocation) => void;
-      };
-    }
+    action: 'doConnect';
+    data: {
+      userName: string;
+      townFriendlyName: string;
+      townID: string;
+      townIsPubliclyListed: boolean;
+      sessionToken: string;
+      myPlayerID: string;
+      socket: Socket;
+      emitMovement: (location: UserLocation) => void;
+    };
+  }
   | { action: 'disconnect' };
 
 function defaultAppState(): CoveyAppState {
@@ -63,7 +64,7 @@ function defaultAppState(): CoveyAppState {
     sessionToken: '',
     userName: '',
     socket: null,
-    emitMovement: () => {},
+    emitMovement: () => { },
     apiClient: new TownsServiceClient(),
   };
 }
@@ -227,7 +228,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
-        if(existingArea){
+        if (existingArea) {
           existingArea.topic = undefined;
           existingArea.occupants = [];
         }
@@ -318,16 +319,22 @@ function EmbeddedTwilioAppWrapper() {
   );
 }
 
+const gqlClient = createClient({
+  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`
+});
+
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <ChakraProvider>
-        <MuiThemeProvider theme={theme}>
-          <AppStateProvider>
-            <EmbeddedTwilioAppWrapper />
-          </AppStateProvider>
-        </MuiThemeProvider>
-      </ChakraProvider>
+      <Provider value={gqlClient}>
+        <ChakraProvider>
+          <MuiThemeProvider theme={theme}>
+            <AppStateProvider>
+              <EmbeddedTwilioAppWrapper />
+            </AppStateProvider>
+          </MuiThemeProvider>
+        </ChakraProvider>
+      </Provider>
     </BrowserRouter>
   );
 }

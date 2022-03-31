@@ -15,6 +15,15 @@
           "nullable": false,
           "mappedType": "integer"
         },
+        "username": {
+          "name": "username",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz(0)",
@@ -44,15 +53,6 @@
           "nullable": false,
           "mappedType": "string"
         },
-        "username": {
-          "name": "username",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
-        },
         "display_name": {
           "name": "display_name",
           "type": "varchar(255)",
@@ -70,12 +70,14 @@
           "primary": false,
           "nullable": false,
           "enumItems": [
-            "path1",
-            "path2",
-            "path3",
-            "path4",
-            "path5",
-            "path6"
+            "Dog",
+            "ThreeSixty",
+            "BubbleGum",
+            "Dragon",
+            "Monkey",
+            "OrangeBlackSkull",
+            "SmileyFace",
+            "Panda"
           ],
           "mappedType": "enum"
         }

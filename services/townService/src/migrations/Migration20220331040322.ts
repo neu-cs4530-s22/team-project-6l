@@ -1,9 +1,9 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export default class Migration20220330023402 extends Migration {
+export class Migration20220331040322 extends Migration {
 
   async up(): Promise<void> {
-    this.addSql('create table "user" ("_id" serial primary key, "created_at" timestamptz(0) not null, "last_online" timestamptz(0) not null, "email" varchar(255) not null, "username" varchar(255) not null, "display_name" varchar(255) not null, "avatar" text check ("avatar" in (\'path1\', \'path2\', \'path3\', \'path4\', \'path5\', \'path6\')) not null);');
+    this.addSql('create table "user" ("_id" serial primary key, "username" varchar(255) not null, "created_at" timestamptz(0) not null, "last_online" timestamptz(0) not null, "email" varchar(255) not null, "display_name" varchar(255) not null, "avatar" text check ("avatar" in (\'Dog\', \'ThreeSixty\', \'BubbleGum\', \'Dragon\', \'Monkey\', \'OrangeBlackSkull\', \'SmileyFace\', \'Panda\')) not null);');
     this.addSql('alter table "user" add constraint "user_username_unique" unique ("username");');
 
     this.addSql('create table "user_friends" ("user_1__id" int not null, "user_2__id" int not null);');
@@ -22,4 +22,5 @@ export default class Migration20220330023402 extends Migration {
 
     this.addSql('drop table if exists "user_friends" cascade;');
   }
+
 }
