@@ -3,6 +3,7 @@ import React from 'react';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import PlayerItem from './PlayerItem';
+import PlayerName from './PlayerName';
 
 /**
  * Lists the current players in the town, along with the current town's name and ID
@@ -19,32 +20,31 @@ import PlayerItem from './PlayerItem';
 export default function PlayersInTownList(): JSX.Element {
   const players = usePlayersInTown();
   const { userName } = useCoveyAppState();
-  const sorted = [...players].sort((p1, p2) =>
+  const currentPlayer = players.find(p => p.userName === userName);
+  const sorted = players.filter(p => p.userName !== userName);
+  sorted.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
-  const currentPlayer = players.find(p => p.userName === userName);
 
   return (
     <Box>
-      <Flex>
+      <Flex pt={1} pb={2} pe={2}>
         <Center>
           {/* TODO: Display User Profile */}
-          <Text>You:</Text>
+          <Text pe={2}>You:</Text>
         </Center>
-        {currentPlayer ? <PlayerItem player={currentPlayer} /> : ''}
+        {currentPlayer ? <PlayerName player={currentPlayer} /> : ''}
       </Flex>
 
       <Heading as='h2' fontSize='l'>
         Other players in this town:
       </Heading>
       <OrderedList>
-        {sorted
-          .filter(p => p.userName !== userName)
-          .map(player => (
-            <ListItem key={player.id}>
-              <PlayerItem player={player} />
-            </ListItem>
-          ))}
+        {sorted.map(player => (
+          <ListItem key={player.id}>
+            <PlayerItem player={player} />
+          </ListItem>
+        ))}
       </OrderedList>
     </Box>
   );

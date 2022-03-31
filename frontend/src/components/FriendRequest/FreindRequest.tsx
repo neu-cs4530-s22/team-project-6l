@@ -14,10 +14,14 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import useMaybeVideo from '../../hooks/useMaybeVideo';
 
-export default function FriendRequest(): JSX.Element {
+type FreindRequestProps = {
+  username: string;
+};
+export default function FriendRequest({ username }: FreindRequestProps): JSX.Element {
+  const [requestMessage, setRequestMessage] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const video = useMaybeVideo();
   const toast = useToast();
@@ -44,11 +48,11 @@ export default function FriendRequest(): JSX.Element {
   const sendFriendRequest = useCallback(() => {
     // TODO: call backend to send friend request
     toast({
-      title: 'Friend request successfully sent!',
+      title: `Sent friend request to ${username} with message: ${requestMessage}`,
       status: 'success',
     });
     closeFriendRequest();
-  }, [toast, closeFriendRequest]);
+  }, [toast, closeFriendRequest, username, requestMessage]);
 
   return (
     <Box>
@@ -64,7 +68,10 @@ export default function FriendRequest(): JSX.Element {
           <ModalBody>
             <FormControl>
               <FormLabel>Add a message:</FormLabel>
-              <Textarea placeholder='Say something...' />
+              <Textarea
+                placeholder='Say something...'
+                onChange={event => setRequestMessage(event.target.value)}
+              />
             </FormControl>
           </ModalBody>
 
