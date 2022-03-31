@@ -5,6 +5,28 @@ import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
+import { UserInfo } from 'os';
+import { Migration } from '@mikro-orm/migrations';
+import User from '../types/User';
+ export interface userIDOfUser {
+  userID: string;
+}
+
+/**
+ * The format of a request to add a friend based on the username of the friend currently present in the CoveyTown into the friend list
+ */
+export interface FriendAdd {
+  userEmail: string;
+  FriendEmail: string;
+}
+
+/**
+ * The format of a request to remove a friend based on the username of the friend currently present in the CoveyTown out of the friend list
+ */
+export interface FriendRemove {
+  userEmail: string;
+  FriendEmail: string;
+}
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -228,6 +250,102 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onChatMessage(message: ChatMessage){
       socket.emit('chatMessage', message);
     },
+  };
+}
+
+/**
+ * Represents the request handler to, based on the current presence of the username in the list of the current online
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * therefore updating the list of the friends based on the user choice
+ * @param requestData 
+ * @returns 
+ */
+export async function FriendListHandler(
+  requestData: userIDOfUser,
+): ResponseEnvelope<Record<string, null>> {
+  const migrationClient: Migration = await Migration.getInstance();
+  let friendInformation: UserInfo<userIDOfUser>;
+  try {
+  const givenPlayer = await migrationClient.db().collection().find()
+const { playersFriends } = givenPlayer;
+friendInformation = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).find({ email: { $in: friends } }).project({ email: 1, isOnline: 1, location: 1, _id: 0 }).toArray();
+} catch (err) {
+  migrationClient.close();
+return {
+  isOK: false,
+  message: 'User with that email does not exist',
+};
+}
+}
+
+/**
+ * Represents the request handler to, based on the current presence of the username in the list of the current online
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * therefore updating the list of the friends based on the user choice
+ * @param requestData 
+ * @returns 
+ */
+ export async function friendIsAddedHandler(
+  requestData: FriendAdd
+): Promise<ResponseEnvelope<FriendAdd>>  {
+  const migrationClient: User = new User();
+  // Need to do something here to extract the email of the user from the given data
+  const userPlayer = migrationClient.email;
+  // Need to do something here to extract the email of the given friend of the user
+  const friendPlayer = migrationClient.friends.getItems(friend => requestData.FriendEmail === friend.Email);
+  const friendsOfTheUserPlayer = userPlayer;
+
+  // Represents checking if the userID is present in the list of the players so that they can be added as a friend or not
+  const playerIDs = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).distinct('ID');
+  const friendIsPresent = playerIDs.includes(requestData.FriendUserID);
+
+  // Represents the case of checking whether the friend has already been added from before, making the addition of the friend unique
+  const friendToBeAdded =
+    !friendsOfTheUserPlayer.includes(requestData.userEmail) &&
+  friendIsPresent &&
+  requestData.FriendEmail !== requestData.userEmail;
+  // Represents the case of when the user has not been added, then add them
+  if (friendToBeAdded == false) {
+  await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).updateOne({ userIDs: requestData.userID }, { $push: { friendsUserIDs: requestData.FriendUserID } });
+    migrationClient.close();
+  return {
+    isOK: true,
+    response: {
+      userEmail: userPlayer,
+      FriendEmail: friendPlayer
+    },
+    message: 'Friend is succesfully added to your personalized friends list!',
+  };
+}
+migrationClient.close();
+return {
+  isOK: true,
+  response: {
+    userEmail: userPlayer,
+    FriendEmail: friendPlayer
+  },
+  message:
+    'Friend is unable to be added to the list due to not being present in the database or in the covey town',
+};
+}
+
+/**
+ * Represents the request handler to, based on the current presence of the username in the list of the current online
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * therefore updating the list of the friends based on the user choice
+ * @param requestData 
+ * @returns 
+ */
+ export async function friendIsRemovedHandler(
+  requestData: FriendRemove,
+  ): ResponseEnvelope<Record<string, null>> {
+    const migrationClient: Migration = await Migration.getInstance();
+    // Represents removing and pulling the email of the user out of the friend list
+    const userAwaitInformation = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).updateOne({ email: requestData.email }, { $pull: { friends: requestData.friendEmail } });
+    migrationClient.close();
+  return {
+    isOK: true,
+    message: 'Friend with the email' + ${requestData.FriendEmail} + 'is successfully removed',
   };
 }
 
