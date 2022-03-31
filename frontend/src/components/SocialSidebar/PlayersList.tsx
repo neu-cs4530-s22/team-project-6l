@@ -1,9 +1,8 @@
-import { Box, Heading, ListItem, OrderedList, Tooltip } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, ListItem, OrderedList, Text } from '@chakra-ui/react';
 import React from 'react';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import PlayerItem from './PlayerItem';
-
 
 /**
  * Lists the current players in the town, along with the current town's name and ID
@@ -19,25 +18,33 @@ import PlayerItem from './PlayerItem';
  */
 export default function PlayersInTownList(): JSX.Element {
   const players = usePlayersInTown();
-  const { currentTownFriendlyName, currentTownID } = useCoveyAppState();
-  const sorted = players.concat([]);
-  sorted.sort((p1, p2) =>
+  const { userName } = useCoveyAppState();
+  const sorted = [...players].sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
+  const currentPlayer = players.find(p => p.userName === userName);
 
   return (
     <Box>
-      <Tooltip label={`Town ID: ${currentTownID}`}>
-        <Heading as='h2' fontSize='l'>
-          Current town: {currentTownFriendlyName}
-        </Heading>
-      </Tooltip>
+      <Flex>
+        <Center>
+          {/* TODO: Display User Profile */}
+          <Text>You:</Text>
+        </Center>
+        {currentPlayer ? <PlayerItem player={currentPlayer} /> : ''}
+      </Flex>
+
+      <Heading as='h2' fontSize='l'>
+        Other players in this town:
+      </Heading>
       <OrderedList>
-        {sorted.map(player => (
-          <ListItem key={player.id}>
-            <PlayerItem player={player} />
-          </ListItem>
-        ))}
+        {sorted
+          .filter(p => p.userName !== userName)
+          .map(player => (
+            <ListItem key={player.id}>
+              <PlayerItem player={player} />
+            </ListItem>
+          ))}
       </OrderedList>
     </Box>
   );
