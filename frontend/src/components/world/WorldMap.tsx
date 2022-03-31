@@ -299,7 +299,7 @@ class CoveyGameScene extends Phaser.Scene {
         this.lastLocation.rotation = primaryDirection || 'front';
         this.lastLocation.moving = isMoving;
         if (this.currentConversationArea) {
-          if(this.currentConversationArea.conversationArea){
+          if (this.currentConversationArea.conversationArea) {
             this.lastLocation.conversationLabel = this.currentConversationArea.label;
           }
           if (
@@ -514,7 +514,10 @@ class CoveyGameScene extends Phaser.Scene {
         if (conv?.conversationArea) {
           this.infoTextBox?.setVisible(false);
           const localLastLocation = this.lastLocation;
-          if(localLastLocation && localLastLocation.conversationLabel !== conv.conversationArea.label){
+          if (
+            localLastLocation &&
+            localLastLocation.conversationLabel !== conv.conversationArea.label
+          ) {
             localLastLocation.conversationLabel = conv.conversationArea.label;
             this.emitMovement(localLastLocation);
           }
@@ -600,20 +603,15 @@ class CoveyGameScene extends Phaser.Scene {
 
     // Help text that has a "fixed" position on the screen
     this.add
-      .text(
-        16,
-        16,
-        `Arrow keys to move`,
-        {
-          font: '18px monospace',
-          color: '#000000',
-          padding: {
-            x: 20,
-            y: 10,
-          },
-          backgroundColor: '#ffffff',
+      .text(16, 16, `Arrow keys to move`, {
+        font: '18px monospace',
+        color: '#000000',
+        padding: {
+          x: 20,
+          y: 10,
         },
-      )
+        backgroundColor: '#ffffff',
+      })
       .setScrollFactor(0)
       .setDepth(30);
 
@@ -631,7 +629,7 @@ class CoveyGameScene extends Phaser.Scene {
   pause() {
     if (!this.paused) {
       this.paused = true;
-      if(this.player){
+      if (this.player) {
         this.player?.sprite.anims.stop();
         const body = this.player.sprite.body as Phaser.Physics.Arcade.Body;
         body.setVelocity(0);

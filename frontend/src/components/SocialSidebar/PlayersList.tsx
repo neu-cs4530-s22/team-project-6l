@@ -2,7 +2,8 @@ import { Box, Heading, ListItem, OrderedList, Tooltip } from '@chakra-ui/react';
 import React from 'react';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
-import PlayerName from './PlayerName';
+import PlayerItem from './PlayerItem';
+
 
 /**
  * Lists the current players in the town, along with the current town's name and ID
@@ -34,7 +35,7 @@ export default function PlayersInTownList(): JSX.Element {
       <OrderedList>
         {sorted.map(player => (
           <ListItem key={player.id}>
-            <PlayerName player={player} />
+            <PlayerItem player={player} />
           </ListItem>
         ))}
       </OrderedList>

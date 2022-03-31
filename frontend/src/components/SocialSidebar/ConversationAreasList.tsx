@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import ConversationArea, { ConversationAreaListener, NO_TOPIC_STRING } from '../../classes/ConversationArea';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
-import PlayerName from './PlayerName';
+import PlayerItem from './PlayerItem';
 
 type ConversationAreaViewProps = {
   area: ConversationArea;
@@ -36,7 +36,7 @@ function ConversationAreaView({ area }: ConversationAreaViewProps): JSX.Element 
           const player = players.find(eachPlayer => eachPlayer.id === occupant);
           if(!player)
             return <span key={occupant} />;
-          return <ListItem key={occupant}><PlayerName player={player} /></ListItem>
+          return <ListItem key={occupant}><PlayerItem player={player} /></ListItem>
       })}
       </UnorderedList>
     </Box>
