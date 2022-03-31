@@ -1,5 +1,5 @@
-import { Box, Button, Flex} from '@chakra-ui/react';
 import React from 'react';
+import { Box, Button, Flex } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import SSOForm from './SSOForm';
@@ -12,7 +12,6 @@ export default function MainScreen():JSX.Element {
     history.push("/register");
   };
 
-  // TODO: replace those alert and console.log error modal.
   return (
     <div>
       <LoginForm />
@@ -20,14 +19,11 @@ export default function MainScreen():JSX.Element {
         <Box textAlign="center">
           <div>{'Don \'t have an account'}</div>
           <div>
-            <Button variantColor="teal" variant="link" onClick={onRegisterClick}>
-              Register
-            </Button>
+            <Button colorScheme='blue' onClick={onRegisterClick}>Register</Button>
           </div>
         </Box>
       </Flex>
       <SSOForm />
     </div>
-      
   )
 }

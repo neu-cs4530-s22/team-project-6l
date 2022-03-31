@@ -323,23 +323,25 @@ function EmbeddedTwilioAppWrapper() {
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
+    <ChakraProvider>
+            <MuiThemeProvider theme={theme}>
       <Switch>
         <Route exact path="/">
           <MainScreen />
         </Route>
         <Route path="/prejoinscreen">
-          <ChakraProvider>
-            <MuiThemeProvider theme={theme}>
+          
               <AppStateProvider>
                 <EmbeddedTwilioAppWrapper />
               </AppStateProvider>
-            </MuiThemeProvider>
-          </ChakraProvider>
+            
         </Route>
         <Route exact path="/register">
           <Register />
         </Route>
       </Switch>
+      </MuiThemeProvider>
+          </ChakraProvider>
     </BrowserRouter>
   );
 }

@@ -37,7 +37,7 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
-      history.push("/")
+      history.push("/");
     }).catch((error) => {
       alert(error.message);
     });
@@ -56,7 +56,7 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
         <TownSelection doLogin={props.doLogin} />
       <div style={{marginTop: 20}}>
         <Center>
-          <Button colorScheme='blue' variant='outline' onClick={handleSignOut}>Sign out</Button>
+          <Button colorScheme='black' variant='outline' onClick={handleSignOut}>Sign out</Button>
         </Center>
       </div>
     </IntroContainer>
