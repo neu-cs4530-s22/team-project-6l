@@ -6,22 +6,24 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
 import { UserInfo } from 'os';
- export interface userIDOfUser {
-  userID: string;
+ export interface userEmailOfUser {
+  userEmail: string;
 }
 
 /**
  * The format of a request to add a friend based on the username of the friend currently present in the CoveyTown into the friend list
  */
 export interface FriendAdd {
-  userID: string;
+  userEmail: string;
+  friendEmail: string;
 }
 
 /**
  * The format of a request to remove a friend based on the username of the friend currently present in the CoveyTown out of the friend list
  */
 export interface FriendRemove {
-  userID: string;
+  userEmail: string;
+  friendEmail: string;
 }
 
 /**
@@ -257,14 +259,30 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
  * @returns 
  */
 export async function FriendListHandler(
-  requestData: userIDOfUser,
-): Promise<ResponseEnvelope<UserInfo[]>> {
-  const client: Orm = await .getInstance().getMongoClient();
-  let friendStatuses: UserInfo[];
+  requestData: userEmailOfUser,
+):  Promise<ResponseEnvelope<userEmailOfUser[]>> {
+  // Represents fetching the instance of the given data base that we can use to check for adding friends and removing them
+  const migrationClient: Orm = await Orm.getInstance();
+  let allFriendsList: userEmailOfUser[];
   try {
-    const user = await client
+    const player = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).findOne({ email: requestData.email });
+    const { myFriends } = player;
+    allFriendsList = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).find({ email: { $in: myFriends } }).project({ email: 1, isOnline: 1, location: 1, _id: 0 }).toArray();
+  } catch (err) {
+    migrationClient.close();
+    return {
+      isOK: false,
+      message: 'Given user does not exist in the data base with that provided email',
+    };
+  }
+  migrationClient.close();
+  return {
+    isOK: true,
+    // Represents returning a list of all of the friends of the given user
+    response: allFriendsList,
+  };
 }
-}
+
 
 /**
  * Represents the request handler to, based on the current presence of the username in the list of the current online
@@ -275,11 +293,37 @@ export async function FriendListHandler(
  */
  export async function friendIsAddedHandler(
   requestData: FriendAdd,
-): Promise<ResponseEnvelope<UserInfo[]>> {
-  let friendStatuses: UserInfo[];
-  try {
-    const user = await client
-}
+): Promise<ResponseEnvelope<Record<string, null>>> {
+
+  // Represents fetching the instance of the given data base that we can use to check for adding friends and removing them
+  const migrationClient: Orm = await Orm.getInstance();
+  // Represents fetching yourself through your own email
+  const playerUser = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).findOne({ email: requestData.userEmail });
+    // check if the person with this email-id exists in the database
+    const AllPlayersEmails = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).distinct('email');
+  const { yourFriends } = playerUser;
+  // Represents checking if the given friend exists with the user email given
+  const friendPresent = AllPlayersEmails.includes(requestData.friendEmail);
+
+  // Represents if the friend is already a friend
+  const friendToBeAdded =
+    !yourFriends.includes(requestData.friendEmail) &&
+    friendPresent && requestData.friendEmail !== requestData.userEmail;
+  if (friendToBeAdded) {
+    await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).updateOne({ email: requestData.userEmail }, { $push: { yourFriends: requestData.friendEmail } });
+      migrationClient.close();
+    return {
+      isOK: true,
+      response: {},
+      message: 'Friend is successfully added to your list of friends',
+    };
+  }
+  migrationClient.close();
+  return {
+    isOK: true,
+    response: {},
+    message: 'Friend cannot added to your list of friends',
+  };
 }
 
 /**
@@ -291,12 +335,15 @@ export async function FriendListHandler(
  */
  export async function friendIsRemovedHandler(
   requestData: FriendRemove,
-): Promise<ResponseEnvelope<UserInfo[]>> {
-  const client: MongoClient = await MongoClientFactory.getInstance().getMongoClient();
-  let friendStatuses: UserInfo[];
-  try {
-    const user = await client
-}
+):Promise<ResponseEnvelope<Record<string, null>>> {
+ // Represents fetching the instance of the given data base that we can use to check for adding friends and removing them
+ const migrationClient: Orm = await Orm.getInstance();
+  await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).updateOne({ email: requestData.userEmail }, { $pull: { friends: requestData.friendEmail } });
+  migrationClient.close();
+  return {
+    isOK: true,
+    message: 'Friend is succesfully removed.',
+  };
 }
 
 /**
