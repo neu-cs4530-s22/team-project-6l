@@ -1,4 +1,4 @@
-import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
+import { Box, Heading, ListItem, Text, UnorderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import ConversationArea, {
   ConversationAreaListener,
@@ -32,11 +32,11 @@ function ConversationAreaView({ area }: ConversationAreaViewProps): JSX.Element 
   }, [setOccupants, area]);
 
   return (
-    <Box>
+    <Box my={1}>
       <Heading as='h3' fontSize='m'>
         {area.label}: {area.topic}
       </Heading>
-      <UnorderedList>
+      <UnorderedList my={1}>
         {occupants.map(occupant => {
           const player = players.find(eachPlayer => eachPlayer.id === occupant);
           if (!player) return <span key={occupant} />;
@@ -69,7 +69,7 @@ export default function ConversationAreasList(): JSX.Element {
         Active Conversation Areas:
       </Heading>
       {activeConversationAreas.length === 0 ? (
-        <>No active conversation areas</>
+        <Text my={1}>No active conversation areas</Text>
       ) : (
         activeConversationAreas
           .sort((a1, a2) =>

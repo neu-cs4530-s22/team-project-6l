@@ -18,8 +18,8 @@ import PlayerName from './PlayerName';
  *
  */
 export default function PlayersInTownList(): JSX.Element {
-  const players = usePlayersInTown();
   const { userName } = useCoveyAppState();
+  const players = usePlayersInTown();
   const currentPlayer = players.find(p => p.userName === userName);
   const sorted = players.filter(p => p.userName !== userName);
   sorted.sort((p1, p2) =>
@@ -28,10 +28,10 @@ export default function PlayersInTownList(): JSX.Element {
 
   return (
     <Box>
-      <Flex pt={1} pb={2} pe={2}>
+      <Flex mt={1} mb={2} me={2}>
         <Center>
           {/* TODO: Display User Profile */}
-          <Text pe={2}>You:</Text>
+          <Text me={2}>You:</Text>
         </Center>
         {currentPlayer ? <PlayerName player={currentPlayer} /> : ''}
       </Flex>
@@ -39,13 +39,17 @@ export default function PlayersInTownList(): JSX.Element {
       <Heading as='h2' fontSize='l'>
         Other players in this town:
       </Heading>
-      <OrderedList>
-        {sorted.map(player => (
-          <ListItem key={player.id}>
-            <PlayerItem player={player} />
-          </ListItem>
-        ))}
-      </OrderedList>
+      {sorted.length === 0 ? (
+        <Text my={1}>No other players in town</Text>
+      ) : (
+        <OrderedList>
+          {sorted.map(player => (
+            <ListItem key={player.id}>
+              <PlayerItem player={player} />
+            </ListItem>
+          ))}
+        </OrderedList>
+      )}
     </Box>
   );
 }
