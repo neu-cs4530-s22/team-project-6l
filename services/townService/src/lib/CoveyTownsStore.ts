@@ -1,5 +1,7 @@
 import CoveyTownController from './CoveyTownController';
 import { CoveyTownList } from '../CoveyTypes';
+import { Connection, IDatabaseDriver, MikroORM } from '@mikro-orm/core';
+
 
 function passwordMatches(provided: string, expected: string): boolean {
   if (provided === expected) {
@@ -13,8 +15,17 @@ function passwordMatches(provided: string, expected: string): boolean {
 
 export default class CoveyTownsStore {
   private static _instance: CoveyTownsStore;
+  private static _db: MikroORM<IDatabaseDriver<Connection>>;
 
   private _towns: CoveyTownController[] = [];
+
+  static attachDatabase(db: MikroORM<IDatabaseDriver<Connection>>): CoveyTownsStore {
+    if (CoveyTownsStore._db === undefined) {
+      CoveyTownsStore._db = db;
+    }
+
+    return CoveyTownsStore._instance;
+  }
 
   /**
    * Retrieve the singleton CoveyTownsStore.
@@ -25,6 +36,7 @@ export default class CoveyTownsStore {
     if (CoveyTownsStore._instance === undefined) {
       CoveyTownsStore._instance = new CoveyTownsStore();
     }
+
     return CoveyTownsStore._instance;
   }
 
