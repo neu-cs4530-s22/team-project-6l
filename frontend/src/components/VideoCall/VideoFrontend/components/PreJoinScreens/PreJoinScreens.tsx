@@ -9,6 +9,7 @@ import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import { Heading, Text } from '@chakra-ui/react';
 import TownSelection from '../../../../Login/TownSelection';
+import { RegisterUserScreen } from './RegisterUserScreen/RegisterUserScreen';
 
 export enum Steps {
   roomNameStep,
@@ -42,8 +43,9 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
         To get started, setup your camera and microphone, choose a username, and then create a new town
         to hang out in, or join an existing one.
       </Text>
-        <DeviceSelectionScreen />
-        <TownSelection doLogin={props.doLogin} />
+      <RegisterUserScreen email="test@gmail.com" />
+      <DeviceSelectionScreen />
+      <TownSelection doLogin={props.doLogin} />
     </IntroContainer>
   );
 }
