@@ -1,12 +1,11 @@
 import React from 'react';
 import {
-  Flex,
   Box,
-  Heading,
   FormControl,
   FormLabel,
   Input,
   Button,
+  Text,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -37,27 +36,24 @@ export default function LoginForm() {
   }
 
   return (
-    <Flex width="full" align="center" justifyContent="center">
-      <Box>
-        <Box textAlign="center">
-          <Heading>Convey Town</Heading>
-        </Box>
-        <Box textAlign="left">
-          <FormControl>
-            <FormLabel>Email</FormLabel>
-            <Input id="login-email" type="email" onChange={(event) => setEmail(event.target.value)} />
-          </FormControl>
+    <Box>
+      <Box textAlign="left" w="400px">
+        <FormControl>
+          <FormLabel>Email</FormLabel>
+          <Input id="login-email" type="email"  onChange={(event) => setEmail(event.target.value)} />
+        </FormControl>
 
-          <FormControl>
-            <FormLabel>Password</FormLabel>
-            <Input id="login-password" type="password" onChange={(event) => setPassword(event.target.value)} />
-          </FormControl>
+        <FormControl>
+          <FormLabel>Password</FormLabel>
+          <Input id="login-password" type="password" onChange={(event) => setPassword(event.target.value)} />
+        </FormControl>
 
-          <Button width="full" mt={4} type="submit" onClick={e => onLoginClick(e)}>
-            Log In
-          </Button>
-        </Box>
+        <Text fontSize='sm' color="blue.500" fontWeight="semibold" marginTop="1">Forget Password?</Text>
+
+        <Button width="full" mt={4} type="submit" onClick={e => onLoginClick(e)}>
+          Log In
+        </Button>
       </Box>
-    </Flex>
+    </Box>
   );
 }

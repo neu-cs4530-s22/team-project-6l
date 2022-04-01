@@ -31,17 +31,13 @@ export default function SSOForm() {
   }
 
   return (
-    <div>
-      <Flex width="full" align="center" justifyContent="center">
+      <Flex width="full" align="center" justifyContent="center" flexDirection="column">
         <Button variantColor="teal" variant="link" onClick={() => provdierSignIn('Google')}>
           Sign in with Google
         </Button>
-      </Flex>
-      <Flex width="full" align="center" justifyContent="center">
         <Button variantColor="teal" variant="link" onClick={() => provdierSignIn('Facebook')}>
           Sign in with Facebook
         </Button>
       </Flex>
-    </div>
   )
 }

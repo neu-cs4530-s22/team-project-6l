@@ -335,7 +335,7 @@ export default function AppStateWrapper(): JSX.Element {
         <MuiThemeProvider theme={theme}>
           <Switch>
             <Route exact path="/">
-              <MainScreen />tfg
+              <MainScreen />
             </Route>
             <Route path="/prejoinscreen">
               <AppStateProvider>
