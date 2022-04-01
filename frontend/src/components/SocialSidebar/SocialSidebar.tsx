@@ -1,6 +1,7 @@
 import { Heading, StackDivider, Tooltip, VStack } from '@chakra-ui/react';
 import React from 'react';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+import TownJoinInvite from '../TownJoinInvite/TownJoinInvite';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
 
@@ -24,6 +25,7 @@ export default function SocialSidebar(): JSX.Element {
       </Tooltip>
       <PlayersList />
       <ConversationAreasList />
+      <TownJoinInvite />
     </VStack>
   );
 }

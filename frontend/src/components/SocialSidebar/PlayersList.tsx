@@ -18,10 +18,10 @@ import PlayerName from './PlayerName';
  *
  */
 export default function PlayersInTownList(): JSX.Element {
-  const { userName } = useCoveyAppState();
+  const { myPlayerID } = useCoveyAppState();
   const players = usePlayersInTown();
-  const currentPlayer = players.find(p => p.userName === userName);
-  const sorted = players.filter(p => p.userName !== userName);
+  const currentPlayer = players.find(p => p.id === myPlayerID);
+  const sorted = players.filter(p => p.id !== myPlayerID);
   sorted.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );

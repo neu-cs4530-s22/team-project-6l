@@ -33,6 +33,7 @@ import VideoOverlay from './components/VideoCall/VideoOverlay/VideoOverlay';
 import WorldMap from './components/world/WorldMap';
 import ConversationAreasContext from './contexts/ConversationAreasContext';
 import CoveyAppContext from './contexts/CoveyAppContext';
+import CurrentPlayerContext from './contexts/CurrentPlayerContext';
 import NearbyPlayersContext from './contexts/NearbyPlayersContext';
 import PlayerMovementContext, { PlayerMovementCallback } from './contexts/PlayerMovementContext';
 import PlayersInTownContext from './contexts/PlayersInTownContext';
@@ -43,18 +44,18 @@ export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
 type CoveyAppUpdate =
   | {
-    action: 'doConnect';
-    data: {
-      userName: string;
-      townFriendlyName: string;
-      townID: string;
-      townIsPubliclyListed: boolean;
-      sessionToken: string;
-      myPlayerID: string;
-      socket: Socket;
-      emitMovement: (location: UserLocation) => void;
-    };
-  }
+      action: 'doConnect';
+      data: {
+        userName: string;
+        townFriendlyName: string;
+        townID: string;
+        townIsPubliclyListed: boolean;
+        sessionToken: string;
+        myPlayerID: string;
+        socket: Socket;
+        emitMovement: (location: UserLocation) => void;
+      };
+    }
   | { action: 'disconnect' };
 
 function defaultAppState(): CoveyAppState {
@@ -66,7 +67,7 @@ function defaultAppState(): CoveyAppState {
     sessionToken: '',
     userName: '',
     socket: null,
-    emitMovement: () => { },
+    emitMovement: () => {},
     apiClient: new TownsServiceClient(),
   };
 }
@@ -291,6 +292,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     );
   }, [setupGameController, appState.sessionToken, videoInstance]);
 
+  const currentPlayer = playersInTown.find(player => player.id === appState.myPlayerID);
   return (
     <CoveyAppContext.Provider value={appState}>
       <VideoContext.Provider value={Video.instance()}>
@@ -298,9 +300,12 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           <PlayerMovementContext.Provider value={playerMovementCallbacks}>
             <PlayersInTownContext.Provider value={playersInTown}>
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
-                <ConversationAreasContext.Provider value={conversationAreas}>
-                  {page}
-                </ConversationAreasContext.Provider>
+                <CurrentPlayerContext.Provider
+                  value={currentPlayer !== undefined ? currentPlayer : null}>
+                  <ConversationAreasContext.Provider value={conversationAreas}>
+                    {page}
+                  </ConversationAreasContext.Provider>
+                </CurrentPlayerContext.Provider>
               </NearbyPlayersContext.Provider>
             </PlayersInTownContext.Provider>
           </PlayerMovementContext.Provider>
@@ -325,29 +330,32 @@ function EmbeddedTwilioAppWrapper() {
 }
 
 const gqlClient = createClient({
-  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`
+  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`,
 });
 
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <ChakraProvider>
-        <MuiThemeProvider theme={theme}>
-          <Switch>
-            <Route exact path="/">
-              <MainScreen />tfg
-            </Route>
-            <Route path="/prejoinscreen">
-              <AppStateProvider>
-                <EmbeddedTwilioAppWrapper />
-              </AppStateProvider>
-            </Route>
-            <Route exact path="/register">
-              <Register />
-            </Route>
-          </Switch>
-        </MuiThemeProvider>
-      </ChakraProvider>
+      <Provider value={gqlClient}>
+        <ChakraProvider>
+          <MuiThemeProvider theme={theme}>
+            <Switch>
+              <Route exact path='/'>
+                <MainScreen />
+                tfg
+              </Route>
+              <Route path='/prejoinscreen'>
+                <AppStateProvider>
+                  <EmbeddedTwilioAppWrapper />
+                </AppStateProvider>
+              </Route>
+              <Route exact path='/register'>
+                <Register />
+              </Route>
+            </Switch>
+          </MuiThemeProvider>
+        </ChakraProvider>
+      </Provider>
     </BrowserRouter>
   );
 }
