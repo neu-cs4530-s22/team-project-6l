@@ -22,7 +22,7 @@ export default function SSOForm() {
     signInWithPopup(auth, provider).then((userCredential) => {
       const user2 = userCredential.user;
       console.log(user2);
-      history.push("/prejoinscreen");
+      history.push("/pre-join-screen");
     }).catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;

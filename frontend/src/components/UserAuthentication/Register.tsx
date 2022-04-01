@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  Flex,
+  Text,
   Box,
-  Heading,
   FormControl,
   FormLabel,
   Input,
   Button,
+  Flex,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -19,7 +19,8 @@ export default function Register() {
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
 
-  const onLogInClick = ((event: React.MouseEvent) => {
+
+  const onSignInClick = ((event: React.MouseEvent) => {
     event.preventDefault();
     history.push("/");
   });
@@ -38,40 +39,51 @@ export default function Register() {
   }
 
   return (
-    <Flex width="full" align="center" justifyContent="center">
-      <Box>
-        <Box textAlign="center">
-          <Heading>Register</Heading>
-        </Box>
-        <Box textAlign="left">
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+    >
+      <Box
+        textAlign="left"
+        w="400px" maxW='lg'
+        backgroundColor="white"
+        borderRadius='lg'
+        paddingTop="6"
+        paddingBottom="6"
+        paddingLeft="8"
+        paddingRight="8"
+        shadow="0 0 0 2px rgba(0, 0, 0, 0.2)"
+      >
+        <Text fontSize='2xl' fontWeight="semibold">Sign up</Text>
+        <Box textAlign="left" marginTop="2">
           <FormControl>
             <FormLabel>Email</FormLabel>
-            <Input id="reg-email" type="email" onChange={(event) => setEmail(event.target.value)} />
+            <Input id="reg-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
           </FormControl>
 
           <FormControl>
             <FormLabel>Password</FormLabel>
-            <Input id="reg-password" type="password" onChange={(event) => setPassword(event.target.value)} />
+            <Input id="reg-password" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
           </FormControl>
 
           <FormControl>
             <FormLabel>Confirm Password</FormLabel>
-            <Input id="reg-confirmpassword" type="password" onChange={(event) => setConfirmPassword(event.target.value)} />
+            <Input id="reg-confirmpassword" type="password" placeholder="ConfirmPassword" onChange={(event) => setConfirmPassword(event.target.value)} />
           </FormControl>
 
-          <Button width="full" mt={4} type="submit" onClick={e => onRegisterClick(e)}>
+          <Button width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onRegisterClick(e)}>
             Register
           </Button>
         </Box>
-        <Box textAlign="center">
-          <div>{'Already have an account? '}</div>
-          <div>
-            <Button variantColor="teal" variant="link" onClick={onLogInClick}>
-              Log in
-            </Button>
-          </div>
-        </Box>
       </Box>
-    </Flex>
+      <Flex width="full" justifyContent="center" align="center" paddingTop="6">
+        <Text fontSize='sm' fontWeight="semibold">Already have an account?</Text>
+        <Button fontSize='sm' marginLeft='1' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onSignInClick(e)}>Sign in</Button>
+      </Flex>
+    </div>
   );
 }

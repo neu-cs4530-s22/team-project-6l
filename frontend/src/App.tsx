@@ -337,7 +337,7 @@ export default function AppStateWrapper(): JSX.Element {
             <Route exact path="/">
               <MainScreen />
             </Route>
-            <Route path="/prejoinscreen">
+            <Route path="/pre-join-screen">
               <AppStateProvider>
                 <EmbeddedTwilioAppWrapper />
               </AppStateProvider>
