@@ -36,24 +36,19 @@ export default function LoginForm() {
   }
 
   return (
-    <Box>
-      <Box textAlign="left" w="400px">
+      <Box textAlign="left" w="400px" marginBottom="2">
         <FormControl>
           <FormLabel>Email</FormLabel>
-          <Input id="login-email" type="email"  onChange={(event) => setEmail(event.target.value)} />
+          <Input id="login-email" type="email" placeholder="Enter your email" onChange={(event) => setEmail(event.target.value)} />
         </FormControl>
-
         <FormControl>
           <FormLabel>Password</FormLabel>
-          <Input id="login-password" type="password" onChange={(event) => setPassword(event.target.value)} />
+          <Input id="login-password" type="password" placeholder="Enter your password" onChange={(event) => setPassword(event.target.value)} />
         </FormControl>
-
-        <Text fontSize='sm' color="blue.500" fontWeight="semibold" marginTop="1">Forget Password?</Text>
-
-        <Button width="full" mt={4} type="submit" onClick={e => onLoginClick(e)}>
+        <Button fontSize='sm' color="blue.500" fontWeight="semibold" variant="link">Forget Password?</Button>
+        <Button width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onLoginClick(e)}>
           Log In
         </Button>
       </Box>
-    </Box>
   );
 }

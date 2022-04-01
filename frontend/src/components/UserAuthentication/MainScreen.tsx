@@ -23,7 +23,7 @@ export default function MainScreen(): JSX.Element {
       }}
     >
       <Box maxW='lg' backgroundColor="white" borderRadius='lg' paddingTop="6" paddingBottom="6" paddingLeft="8" paddingRight="8" shadow="0 0 0 2px rgba(0, 0, 0, 0.2)">
-        <Text fontSize='xl' fontWeight="semibold">Sign In</Text>
+        <Text fontSize='2xl' fontWeight="semibold">Sign In</Text>
         <Text fontSize='sm' fontWeight="semibold" marginBottom="2">Join Covey Town and make friends</Text>
         <LoginForm />
         <DividerWithText>or</DividerWithText>
