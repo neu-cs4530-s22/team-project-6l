@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import { createClient, Provider } from 'urql';
 import './App.css';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
@@ -319,6 +320,10 @@ function EmbeddedTwilioAppWrapper() {
     </UnsupportedBrowserWarning>
   );
 }
+
+const gqlClient = createClient({
+  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`
+});
 
 export default function AppStateWrapper(): JSX.Element {
   return (
