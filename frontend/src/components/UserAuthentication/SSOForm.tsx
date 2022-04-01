@@ -2,7 +2,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Flex } from '@chakra-ui/react';
 import { AuthProvider, FacebookAuthProvider, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import auth from '../../firebase/firebase-config';
+import auth from '../../firebaseAuth/firebase-config';
 
 export default function SSOForm() {
   const history = useHistory();

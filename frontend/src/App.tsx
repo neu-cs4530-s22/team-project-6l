@@ -1,6 +1,8 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
+import MainScreen from 'components/UserAuthentication/MainScreen';
+import Register from 'components/UserAuthentication/Register';
 import React, {
   Dispatch,
   SetStateAction,
@@ -19,8 +21,6 @@ import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import Login from './components/Login/Login';
-import MainScreen from './components/UserAuthentication/MainScreen';
-import Register from './components/UserAuthentication/Register';
 import { ChatProvider } from './components/VideoCall/VideoFrontend/components/ChatProvider';
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import UnsupportedBrowserWarning from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
@@ -34,6 +34,7 @@ import WorldMap from './components/world/WorldMap';
 import ConversationAreasContext from './contexts/ConversationAreasContext';
 import CoveyAppContext from './contexts/CoveyAppContext';
 import NearbyPlayersContext from './contexts/NearbyPlayersContext';
+import { UserProvider } from './contexts/UserContext';
 import PlayerMovementContext, { PlayerMovementCallback } from './contexts/PlayerMovementContext';
 import PlayersInTownContext from './contexts/PlayersInTownContext';
 import VideoContext from './contexts/VideoContext';
@@ -57,6 +58,8 @@ type CoveyAppUpdate =
   }
   | { action: 'disconnect' };
 
+
+
 function defaultAppState(): CoveyAppState {
   return {
     myPlayerID: '',
@@ -70,6 +73,8 @@ function defaultAppState(): CoveyAppState {
     apiClient: new TownsServiceClient(),
   };
 }
+
+
 function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyAppState {
   const nextState = {
     sessionToken: state.sessionToken,
@@ -292,21 +297,23 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
   }, [setupGameController, appState.sessionToken, videoInstance]);
 
   return (
-    <CoveyAppContext.Provider value={appState}>
-      <VideoContext.Provider value={Video.instance()}>
-        <ChatProvider>
-          <PlayerMovementContext.Provider value={playerMovementCallbacks}>
-            <PlayersInTownContext.Provider value={playersInTown}>
-              <NearbyPlayersContext.Provider value={nearbyPlayers}>
-                <ConversationAreasContext.Provider value={conversationAreas}>
-                  {page}
-                </ConversationAreasContext.Provider>
-              </NearbyPlayersContext.Provider>
-            </PlayersInTownContext.Provider>
-          </PlayerMovementContext.Provider>
-        </ChatProvider>
-      </VideoContext.Provider>
-    </CoveyAppContext.Provider>
+    <UserProvider>
+      <CoveyAppContext.Provider value={appState}>
+        <VideoContext.Provider value={Video.instance()}>
+          <ChatProvider>
+            <PlayerMovementContext.Provider value={playerMovementCallbacks}>
+              <PlayersInTownContext.Provider value={playersInTown}>
+                <NearbyPlayersContext.Provider value={nearbyPlayers}>
+                  <ConversationAreasContext.Provider value={conversationAreas}>
+                    {page}
+                  </ConversationAreasContext.Provider>
+                </NearbyPlayersContext.Provider>
+              </PlayersInTownContext.Provider>
+            </PlayerMovementContext.Provider>
+          </ChatProvider>
+        </VideoContext.Provider>
+      </CoveyAppContext.Provider>
+    </UserProvider>
   );
 }
 
@@ -331,23 +338,25 @@ const gqlClient = createClient({
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <ChakraProvider>
-        <MuiThemeProvider theme={theme}>
-          <Switch>
-            <Route exact path="/">
-              <MainScreen />tfg
-            </Route>
-            <Route path="/prejoinscreen">
-              <AppStateProvider>
-                <EmbeddedTwilioAppWrapper />
-              </AppStateProvider>
-            </Route>
-            <Route exact path="/register">
-              <Register />
-            </Route>
-          </Switch>
-        </MuiThemeProvider>
-      </ChakraProvider>
-    </BrowserRouter>
+      <Provider value={gqlClient}>
+        <ChakraProvider>
+          <MuiThemeProvider theme={theme}>
+            <AppStateProvider>
+              <Switch>
+                <Route exact path="/">
+                  <MainScreen />
+                </Route>
+                <Route path="/prejoinscreen">
+                  <EmbeddedTwilioAppWrapper />
+                </Route>
+                <Route exact path="/register">
+                  <Register />
+                </Route>
+              </Switch>
+            </AppStateProvider>
+          </MuiThemeProvider>
+        </ChakraProvider>
+      </Provider>
+    </BrowserRouter >
   );
 }

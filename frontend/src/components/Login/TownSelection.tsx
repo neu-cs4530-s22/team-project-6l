@@ -19,6 +19,7 @@ import {
   Tr,
   useToast
 } from '@chakra-ui/react';
+import useUserAccount from 'hooks/useUserAccount';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import Video from '../../classes/Video/Video';
 import { CoveyTownInfo, TownJoinResponse, } from '../../classes/TownsServiceClient';
@@ -29,7 +30,8 @@ interface TownSelectionProps {
 }
 
 export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Element {
-  const [userName, setUserName] = useState<string>(Video.instance()?.userName || '');
+  const { userState, userDispatch } = useUserAccount();
+  const [userName, setUserName] = useState<string>(userState.displayName);
   const [newTownName, setNewTownName] = useState<string>('');
   const [newTownIsPublic, setNewTownIsPublic] = useState<boolean>(true);
   const [townIDToJoin, setTownIDToJoin] = useState<string>('');
@@ -83,7 +85,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
-        description: err.toString(),
+        description: (err instanceof Error ? err : ""),
         status: 'error'
       })
     }
@@ -120,7 +122,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       toast({
         title: `Town ${newTownName} is ready to go!`,
         description: <>{privateMessage}Please record these values in case you need to change the
-          town:<br/>Town ID: {newTownInfo.coveyTownID}<br/>Town Editing
+          town:<br />Town ID: {newTownInfo.coveyTownID}<br />Town Editing
           Password: {newTownInfo.coveyTownPassword}</>,
         status: 'success',
         isClosable: true,
@@ -130,24 +132,25 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
-        description: err.toString(),
+        description: (err instanceof Error ? err : "").toString(),
         status: 'error'
       })
     }
   };
+
+
 
   return (
     <>
       <form>
         <Stack>
           <Box p="4" borderWidth="1px" borderRadius="lg">
-            <Heading as="h2" size="lg">Select a username</Heading>
-
+            <Heading as="h2" size="lg">Display Name</Heading>
             <FormControl>
               <FormLabel htmlFor="name">Name</FormLabel>
-              <Input autoFocus name="name" placeholder="Your name"
-                     value={userName}
-                     onChange={event => setUserName(event.target.value)}
+              <Input name="name"
+                value={userState.displayName}
+                isReadOnly
               />
             </FormControl>
           </Box>
@@ -157,20 +160,20 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
               <Box flex="1">
                 <FormControl>
                   <FormLabel htmlFor="townName">New Town Name</FormLabel>
-                  <Input name="townName" placeholder="New Town Name"
-                         value={newTownName}
-                         onChange={event => setNewTownName(event.target.value)}
+                  <Input autoFocus name="townName" placeholder="New Town Name"
+                    value={newTownName}
+                    onChange={event => setNewTownName(event.target.value)}
                   />
                 </FormControl>
               </Box><Box>
-              <FormControl>
-                <FormLabel htmlFor="isPublic">Publicly Listed</FormLabel>
-                <Checkbox id="isPublic" name="isPublic" isChecked={newTownIsPublic}
-                          onChange={(e) => {
-                            setNewTownIsPublic(e.target.checked)
-                          }}/>
-              </FormControl>
-            </Box>
+                <FormControl>
+                  <FormLabel htmlFor="isPublic">Publicly Listed</FormLabel>
+                  <Checkbox id="isPublic" name="isPublic" isChecked={newTownIsPublic}
+                    onChange={(e) => {
+                      setNewTownIsPublic(e.target.checked)
+                    }} />
+                </FormControl>
+              </Box>
               <Box>
                 <Button data-testid="newTownButton" onClick={handleCreate}>Create</Button>
               </Box>
@@ -184,11 +187,11 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
               <Flex p="4"><FormControl>
                 <FormLabel htmlFor="townIDToJoin">Town ID</FormLabel>
                 <Input name="townIDToJoin" placeholder="ID of town to join, or select from list"
-                       value={townIDToJoin}
-                       onChange={event => setTownIDToJoin(event.target.value)}/>
+                  value={townIDToJoin}
+                  onChange={event => setTownIDToJoin(event.target.value)} />
               </FormControl>
                 <Button data-testid='joinTownByIDButton'
-                        onClick={() => handleJoin(townIDToJoin)}>Connect</Button>
+                  onClick={() => handleJoin(townIDToJoin)}>Connect</Button>
               </Flex>
 
             </Box>
@@ -204,7 +207,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                       role='cell'>{town.coveyTownID}</Td>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
                         <Button onClick={() => handleJoin(town.coveyTownID)}
-                                disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
+                          disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
                   ))}
                 </Tbody>
               </Table>

@@ -2,16 +2,15 @@ import React, { useState, useEffect, FormEvent } from 'react';
 import DeviceSelectionScreen from './DeviceSelectionScreen/DeviceSelectionScreen';
 import IntroContainer from '../IntroContainer/IntroContainer';
 import MediaErrorSnackbar from './MediaErrorSnackbar/MediaErrorSnackbar';
-import RoomNameScreen from './RoomNameScreen/RoomNameScreen';
-import { useAppState } from '../../state';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import { Button, Center, Heading, Text } from '@chakra-ui/react';
 import TownSelection from '../../../../Login/TownSelection';
 import { signOut } from 'firebase/auth';
-import auth from '../../../../../firebase/firebase-config';
-import { RegisterUserScreen } from './RegisterUserScreen/RegisterUserScreen';
+import auth from '../../../../../firebaseAuth/firebase-config';
+import RegisterUserScreen from './RegisterUserScreen/RegisterUserScreen';
+import useUserAccount from 'hooks/useUserAccount';
 
 export enum Steps {
   roomNameStep,
@@ -19,11 +18,11 @@ export enum Steps {
 }
 
 export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean> }) {
-  const { user } = useAppState();
   const history = useHistory();
   const { getAudioAndVideoTracks } = useVideoContext();
 
   const [mediaError, setMediaError] = useState<Error>();
+  const { userState } = useUserAccount();
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -53,14 +52,14 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
 
   return (
     <IntroContainer>
+      <RegisterUserScreen />
       <MediaErrorSnackbar error={mediaError} />
-      <Heading as="h2" size="xl">Welcome to Covey.Town!</Heading>
+      <Heading as="h2" size="xl">Welcome to Covey.Town, {userState.displayName.toUpperCase()}!</Heading>
       <Text p="4">
         Covey.Town is a social platform that integrates a 2D game-like metaphor with video chat.
         To get started, setup your camera and microphone, choose a username, and then create a new town
         to hang out in, or join an existing one.
       </Text>
-      <RegisterUserScreen email="test@gmail.com" />
       <DeviceSelectionScreen />
       <TownSelection doLogin={props.doLogin} />
       <div style={{ marginTop: 20 }}>
