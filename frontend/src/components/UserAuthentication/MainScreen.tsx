@@ -4,10 +4,10 @@ import { useHistory } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import SSOForm from './SSOForm';
 
-export default function MainScreen():JSX.Element {
+export default function MainScreen(): JSX.Element {
   const history = useHistory();
-  
-  const onRegisterClick = (event:React.MouseEvent) => {
+
+  const onRegisterClick = (event: React.MouseEvent) => {
     event.preventDefault();
     history.push("/register");
   };

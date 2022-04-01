@@ -9,7 +9,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
-import {signInWithEmailAndPassword} from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import auth from '../../firebase/firebase-config';
 
 export default function LoginForm() {
@@ -23,10 +23,11 @@ export default function LoginForm() {
       history.push("/prejoinscreen");
     } catch (err) {
       alert(err.message);
+
     }
   };
 
-  const onLoginClick = (event:React.MouseEvent) => {
+  const onLoginClick = (event: React.MouseEvent) => {
     if (!email && !password) {
       alert('Do something');
       return;
@@ -44,12 +45,12 @@ export default function LoginForm() {
         <Box textAlign="left">
           <FormControl>
             <FormLabel>Email</FormLabel>
-            <Input id="login-email" type="email" onChange={(event) => setEmail(event.target.value)}/>
+            <Input id="login-email" type="email" onChange={(event) => setEmail(event.target.value)} />
           </FormControl>
 
           <FormControl>
             <FormLabel>Password</FormLabel>
-            <Input id="login-password" type="password" onChange={(event) => setPassword(event.target.value)}/>
+            <Input id="login-password" type="password" onChange={(event) => setPassword(event.target.value)} />
           </FormControl>
 
           <Button width="full" mt={4} type="submit" onClick={e => onLoginClick(e)}>

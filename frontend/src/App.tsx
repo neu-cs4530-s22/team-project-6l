@@ -42,18 +42,18 @@ export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
 type CoveyAppUpdate =
   | {
-      action: 'doConnect';
-      data: {
-        userName: string;
-        townFriendlyName: string;
-        townID: string;
-        townIsPubliclyListed: boolean;
-        sessionToken: string;
-        myPlayerID: string;
-        socket: Socket;
-        emitMovement: (location: UserLocation) => void;
-      };
-    }
+    action: 'doConnect';
+    data: {
+      userName: string;
+      townFriendlyName: string;
+      townID: string;
+      townIsPubliclyListed: boolean;
+      sessionToken: string;
+      myPlayerID: string;
+      socket: Socket;
+      emitMovement: (location: UserLocation) => void;
+    };
+  }
   | { action: 'disconnect' };
 
 function defaultAppState(): CoveyAppState {
@@ -65,7 +65,7 @@ function defaultAppState(): CoveyAppState {
     sessionToken: '',
     userName: '',
     socket: null,
-    emitMovement: () => {},
+    emitMovement: () => { },
     apiClient: new TownsServiceClient(),
   };
 }
@@ -229,7 +229,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
-        if(existingArea){
+        if (existingArea) {
           existingArea.topic = undefined;
           existingArea.occupants = [];
         }
@@ -323,25 +323,23 @@ function EmbeddedTwilioAppWrapper() {
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-    <ChakraProvider>
-            <MuiThemeProvider theme={theme}>
-      <Switch>
-        <Route exact path="/">
-          <MainScreen />
-        </Route>
-        <Route path="/prejoinscreen">
-          
+      <ChakraProvider>
+        <MuiThemeProvider theme={theme}>
+          <Switch>
+            <Route exact path="/">
+              <MainScreen />tfg
+            </Route>
+            <Route path="/prejoinscreen">
               <AppStateProvider>
                 <EmbeddedTwilioAppWrapper />
               </AppStateProvider>
-            
-        </Route>
-        <Route exact path="/register">
-          <Register />
-        </Route>
-      </Switch>
-      </MuiThemeProvider>
-          </ChakraProvider>
+            </Route>
+            <Route exact path="/register">
+              <Register />
+            </Route>
+          </Switch>
+        </MuiThemeProvider>
+      </ChakraProvider>
     </BrowserRouter>
   );
 }
