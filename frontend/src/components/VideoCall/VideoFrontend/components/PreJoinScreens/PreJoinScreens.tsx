@@ -24,6 +24,13 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
 
   const [mediaError, setMediaError] = useState<Error>();
 
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        history.push("/");
+      }
+    })
+  })
 
   useEffect(() => {
     if (!mediaError) {
