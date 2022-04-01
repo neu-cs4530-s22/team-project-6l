@@ -18,14 +18,16 @@ export default function SocialSidebar(): JSX.Element {
       height='100%'
       divider={<StackDivider borderColor='gray.200' />}
       borderRadius='4px'>
-      <Tooltip label={`Town ID: ${currentTownID}`}>
-        <Heading fontSize='xl' as='h1'>
-          Current town: {currentTownFriendlyName}
-        </Heading>
-      </Tooltip>
+      <VStack align='left' spacing={2}>
+        <Tooltip label={`Town ID: ${currentTownID}`}>
+          <Heading fontSize='xl' as='h1'>
+            Current town: {currentTownFriendlyName}
+          </Heading>
+        </Tooltip>
+        <TownJoinInvite />
+      </VStack>
       <PlayersList />
       <ConversationAreasList />
-      <TownJoinInvite />
     </VStack>
   );
 }

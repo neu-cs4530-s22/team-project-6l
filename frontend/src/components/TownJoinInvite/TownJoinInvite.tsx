@@ -22,7 +22,8 @@ import useMaybeVideo from '../../hooks/useMaybeVideo';
 
 export default function TownJoinInvite(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
-  const [inviteMessage, setInviteMessage] = useState('');
+  const [friendID, setFriendID] = useState('');
+  const [inviteMessage, setInviteMessage] = useState("Join the town I'm in!");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const video = useMaybeVideo();
   const toast = useToast();
@@ -47,40 +48,44 @@ export default function TownJoinInvite(): JSX.Element {
   }, [onClose, video, disableSpace]);
 
   const sendTownJoinInvite = useCallback(() => {
-    // TODO: call backend to send friend request
+    // TODO: call backend to send town join invite
     toast({
-      title: `Sent town join invite with message: ${inviteMessage}`,
+      title: `Sent town join invite to ${friendID} with message: ${inviteMessage}`,
       status: 'success',
     });
     closeTownJoinInvite();
-  }, [toast, closeTownJoinInvite, inviteMessage]);
+  }, [toast, closeTownJoinInvite, friendID, inviteMessage]);
 
   return (
     <Box>
       <Button onClick={openTownJoinInvite} size='sm'>
-        Add Friend
+        Invite Your Friend
       </Button>
 
       <Modal isOpen={isOpen} onClose={closeTownJoinInvite} blockScrollOnMount={false}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Friend Request</ModalHeader>
+          <ModalHeader>Invite Friend to Join Town</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {currentPlayer?.friends.length === 0 ? (
               <Text>You can only invite your friends to join your town, go make some friends!</Text>
             ) : (
               <FormControl>
-                <FormLabel>Friend</FormLabel>
-                <Select placeholder='Select friend to invite'>
-                  {currentPlayer.friends.map(friend => (
-                    <option key={friend?.id} value={friend?.id}>
+                <FormLabel>Your Freind</FormLabel>
+                <Select
+                  id='friend-selection'
+                  placeholder='Select friend to invite'
+                  onChange={event => setFriendID(event.target.value)}>
+                  {currentPlayer.friends.map((friend, i) => (
+                    <option selected={i === 0} key={friend?.id} value={friend?.id}>
                       {friend?.userName}
                     </option>
                   ))}
                 </Select>
-                <FormLabel>Add a message:</FormLabel>
+                <FormLabel my={2}>Add a message:</FormLabel>
                 <Textarea
+                  value="Join the town I'm in!"
                   placeholder='Say something...'
                   onChange={event => setInviteMessage(event.target.value)}
                 />

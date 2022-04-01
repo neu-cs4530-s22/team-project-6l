@@ -31,6 +31,7 @@ export default class Player {
   }
 
   static fromServerPlayer(playerFromServer: ServerPlayer): Player {
+    // TODO: remove mock data once backend implementation is done
     const mockDirection: Direction = 'front';
     const mockLocation = {
       x: 100,
@@ -39,7 +40,10 @@ export default class Player {
       moving: false,
       conversationLabel: undefined,
     };
-    const mockFrineds = [new Player('123', 'annie', mockLocation, [])];
+    const mockFrineds = [
+      new Player('123', 'annie', mockLocation, []),
+      new Player('234', 'bob', mockLocation, []),
+    ];
     return new Player(
       playerFromServer._id,
       playerFromServer._userName,
