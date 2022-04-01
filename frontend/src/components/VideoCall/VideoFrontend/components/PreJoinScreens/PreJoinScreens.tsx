@@ -60,7 +60,9 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
         To get started, setup your camera and microphone, choose a username, and then create a new town
         to hang out in, or join an existing one.
       </Text>
-      
+      <RegisterUserScreen email="test@gmail.com" />
+      <DeviceSelectionScreen />
+      <TownSelection doLogin={props.doLogin} />
       <div style={{ marginTop: 20 }}>
         <Center>
           <Button colorScheme='black' variant='outline' onClick={handleSignOut}>Sign out</Button>
