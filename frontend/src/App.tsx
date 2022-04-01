@@ -10,7 +10,7 @@ import React, {
   useReducer,
   useState,
 } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { createClient, Provider } from 'urql';
 import './App.css';
@@ -19,6 +19,8 @@ import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import Login from './components/Login/Login';
+import MainScreen from './components/UserAuthentication/MainScreen';
+import Register from './components/UserAuthentication/Register';
 import { ChatProvider } from './components/VideoCall/VideoFrontend/components/ChatProvider';
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import UnsupportedBrowserWarning from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
@@ -329,15 +331,23 @@ const gqlClient = createClient({
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <Provider value={gqlClient}>
-        <ChakraProvider>
-          <MuiThemeProvider theme={theme}>
-            <AppStateProvider>
-              <EmbeddedTwilioAppWrapper />
-            </AppStateProvider>
-          </MuiThemeProvider>
-        </ChakraProvider>
-      </Provider>
+      <ChakraProvider>
+        <MuiThemeProvider theme={theme}>
+          <Switch>
+            <Route exact path="/">
+              <MainScreen />tfg
+            </Route>
+            <Route path="/prejoinscreen">
+              <AppStateProvider>
+                <EmbeddedTwilioAppWrapper />
+              </AppStateProvider>
+            </Route>
+            <Route exact path="/register">
+              <Register />
+            </Route>
+          </Switch>
+        </MuiThemeProvider>
+      </ChakraProvider>
     </BrowserRouter>
   );
 }

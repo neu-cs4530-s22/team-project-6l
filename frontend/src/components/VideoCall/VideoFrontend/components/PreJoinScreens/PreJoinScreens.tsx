@@ -4,11 +4,13 @@ import IntroContainer from '../IntroContainer/IntroContainer';
 import MediaErrorSnackbar from './MediaErrorSnackbar/MediaErrorSnackbar';
 import RoomNameScreen from './RoomNameScreen/RoomNameScreen';
 import { useAppState } from '../../state';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
-import { Heading, Text } from '@chakra-ui/react';
+import { Button, Center, Heading, Text } from '@chakra-ui/react';
 import TownSelection from '../../../../Login/TownSelection';
+import { signOut } from 'firebase/auth';
+import auth from '../../../../../firebase/firebase-config';
 import { RegisterUserScreen } from './RegisterUserScreen/RegisterUserScreen';
 
 export enum Steps {
@@ -16,12 +18,20 @@ export enum Steps {
   deviceSelectionStep,
 }
 
-export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean>}) {
+export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean> }) {
   const { user } = useAppState();
+  const history = useHistory();
   const { getAudioAndVideoTracks } = useVideoContext();
 
   const [mediaError, setMediaError] = useState<Error>();
 
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        history.push("/");
+      }
+    })
+  })
 
   useEffect(() => {
     if (!mediaError) {
@@ -33,6 +43,13 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
     }
   }, [getAudioAndVideoTracks, mediaError]);
 
+  const handleSignOut = () => {
+    signOut(auth).then(() => {
+      history.push("/");
+    }).catch((error) => {
+      alert(error.message);
+    });
+  }
 
   return (
     <IntroContainer>
@@ -46,6 +63,11 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
       <RegisterUserScreen email="test@gmail.com" />
       <DeviceSelectionScreen />
       <TownSelection doLogin={props.doLogin} />
+      <div style={{ marginTop: 20 }}>
+        <Center>
+          <Button colorScheme='black' variant='outline' onClick={handleSignOut}>Sign out</Button>
+        </Center>
+      </div>
     </IntroContainer>
   );
 }
