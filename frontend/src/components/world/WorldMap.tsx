@@ -8,6 +8,7 @@ import useConversationAreas from '../../hooks/useConversationAreas';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayerMovement from '../../hooks/usePlayerMovement';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
+import SocialSidebar from '../SocialSidebar/SocialSidebar';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import NewConversationModal from './NewCoversationModal';
 
@@ -298,7 +299,7 @@ class CoveyGameScene extends Phaser.Scene {
         this.lastLocation.rotation = primaryDirection || 'front';
         this.lastLocation.moving = isMoving;
         if (this.currentConversationArea) {
-          if(this.currentConversationArea.conversationArea){
+          if (this.currentConversationArea.conversationArea) {
             this.lastLocation.conversationLabel = this.currentConversationArea.label;
           }
           if (
@@ -512,6 +513,14 @@ class CoveyGameScene extends Phaser.Scene {
         this.currentConversationArea = conv;
         if (conv?.conversationArea) {
           this.infoTextBox?.setVisible(false);
+          const localLastLocation = this.lastLocation;
+          if (
+            localLastLocation &&
+            localLastLocation.conversationLabel !== conv.conversationArea.label
+          ) {
+            localLastLocation.conversationLabel = conv.conversationArea.label;
+            this.emitMovement(localLastLocation);
+          }
         } else {
           if (cursorKeys.space.isDown) {
             const newConversation = new ConversationArea(
@@ -594,20 +603,15 @@ class CoveyGameScene extends Phaser.Scene {
 
     // Help text that has a "fixed" position on the screen
     this.add
-      .text(
-        16,
-        16,
-        `Arrow keys to move\nCurrent town: ${this.video.townFriendlyName} (${this.video.coveyTownID})`,
-        {
-          font: '18px monospace',
-          color: '#000000',
-          padding: {
-            x: 20,
-            y: 10,
-          },
-          backgroundColor: '#ffffff',
+      .text(16, 16, `Arrow keys to move`, {
+        font: '18px monospace',
+        color: '#000000',
+        padding: {
+          x: 20,
+          y: 10,
         },
-      )
+        backgroundColor: '#ffffff',
+      })
       .setScrollFactor(0)
       .setDepth(30);
 
@@ -625,7 +629,7 @@ class CoveyGameScene extends Phaser.Scene {
   pause() {
     if (!this.paused) {
       this.paused = true;
-      if(this.player){
+      if (this.player) {
         this.player?.sprite.anims.stop();
         const body = this.player.sprite.body as Phaser.Physics.Arcade.Body;
         body.setVelocity(0);
@@ -737,9 +741,12 @@ export default function WorldMap(): JSX.Element {
   }, [video, newConversation, setNewConversation]);
 
   return (
-    <>
+    <div id='app-container'>
       {newConversationModal}
       <div id='map-container' />
-    </>
+      <div id='social-container'>
+        <SocialSidebar />
+      </div>
+    </div>
   );
 }
