@@ -60,7 +60,7 @@ export default function ForgotPassword() {
             <Button mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSignInClick(e)}> Sign in </Button>
           </> :
           <>
-            <Text fontSize='2xl' fontWeight="semibold">Forgot Your Password?</Text>
+            <Text fontSize='2xl' fontWeight="semibold" marginTop="2">Forgot Your Password?</Text>
             <Box textAlign="left" marginTop="2">
               <FormControl>
                 <FormLabel>Enter your email</FormLabel>
