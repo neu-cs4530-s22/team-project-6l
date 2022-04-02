@@ -19,7 +19,6 @@ export default function Register() {
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
 
-
   const onSignInClick = ((event: React.MouseEvent) => {
     event.preventDefault();
     history.push("/");
@@ -32,6 +31,9 @@ export default function Register() {
       event.preventDefault();
       createUserWithEmailAndPassword(auth, email, password)
         .then(() => {
+          // call signOut here so user wont be automatically redirected to PreJoinScreen instead the user will be directed to SignIn
+          // may be removed if we allow guest join with signing in.
+          auth.signOut();
           history.push("/")
         })
         .catch(error => alert(error.message));
