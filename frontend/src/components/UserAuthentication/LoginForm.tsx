@@ -5,6 +5,7 @@ import {
   FormLabel,
   Input,
   Button,
+  Text,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -34,6 +35,11 @@ export default function LoginForm() {
     logInWithEmailAndPassword();
   }
 
+  const onForgotPassClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    history.push("/forgot-password");
+  }
+
   return (
     <Box textAlign="left" w="400px" marginBottom="2">
       <FormControl>
@@ -44,6 +50,7 @@ export default function LoginForm() {
         <FormLabel>Password</FormLabel>
         <Input id="login-password" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
       </FormControl>
+      <Button fontSize='sm' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onForgotPassClick(e)}>Forgot Password?</Button>
       <Button width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onLoginClick(e)}>
         Log In
       </Button>

@@ -4,7 +4,8 @@ import { makeStyles } from "@material-ui/core";
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    justifyContent:"center",
   },
   border: {
     borderBottom: "2px solid lightgray",
