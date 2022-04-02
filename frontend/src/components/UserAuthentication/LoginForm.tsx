@@ -52,7 +52,7 @@ export default function LoginForm() {
       </FormControl>
       <Button fontSize='sm' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onForgotPassClick(e)}>Forgot Password?</Button>
       <Button width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onLoginClick(e)}>
-        Log In
+        Sign In
       </Button>
     </Box>
   );
