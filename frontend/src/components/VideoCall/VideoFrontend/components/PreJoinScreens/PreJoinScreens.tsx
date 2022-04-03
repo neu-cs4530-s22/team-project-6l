@@ -9,7 +9,7 @@ import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import { Button, Center, Heading, Text } from '@chakra-ui/react';
 import TownSelection from '../../../../Login/TownSelection';
-import { signOut } from 'firebase/auth';
+import { signOut, User } from 'firebase/auth';
 import auth from '../../../../../firebase/firebase-config';
 import { RegisterUserScreen } from './RegisterUserScreen/RegisterUserScreen';
 
@@ -22,13 +22,15 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
   const { user } = useAppState();
   const history = useHistory();
   const { getAudioAndVideoTracks } = useVideoContext();
-
   const [mediaError, setMediaError] = useState<Error>();
+  const [currentUserEmail, setcurrentUserEmail] = useState('');
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
-      if (!user) {
+      if (!user || !user.email) {
         history.push("/");
+      } else {
+        setcurrentUserEmail(user.email);
       }
     })
   })
@@ -60,7 +62,7 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
         To get started, setup your camera and microphone, choose a username, and then create a new town
         to hang out in, or join an existing one.
       </Text>
-      <RegisterUserScreen email="test@gmail.com" />
+      <RegisterUserScreen email={currentUserEmail} />
       <DeviceSelectionScreen />
       <TownSelection doLogin={props.doLogin} />
       <div style={{ marginTop: 20 }}>

@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
+import ForgotPassword from 'components/UserAuthentication/ForgotPassword';
 import React, {
   Dispatch,
   SetStateAction,
@@ -335,15 +336,18 @@ export default function AppStateWrapper(): JSX.Element {
         <MuiThemeProvider theme={theme}>
           <Switch>
             <Route exact path="/">
-              <MainScreen />tfg
+              <MainScreen />
             </Route>
-            <Route path="/prejoinscreen">
+            <Route path="/pre-join-screen">
               <AppStateProvider>
                 <EmbeddedTwilioAppWrapper />
               </AppStateProvider>
             </Route>
             <Route exact path="/register">
               <Register />
+            </Route>
+            <Route exact path="/forgot-password">
+              <ForgotPassword />
             </Route>
           </Switch>
         </MuiThemeProvider>
