@@ -21,6 +21,7 @@ type FreindRequestProps = {
   username: string;
 };
 export default function FriendRequest({ username }: FreindRequestProps): JSX.Element {
+  const defaultRequestMessage = 'Please be a part of my network!';
   const [requestMessage, setRequestMessage] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const video = useMaybeVideo();
@@ -34,6 +35,7 @@ export default function FriendRequest({ username }: FreindRequestProps): JSX.Ele
   }, []);
 
   const openFriendRequest = useCallback(() => {
+    setRequestMessage(defaultRequestMessage);
     onOpen();
     video?.pauseGame();
     document.addEventListener('keydown', disableSpace);
@@ -69,6 +71,7 @@ export default function FriendRequest({ username }: FreindRequestProps): JSX.Ele
             <FormControl>
               <FormLabel>Add a message:</FormLabel>
               <Textarea
+                value={requestMessage}
                 placeholder='Say something...'
                 onChange={event => setRequestMessage(event.target.value)}
               />

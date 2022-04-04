@@ -1,6 +1,6 @@
 import { Box, Center, Flex, Heading, ListItem, OrderedList, Text } from '@chakra-ui/react';
 import React from 'react';
-import useCoveyAppState from '../../hooks/useCoveyAppState';
+import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import PlayerItem from './PlayerItem';
 import PlayerName from './PlayerName';
@@ -18,10 +18,9 @@ import PlayerName from './PlayerName';
  *
  */
 export default function PlayersInTownList(): JSX.Element {
-  const { userName } = useCoveyAppState();
   const players = usePlayersInTown();
-  const currentPlayer = players.find(p => p.userName === userName);
-  const sorted = players.filter(p => p.userName !== userName);
+  const currentPlayer = useCurrentPlayer();
+  const sorted = players.filter(p => p.id !== currentPlayer.id);
   sorted.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
