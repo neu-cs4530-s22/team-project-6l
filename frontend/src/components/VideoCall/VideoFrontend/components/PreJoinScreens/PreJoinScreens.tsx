@@ -1,16 +1,14 @@
-import React, { useState, useEffect, FormEvent } from 'react';
-import DeviceSelectionScreen from './DeviceSelectionScreen/DeviceSelectionScreen';
-import IntroContainer from '../IntroContainer/IntroContainer';
-import MediaErrorSnackbar from './MediaErrorSnackbar/MediaErrorSnackbar';
-import RoomNameScreen from './RoomNameScreen/RoomNameScreen';
-import { useAppState } from '../../state';
-import { useHistory, useParams } from 'react-router-dom';
-import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
-import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import { Button, Center, Heading, Text } from '@chakra-ui/react';
-import TownSelection from '../../../../Login/TownSelection';
-import { signOut, User } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import auth from '../../../../../firebase/firebase-config';
+import TownSelection from '../../../../Login/TownSelection';
+import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import IntroContainer from '../IntroContainer/IntroContainer';
+import DeviceSelectionScreen from './DeviceSelectionScreen/DeviceSelectionScreen';
+import MediaErrorSnackbar from './MediaErrorSnackbar/MediaErrorSnackbar';
 import { RegisterUserScreen } from './RegisterUserScreen/RegisterUserScreen';
 
 export enum Steps {
@@ -18,22 +16,25 @@ export enum Steps {
   deviceSelectionStep,
 }
 
-export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean> }) {
-  const { user } = useAppState();
+type PreJoinScreenProps = {
+  doLogin: (initData: TownJoinResponse) => Promise<boolean>;
+};
+export default function PreJoinScreens(props: PreJoinScreenProps) {
+  const { doLogin } = props;
   const history = useHistory();
   const { getAudioAndVideoTracks } = useVideoContext();
   const [mediaError, setMediaError] = useState<Error>();
   const [currentUserEmail, setcurrentUserEmail] = useState('');
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(user => {
       if (!user || !user.email) {
-        history.push("/");
+        history.push('/');
       } else {
         setcurrentUserEmail(user.email);
       }
-    })
-  })
+    });
+  });
 
   useEffect(() => {
     if (!mediaError) {
@@ -46,30 +47,34 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
   }, [getAudioAndVideoTracks, mediaError]);
 
   const handleSignOut = () => {
-    signOut(auth).then(() => {
-      history.push("/");
-    }).catch((error) => {
-      alert(error.message);
-    });
-  }
+    signOut(auth)
+      .then(() => {
+        history.push('/');
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+  };
 
   return (
     <IntroContainer>
       <MediaErrorSnackbar error={mediaError} />
-      <Heading as="h2" size="xl">Welcome to Covey.Town!</Heading>
-      <Text p="4">
-        Covey.Town is a social platform that integrates a 2D game-like metaphor with video chat.
-        To get started, setup your camera and microphone, choose a username, and then create a new town
+      <Heading as='h2' size='xl'>
+        Welcome to Covey.Town!
+      </Heading>
+      <Text p='4'>
+        Covey.Town is a social platform that integrates a 2D game-like metaphor with video chat. To
+        get started, setup your camera and microphone, choose a username, and then create a new town
         to hang out in, or join an existing one.
       </Text>
       <RegisterUserScreen email={currentUserEmail} />
       <DeviceSelectionScreen />
-      <TownSelection doLogin={props.doLogin} />
-      <div style={{ marginTop: 20 }}>
-        <Center>
-          <Button colorScheme='black' variant='outline' onClick={handleSignOut}>Sign out</Button>
-        </Center>
-      </div>
+      <TownSelection doLogin={doLogin} />
+      <Center mt={5}>
+        <Button colorScheme='black' variant='outline' onClick={handleSignOut}>
+          Sign out
+        </Button>
+      </Center>
     </IntroContainer>
   );
 }

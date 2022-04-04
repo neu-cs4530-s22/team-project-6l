@@ -21,9 +21,10 @@ import React, { useCallback, useState } from 'react';
 import useMaybeVideo from '../../hooks/useMaybeVideo';
 
 export default function TownJoinInvite(): JSX.Element {
+  const defaultInviteMessage = "Join the town I'm in!";
   const currentPlayer = useCurrentPlayer();
   const [friendID, setFriendID] = useState('');
-  const [inviteMessage, setInviteMessage] = useState("Join the town I'm in!");
+  const [inviteMessage, setInviteMessage] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const video = useMaybeVideo();
   const toast = useToast();
@@ -36,6 +37,7 @@ export default function TownJoinInvite(): JSX.Element {
   }, []);
 
   const openTownJoinInvite = useCallback(() => {
+    setInviteMessage(defaultInviteMessage);
     onOpen();
     video?.pauseGame();
     document.addEventListener('keydown', disableSpace);
@@ -85,7 +87,7 @@ export default function TownJoinInvite(): JSX.Element {
                 </Select>
                 <FormLabel my={2}>Add a message:</FormLabel>
                 <Textarea
-                  value="Join the town I'm in!"
+                  value={inviteMessage}
                   placeholder='Say something...'
                   onChange={event => setInviteMessage(event.target.value)}
                 />
