@@ -5,25 +5,33 @@ import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
-import { UserInfo } from 'os';
+import { userInfo, UserInfo } from 'os';
+import mikroOrmConfig from '../mikro-orm.config';
+import Migration20220330023402 from '../migrations/Migration20220330023402';
+import { DatabaseDriver, MikroORM } from '@mikro-orm/core';
+import initDatabase from '../database';
+import { ConnectionPolicyContext } from 'twilio/lib/rest/voice/v1/connectionPolicy';
+import { config } from 'dotenv';
+import { ExportConfigurationContext } from 'twilio/lib/rest/bulkexports/v1/exportConfiguration';
+import { ConfigurationInstance } from 'twilio/lib/rest/conversations/v1/service/configuration';
  export interface userEmailOfUser {
-  userEmail: string;
+  userName: string;
 }
 
 /**
  * The format of a request to add a friend based on the username of the friend currently present in the CoveyTown into the friend list
  */
 export interface FriendAdd {
-  userEmail: string;
-  friendEmail: string;
+  userName: string;
+  friendUserName: string;
 }
 
 /**
  * The format of a request to remove a friend based on the username of the friend currently present in the CoveyTown out of the friend list
  */
 export interface FriendRemove {
-  userEmail: string;
-  friendEmail: string;
+  userName: string;
+  friendUserName: string;
 }
 
 /**
@@ -261,21 +269,26 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
 export async function FriendListHandler(
   requestData: userEmailOfUser,
 ):  Promise<ResponseEnvelope<userEmailOfUser[]>> {
-  // Represents fetching the instance of the given data base that we can use to check for adding friends and removing them
-  const migrationClient: Orm = await Orm.getInstance();
+
+  // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
+  // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
+  // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
+  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
+  // Represents connecting to the database to extract the information to use
+  friendMigration.connect();
   let allFriendsList: userEmailOfUser[];
   try {
-    const player = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).findOne({ email: requestData.email });
+    const player = await friendMigration.em.findOne({ username: requestData.userName });
     const { myFriends } = player;
-    allFriendsList = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).find({ email: { $in: myFriends } }).project({ email: 1, isOnline: 1, location: 1, _id: 0 }).toArray();
+    allFriendsList = await friendMigration.em..find({ username: { $in: myFriends } }).project({ email: 1, isOnline: 1, location: 1, _id: 0 }).toArray();
   } catch (err) {
-    migrationClient.close();
+    friendMigration.close();
     return {
       isOK: false,
       message: 'Given user does not exist in the data base with that provided email',
     };
   }
-  migrationClient.close();
+  friendMigration.close();
   return {
     isOK: true,
     // Represents returning a list of all of the friends of the given user
@@ -295,22 +308,26 @@ export async function FriendListHandler(
   requestData: FriendAdd,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
 
-  // Represents fetching the instance of the given data base that we can use to check for adding friends and removing them
-  const migrationClient: Orm = await Orm.getInstance();
+  // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
+  // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
+  // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
+  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
+  // Represents connecting to the database to extract the information to use
+  friendMigration.connect();
   // Represents fetching yourself through your own email
-  const playerUser = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).findOne({ email: requestData.userEmail });
+  const playerUser = await migrationClient.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).findOne({ email: requestData.userName });
     // check if the person with this email-id exists in the database
-    const AllPlayersEmails = await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).distinct('email');
+    const AllPlayersEmails = await migrationClient.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).distinct('email');
   const { yourFriends } = playerUser;
   // Represents checking if the given friend exists with the user email given
-  const friendPresent = AllPlayersEmails.includes(requestData.friendEmail);
+  const friendPresent = AllPlayersEmails.includes(requestData.friendUserName);
 
   // Represents if the friend is already a friend
   const friendToBeAdded =
-    !yourFriends.includes(requestData.friendEmail) &&
-    friendPresent && requestData.friendEmail !== requestData.userEmail;
+    !yourFriends.includes(requestData.friendUserName) &&
+    friendPresent && requestData.friendUserName !== requestData.userName;
   if (friendToBeAdded) {
-    await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).updateOne({ email: requestData.userEmail }, { $push: { yourFriends: requestData.friendEmail } });
+    await migrationClient.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).updateOne({ email: requestData.userName }, { $push: { yourFriends: requestData.friendUserName } });
       migrationClient.close();
     return {
       isOK: true,
@@ -336,9 +353,14 @@ export async function FriendListHandler(
  export async function friendIsRemovedHandler(
   requestData: FriendRemove,
 ):Promise<ResponseEnvelope<Record<string, null>>> {
- // Represents fetching the instance of the given data base that we can use to check for adding friends and removing them
- const migrationClient: Orm = await Orm.getInstance();
-  await migrationClient.db(DB_NAME).collection(COLLECTION_NAME).updateOne({ email: requestData.userEmail }, { $pull: { friends: requestData.friendEmail } });
+
+  // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
+  // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
+  // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
+  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
+  // Represents connecting to the database to extract the information to use
+  friendMigration.connect();
+  await migrationClient.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).updateOne({ email: requestData.userEmail }, { $pull: { friends: requestData.friendEmail } });
   migrationClient.close();
   return {
     isOK: true,
