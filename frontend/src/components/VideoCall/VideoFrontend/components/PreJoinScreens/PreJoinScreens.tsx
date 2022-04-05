@@ -7,10 +7,11 @@ import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import { Button, Center, Heading, Text } from '@chakra-ui/react';
 import TownSelection from '../../../../Login/TownSelection';
-import { signOut } from 'firebase/auth';
 import auth from '../../../../../firebaseAuth/firebase-config';
 import RegisterUserScreen from './RegisterUserScreen/RegisterUserScreen';
 import useUserAccount from 'hooks/useUserAccount';
+import { signOut } from 'firebase/auth';
+import { Avatar, useGetUserQuery, User } from 'generated/graphql';
 
 export enum Steps {
   roomNameStep,
@@ -20,17 +21,20 @@ export enum Steps {
 export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean> }) {
   const history = useHistory();
   const { getAudioAndVideoTracks } = useVideoContext();
-
   const [mediaError, setMediaError] = useState<Error>();
-  const { userState } = useUserAccount();
+  const { userState, userDispatch } = useUserAccount();
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState(auth.currentUser?.email);
+  const [result, reexecuteQuery] = useGetUserQuery({
+    variables: {
+      username: email!
+    }
+  });
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      if (!user) {
-        history.push("/");
-      }
-    })
-  })
+    console.log(`Component mounted: ${email}`)
+    setEmail(auth.currentUser?.email);
+  }, []);
 
   useEffect(() => {
     if (!mediaError) {
@@ -42,13 +46,64 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
     }
   }, [getAudioAndVideoTracks, mediaError]);
 
+  auth.onAuthStateChanged(user => {
+    setEmail(user?.email);
+  });
+
   const handleSignOut = () => {
+    userDispatch({
+      action: 'registerUser',
+      data: {
+        _id: '',
+        email: '',
+        avatar: Avatar.Dog,
+        createdAt: '',
+        lastOnline: '',
+        displayName: '',
+        username: '',
+        friends: new Array<User>(),
+      }
+    });
+
     signOut(auth).then(() => {
       history.push("/");
     }).catch((error) => {
       alert(error.message);
     });
   }
+
+  useEffect(() => {
+    if (result.fetching || userState.displayName) return;
+
+    const timerId = setTimeout(() => {
+      reexecuteQuery({
+        variables: {
+          username: email
+        },
+        requestPolicy: 'network-only'
+      });
+    }, 1000);
+
+
+    if (result.data?.user) {
+      userDispatch({
+        action: 'registerUser',
+        data: {
+          _id: result.data.user._id,
+          email: result.data.user.email,
+          avatar: result.data.user.avatar,
+          createdAt: result.data.user.createdAt,
+          lastOnline: result.data.user.lastOnline,
+          displayName: result.data.user.displayName,
+          username: result.data.user?.username,
+          friends: new Array<User>(),
+        }
+      });
+    }
+    setDisplayName(userState.displayName);
+    return () => clearTimeout(timerId);
+  }, [email, result.fetching, reexecuteQuery]);
+
 
   return (
     <IntroContainer>
@@ -67,6 +122,6 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
           <Button colorScheme='black' variant='outline' onClick={handleSignOut}>Sign out</Button>
         </Center>
       </div>
-    </IntroContainer>
+    </IntroContainer >
   );
 }

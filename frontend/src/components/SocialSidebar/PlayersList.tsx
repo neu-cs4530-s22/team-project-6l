@@ -1,4 +1,5 @@
-import { Box, Center, Flex, Heading, ListItem, OrderedList, Text } from '@chakra-ui/react';
+import { Avatar, Box, Center, Flex, Heading, ListItem, OrderedList, Text } from '@chakra-ui/react';
+import useUserAccount from 'hooks/useUserAccount';
 import React from 'react';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
@@ -18,6 +19,7 @@ import PlayerName from './PlayerName';
  *
  */
 export default function PlayersInTownList(): JSX.Element {
+  const { userState } = useUserAccount();
   const { userName } = useCoveyAppState();
   const players = usePlayersInTown();
   const currentPlayer = players.find(p => p.userName === userName);
@@ -32,6 +34,7 @@ export default function PlayersInTownList(): JSX.Element {
         <Center>
           {/* TODO: Display User Profile */}
           <Text me={2}>You:</Text>
+          <Avatar borderRadius='none' marginTop="5px" size='md' src={`/avatars/${userState.avatar}.jpg`} />
         </Center>
         {currentPlayer ? <PlayerName player={currentPlayer} /> : ''}
       </Flex>

@@ -6,36 +6,42 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { User, useRegisterUserMutation } from "../../../../../../generated/graphql";
 import { Avatar } from "../../../../../../generated/graphql"
-import BubbleGum from "avatars/BubbleGum.jpg"
-import ThreeSixty from "avatars/ThreeSixty.jpg";
-import Dragon from "avatars/Dragon.jpg";
-import Monkey from "avatars/Monkey.jpg";
-import OrangeBlackSkull from "avatars/OrangeBlackSkull.jpg";
-import SmileyFace from "avatars/SmileyFace.jpg";
-import Panda from "avatars/Panda.jpg";
-import Dog from "avatars/Dog.jpg";
-import useCoveyAppState from "hooks/useCoveyAppState";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import useUserAccount from "hooks/useUserAccount";
 
 interface RegisterUserScreenProps {
 }
 
-const avatarsTopRow = [
-  { name: Avatar.BubbleGum, image: BubbleGum },
-  { name: Avatar.ThreeSixty, image: ThreeSixty },
-  { name: Avatar.Dog, image: Dog },
-  { name: Avatar.Dragon, image: Dragon },
-]
+const avatarsTop = Object.values(Avatar).map(value => {
+  return { name: value, image: `/avatars/${value}.jpg` }
+});
 
-const avatarsBottomRow = [
-  { name: Avatar.Monkey, image: Monkey },
-  { name: Avatar.OrangeBlackSkull, image: OrangeBlackSkull },
-  { name: Avatar.SmileyFace, image: SmileyFace },
-  { name: Avatar.Panda, image: Panda },
-]
+
 
 export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
+  const { userState, userDispatch } = useUserAccount();
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isRegistered, setIsRegistered] = useState(false);
+  const { value, getRadioProps, getRootProps } = useRadioGroup({
+    defaultValue: Avatar.Dog,
+  });
+  const [, register] = useRegisterUserMutation();
+
+  useEffect(() => {
+    console.log('user state has been updated');
+    console.log(userState);
+    if (!userState.displayName) {
+      console.log(`we checked for display name: ${userState.displayName}`);
+      onOpen();
+    }
+    else {
+      onClose();
+    }
+  }, [userState])
+
+
+  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false })
   function AvatarRadio(props: any) {
     const { avatar, ...radioProps } = props;
     const { state, getInputProps, getCheckboxProps, htmlProps, getLabelProps } =
@@ -56,24 +62,12 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
     )
   }
 
-  const { isOpen, onClose } = useDisclosure({ defaultIsOpen: true })
-  const [, register] = useRegisterUserMutation();
-  const { userDispatch } = useUserAccount();
-  const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-
   const auth = getAuth();
   onAuthStateChanged(auth, user => {
     if (user) {
       setEmail(user.email!);
     }
   });
-
-  const { value, getRadioProps, getRootProps } = useRadioGroup({
-    defaultValue: Avatar.Dog,
-
-  })
 
   const handleSubmit = async (e: any) => {
     // use to prevent submitting a request before hand. done input sanitizing
@@ -84,7 +78,7 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
         avatar: Avatar[value as keyof typeof Avatar],
         displayName: displayName,
         email: email,
-        username: username
+        username: email
       }
     });
 
@@ -112,6 +106,7 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
       isOpen={isOpen}
       onClose={onClose}
       size='xl'
+      closeOnOverlayClick={false}
     >
       <ModalOverlay />
       <ModalContent>
@@ -125,11 +120,6 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
             </FormControl>
 
             <FormControl mt={4} isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input placeholder='Username' onChange={e => setUsername(e.currentTarget.value)} />
-            </FormControl>
-
-            <FormControl mt={4} isRequired>
               <FormLabel>Display Name</FormLabel>
               <Input placeholder='Display name' onChange={e => setDisplayName(e.currentTarget.value)} />
             </FormControl>
@@ -139,7 +129,7 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
 
               <Stack direction='column' align={"center"} {...getRootProps()} spacing={"5"}>
                 <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
-                  {avatarsTopRow.map((avatar) => {
+                  {avatarsTop.slice(0, 4).map((avatar) => {
                     return (
                       <AvatarRadio
                         key={avatar.name}
@@ -148,10 +138,9 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
                       />
                     )
                   })}
-
                 </Stack>
                 <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
-                  {avatarsBottomRow.map((avatar) => {
+                  {avatarsTop.slice(4, avatarsTop.length).map((avatar) => {
                     return (
                       <AvatarRadio
                         key={avatar.name}

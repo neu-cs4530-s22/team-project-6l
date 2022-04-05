@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import assert from "assert";
 import {
+  Avatar,
   Box,
   Button,
   Checkbox,
@@ -19,19 +20,28 @@ import {
   Tr,
   useToast
 } from '@chakra-ui/react';
+import BubbleGum from "avatars/BubbleGum.jpg"
+import ThreeSixty from "avatars/ThreeSixty.jpg";
+import Dragon from "avatars/Dragon.jpg";
+import Monkey from "avatars/Monkey.jpg";
+import OrangeBlackSkull from "avatars/OrangeBlackSkull.jpg";
+import SmileyFace from "avatars/SmileyFace.jpg";
+import Panda from "avatars/Panda.jpg";
+import Dog from "avatars/Dog.jpg";
 import useUserAccount from 'hooks/useUserAccount';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import Video from '../../classes/Video/Video';
 import { CoveyTownInfo, TownJoinResponse, } from '../../classes/TownsServiceClient';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
+
 interface TownSelectionProps {
   doLogin: (initData: TownJoinResponse) => Promise<boolean>
 }
 
 export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Element {
-  const { userState, userDispatch } = useUserAccount();
-  const [userName, setUserName] = useState<string>(userState.displayName);
+  const { userState } = useUserAccount();
+  const [userName, setUserName] = useState<string>(Video.instance()?.userName || '');
   const [newTownName, setNewTownName] = useState<string>('');
   const [newTownIsPublic, setNewTownIsPublic] = useState<boolean>(true);
   const [townIDToJoin, setTownIDToJoin] = useState<string>('');
@@ -39,6 +49,10 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { connect: videoConnect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
+
+  useEffect(() => {
+    setUserName(userState.displayName);
+  }, [userState.displayName]);
 
   const updateTownListings = useCallback(() => {
     // console.log(apiClient);
@@ -58,7 +72,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   }, [updateTownListings]);
 
   const handleJoin = useCallback(async (coveyRoomID: string) => {
-    try {
+    
       if (!userName || userName.length === 0) {
         toast({
           title: 'Unable to join town',
@@ -76,19 +90,13 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         return;
       }
       const initData = await Video.setup(userName, coveyRoomID);
-
       const loggedIn = await doLogin(initData);
+
       if (loggedIn) {
         assert(initData.providerVideoToken);
         await videoConnect(initData.providerVideoToken);
       }
-    } catch (err) {
-      toast({
-        title: 'Unable to connect to Towns Service',
-        description: (err instanceof Error ? err : ""),
-        status: 'error'
-      })
-    }
+    
   }, [doLogin, userName, videoConnect, toast]);
 
   const handleCreate = async () => {
@@ -145,13 +153,15 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       <form>
         <Stack>
           <Box p="4" borderWidth="1px" borderRadius="lg">
-            <Heading as="h2" size="lg">Display Name</Heading>
+            <Heading as="h2" size="lg">User Info</Heading>
             <FormControl>
               <FormLabel htmlFor="name">Name</FormLabel>
               <Input name="name"
-                value={userState.displayName}
+                value={userName}
                 isReadOnly
               />
+              <FormLabel marginTop="10px" htmlFor="avatar">Avatar</FormLabel>
+              <Avatar borderRadius='none' marginTop="5px" size='2xl' src={`/avatars/${userState.avatar}.jpg`} />
             </FormControl>
           </Box>
           <Box borderWidth="1px" borderRadius="lg">

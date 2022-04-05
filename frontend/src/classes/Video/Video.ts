@@ -26,9 +26,9 @@ export default class Video {
 
   private _isPubliclyListed: boolean | undefined;
 
-  pauseGame: () => void = ()=>{};
+  pauseGame: () => void = () => { };
 
-  unPauseGame: () => void = ()=>{};
+  unPauseGame: () => void = () => { };
 
   constructor(userName: string, coveyTownID: string) {
     this._userName = userName;
@@ -102,6 +102,7 @@ export default class Video {
 
   public static async setup(username: string, coveyTownID: string): Promise<TownJoinResponse> {
     let result = null;
+
 
     if (!Video.video) {
       Video.video = new Video(username, coveyTownID);

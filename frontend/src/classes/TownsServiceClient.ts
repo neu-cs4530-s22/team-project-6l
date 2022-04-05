@@ -1,6 +1,4 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { Avatar, RegisterUserMutation, UserCreationInput, useRegisterUserMutation } from 'generated/graphql';
-import { UseMutationState } from 'urql';
 import assert from 'assert';
 import { ServerPlayer } from './Player';
 import { ServerConversationArea } from './ConversationArea';
@@ -87,12 +85,6 @@ export interface ConversationCreateRequest {
   conversationArea: ServerConversationArea;
 }
 
-export interface RegisterUserRequest {
-  username: string,
-  displayName: string,
-  email: string,
-  avatar: Avatar;
-}
 
 /**
  * Envelope that wraps any response from the server
@@ -112,8 +104,6 @@ export type CoveyTownInfo = {
 
 export default class TownsServiceClient {
   private _axios: AxiosInstance;
-
-  private _userRegistration = useRegisterUserMutation();
 
   /**
    * Construct a new Towns Service API client. Specify a serviceURL for testing, or otherwise
@@ -135,20 +125,6 @@ export default class TownsServiceClient {
       return response.data.response;
     }
     throw new Error(`Error processing request: ${response.data.message}`);
-  }
-
-  static unwrapGraphQLOrThrowError<T, V>(response: UseMutationState<T, V>, ignoreResponse = false): T {
-
-    console.log(response);
-
-    if (response.data) {
-      if (ignoreResponse) {
-        return {} as T;
-      }
-      return response.data;
-    }
-
-    throw new Error(`Error processing request: ${response.error?.message}`);
   }
 
   async createTown(requestData: TownCreateRequest): Promise<TownCreateResponse> {
@@ -180,13 +156,4 @@ export default class TownsServiceClient {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/conversationAreas`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
-
-  async registerUser(requestData: UserCreationInput): Promise<RegisterUserMutation> {
-    const [result, register] = this._userRegistration;
-
-    await register({ options: requestData })
-    return TownsServiceClient.unwrapGraphQLOrThrowError(result);
-
-  }
-
 }
