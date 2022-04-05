@@ -369,6 +369,34 @@ export async function FriendListHandler(
   };
 }
 
+// Represents the function that takes in the player into consideration and simply deletes a player based on if they are in the data base
+// in the case of which, this function will be used for testing purposes
+export async function deletesPlayer(requestData: userEmailOfUser) :Promise<ResponseEnvelope<Record<string, null>>>  {
+  // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and deletes
+  // them from the list of players in the database
+  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
+  // await friendMigration.em.delete the user from the database
+  //friendMigration.close();
+  return {
+    isOK : true,
+    message : "Player from the user database is deleted",
+  }
+  
+}
+
+// Represents the function that takes in the player into consideration and simply adds a player based on if they are in the data base
+// in the case of which, this function will be used for testing purposes
+export async function addsPlayer(requestData: userEmailOfUser) :Promise<ResponseEnvelope<Record<string, null>>>  {
+  // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and adds
+  // them from the list of players in the database
+  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
+  // Represents getting the player out and checking if they are already in the list
+  const playerAdd = await friendMigration.em
+  // Represents checking whether the player is already in the list and if not, add it into the database and close the friendMigration client
+
+  
+}
+
 /**
  * A handler to process a remote player's subscription to updates for a town
  *
