@@ -41,10 +41,9 @@ export default function LoginForm() {
     event.preventDefault();
     history.push("/forgot-password");
   }
-
+  
   return (
     <Box textAlign="left" w="400px" marginBottom="2">
-
       <FormControl>
         <FormLabel>Email</FormLabel>
         <Input id="login-email" type="email" placeholder="Email" onChange={(event) => setEmail(event.target.value)} />

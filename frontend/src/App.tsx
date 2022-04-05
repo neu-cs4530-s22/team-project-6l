@@ -4,7 +4,6 @@ import assert from 'assert';
 import MainScreen from 'components/UserAuthentication/MainScreen';
 import Register from 'components/UserAuthentication/Register';
 import ForgotPassword from 'components/UserAuthentication/ForgotPassword';
-import { Avatar, User } from 'generated/graphql';
 import React, {
   Dispatch,
   SetStateAction,
@@ -301,21 +300,21 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
   }, [setupGameController, appState.sessionToken, videoInstance]);
 
   return (
-      <CoveyAppContext.Provider value={appState}>
-        <VideoContext.Provider value={Video.instance()}>
-          <ChatProvider>
-            <PlayerMovementContext.Provider value={playerMovementCallbacks}>
-              <PlayersInTownContext.Provider value={playersInTown}>
-                <NearbyPlayersContext.Provider value={nearbyPlayers}>
-                  <ConversationAreasContext.Provider value={conversationAreas}>
-                    {page}
-                  </ConversationAreasContext.Provider>
-                </NearbyPlayersContext.Provider>
-              </PlayersInTownContext.Provider>
-            </PlayerMovementContext.Provider>
-          </ChatProvider>
-        </VideoContext.Provider>
-      </CoveyAppContext.Provider>
+    <CoveyAppContext.Provider value={appState}>
+      <VideoContext.Provider value={Video.instance()}>
+        <ChatProvider>
+          <PlayerMovementContext.Provider value={playerMovementCallbacks}>
+            <PlayersInTownContext.Provider value={playersInTown}>
+              <NearbyPlayersContext.Provider value={nearbyPlayers}>
+                <ConversationAreasContext.Provider value={conversationAreas}>
+                  {page}
+                </ConversationAreasContext.Provider>
+              </NearbyPlayersContext.Provider>
+            </PlayersInTownContext.Provider>
+          </PlayerMovementContext.Provider>
+        </ChatProvider>
+      </VideoContext.Provider>
+    </CoveyAppContext.Provider>
   );
 }
 
