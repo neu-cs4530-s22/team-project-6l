@@ -5,7 +5,6 @@ import {
   FormLabel,
   Input,
   Button,
-  Text,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -17,13 +16,9 @@ export default function LoginForm() {
   const [password, setPassword] = React.useState('');
 
   const logInWithEmailAndPassword = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      history.push("/pre-join-screen");
-    } catch (err) {
-      alert(err.message);
-
-    }
+    signInWithEmailAndPassword(auth, email, password)
+    .then(() => history.push("/pre-join-screen"))
+    .catch((error) => alert(error.message))
   };
 
   const onLoginClick = (event: React.MouseEvent) => {

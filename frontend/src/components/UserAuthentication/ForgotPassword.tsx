@@ -6,12 +6,11 @@ import {
   Input,
   Button,
   Text,
-  IconButton,
+  Flex,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import auth from '../../firebase/firebase-config';
-
 
 export default function ForgotPassword() {
   const history = useHistory();
@@ -25,24 +24,20 @@ export default function ForgotPassword() {
 
   const onSendingClick = (event: React.MouseEvent) => {
     event.preventDefault();
-
-    if (email) {
-      setSent(true);
-      sendPasswordResetEmail(auth, email.trim());
-    } else {
-      alert("Please enter the valid email");
-    }
+    sendPasswordResetEmail(auth, email.trim())
+    .then(() => setSent(true))
+    .catch(error => {
+      const errorCode = error.code;
+      if (errorCode === 'auth/invalid-email') {
+        alert("Please enter valid email!!!");
+      } else {
+        alert("Sorry we don't think this email is registered.")
+      }
+    })
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-      }}
-    >
+    <Flex height="100vh" width="full" justifyContent="center" align="center" flexDirection="column">
       <Box
         textAlign="left"
         w="800px" maxW='lg'
@@ -73,6 +68,6 @@ export default function ForgotPassword() {
           </>
         }
       </Box>
-    </div>
+    </Flex>
   );
 }
