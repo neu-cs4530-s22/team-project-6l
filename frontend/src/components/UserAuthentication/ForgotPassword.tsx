@@ -7,15 +7,22 @@ import {
   Button,
   Text,
   Flex,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  CloseButton,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import auth from '../../firebase/firebase-config';
+import authCheck from './authCheck';
 
 export default function ForgotPassword() {
   const history = useHistory();
   const [email, setEmail] = React.useState('');
   const [isSent, setSent] = React.useState(false);
+  const [isAlert, setAlert] = React.useState(false);
+  const [alertMess, setAlertMess] = React.useState('');
 
   const onSignInClick = ((event: React.MouseEvent) => {
     event.preventDefault();
@@ -27,12 +34,9 @@ export default function ForgotPassword() {
     sendPasswordResetEmail(auth, email.trim())
     .then(() => setSent(true))
     .catch(error => {
-      const errorCode = error.code;
-      if (errorCode === 'auth/invalid-email') {
-        alert("Please enter valid email!!!");
-      } else {
-        alert("Sorry we don't think this email is registered.")
-      }
+      const {code} = error;
+      setAlert(true);
+      setAlertMess(authCheck(code));
     })
   }
 
@@ -62,6 +66,14 @@ export default function ForgotPassword() {
                 <Input id="for-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
               </FormControl>
             </Box>
+            {isAlert ?
+            <Box marginTop="2">
+              <Alert status='error'>
+                <AlertIcon />
+                <AlertTitle mr={2}>{alertMess}</AlertTitle>
+                <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
+              </Alert>
+            </Box> : <></>}
             <Box justifyContent="flex-end" display="flex">
               <Button mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSendingClick(e)}> Reset </Button>
             </Box>

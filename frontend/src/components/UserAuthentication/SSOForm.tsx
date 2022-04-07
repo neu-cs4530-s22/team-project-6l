@@ -1,4 +1,16 @@
-import { Button, Flex, Text } from '@chakra-ui/react';
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import {
+  Button,
+  Flex,
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  useDisclosure
+} from '@chakra-ui/react';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import {
   AuthProvider,
@@ -6,17 +18,18 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
-import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
-import { useHistory } from 'react-router-dom';
 import auth from '../../firebase/firebase-config';
+import authCheck from './authCheck';
 
 export default function SSOForm() {
   const history = useHistory();
+  const [errorMess, setErrorMess] = React.useState('');
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const googleProvider = new GoogleAuthProvider();
   const facebookProvider = new FacebookAuthProvider();
 
-  const provdierSignIn = (providerName: string): void => {
+  const provdierSignIn = async (providerName: string) => {
     let provider: AuthProvider;
     if (providerName === 'Google') {
       provider = googleProvider;
@@ -24,23 +37,23 @@ export default function SSOForm() {
       provider = facebookProvider;
     }
 
-    signInWithPopup(auth, provider)
-      .then(userCredential => {
-        const user2 = userCredential.user;
-        console.log(user2);
+    await signInWithPopup(auth, provider)
+      .then(() => {
         history.push('/pre-join-screen');
       })
-      .catch(error => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-
-        console.log(errorCode);
-        console.log(errorMessage);
+      .catch((error) => {
+        const { code } = error;
+        if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+          onClose();
+        } else {
+          setErrorMess(authCheck(code));
+          onOpen();
+        }
       });
   };
 
   return (
-    <Flex width='full' align='center' justifyContent='center' flexDirection='column' marginTop='2'>
+    <Flex width='full' flexDirection='column' marginTop='2'>
       <Button
         variantColor='teal'
         type='submit'
@@ -64,6 +77,13 @@ export default function SSOForm() {
         <FacebookIcon fontSize='medium' color='primary' />
         <Text marginLeft='2'>Sign in with Facebook</Text>
       </Button>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalHeader>{errorMess}</ModalHeader>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 }

@@ -10,12 +10,12 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
-  AlertDescription,
   CloseButton,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import auth from '../../firebase/firebase-config';
+import authCheck from './authCheck';
 
 export default function Register() {
   const history = useHistory();
@@ -33,6 +33,10 @@ export default function Register() {
   const onRegisterClick = (event: React.MouseEvent) => {
     if (!email || !password || !confirmPassword || password !== confirmPassword) {
       setAlert(true);
+      if (!email) setAlertMess('Please enter your email');
+      else if (!password) setAlertMess('Please enter your password');
+      else if (!confirmPassword) setAlertMess('Please confirm your password');
+      else setAlertMess('Passwords do not match');
     } else {
       event.preventDefault();
       createUserWithEmailAndPassword(auth, email, password)
@@ -43,7 +47,11 @@ export default function Register() {
           auth.signOut();
           history.push("/")
         })
-        .catch(error => alert(error.message));
+        .catch(error => {
+          const { code } = error;
+          setAlertMess(authCheck(code));
+          setAlert(true)
+        });
     }
   }
 
@@ -74,17 +82,17 @@ export default function Register() {
 
           <FormControl>
             <FormLabel>Confirm Password</FormLabel>
-            <Input id="reg-confirmpassword" type="password" placeholder="ConfirmPassword" onChange={(event) => setConfirmPassword(event.target.value)} />
+            <Input id="reg-confirmpassword" type="password" placeholder="Confirm Password" onChange={(event) => setConfirmPassword(event.target.value)} />
           </FormControl>
 
-          {isAlert ? 
-          <Box marginTop="2">
-            <Alert status='error'>
-              <AlertIcon />
-              <AlertTitle mr={2}>Invalid Inputs</AlertTitle>
-              <CloseButton position='absolute' right='8px' top='8px' onClick={() => setAlert(false)}/>
-            </Alert>
-          </Box> : <></>}
+          {isAlert ?
+            <Box marginTop="2">
+              <Alert status='error'>
+                <AlertIcon />
+                <AlertTitle mr={2}>{alertMess}</AlertTitle>
+                <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
+              </Alert>
+            </Box> : <></>}
 
           <Button width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onRegisterClick(e)}>
             Sign up

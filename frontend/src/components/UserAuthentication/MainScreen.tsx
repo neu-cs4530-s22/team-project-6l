@@ -6,6 +6,7 @@ import SSOForm from './SSOForm';
 import DividerWithText from './DividerWithText';
 import LoginForm from './LoginForm';
 
+// TODO: handle when one email is used to login with multiple providers (Google, Facebook, Email)
 export default function MainScreen(): JSX.Element {
   const history = useHistory();
 
