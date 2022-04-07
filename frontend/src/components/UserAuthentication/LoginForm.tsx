@@ -51,22 +51,22 @@ export default function LoginForm() {
     <Box textAlign="left" w="400px" marginBottom="2">
       <FormControl>
         <FormLabel>Email</FormLabel>
-        <Input id="login-email" type="email" placeholder="Email" onChange={(event) => setEmail(event.target.value)} />
+        <Input data-testid="login-email" type="email" placeholder="Email" onChange={(event) => setEmail(event.target.value)} />
       </FormControl>
       <FormControl>
         <FormLabel>Password</FormLabel>
-        <Input id="login-password" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
+        <Input data-testid="login-password" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
       </FormControl>
-      <Button fontSize='sm' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onForgotPassClick(e)}>Forgot Password?</Button>
+      <Button data-testid="forgot-password-btn" fontSize='sm' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onForgotPassClick(e)}>Forgot Password?</Button>
       {isAlert ?
         <Box marginTop="2">
-          <Alert status='error'>
+          <Alert data-testid="alert-error" status='error'>
             <AlertIcon />
-            <AlertTitle mr={2}>{alertMess}</AlertTitle>
+            <AlertTitle data-testid="alert-message" mr={2}>{alertMess}</AlertTitle>
             <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
           </Alert>
         </Box> : <></>}
-      <Button width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onLoginClick(e)}>
+      <Button data-testid="sign-in-btn" width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onLoginClick(e)}>
         Sign In
       </Button>
     </Box>

@@ -1,13 +1,15 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { fireEvent, render } from '@testing-library/react';
+
 import DividerWithText from '../DividerWithText';
 
 describe('DividerWithText', () => {
 
   // TODO: for some reasons the react-test-renderer library does not work
+  // import TestRenderer from 'react-test-renderer';
   // it('should match the snapshot', () => {
-  //   const component = renderer.create(<DividerWithText>or</DividerWithText>);
+  //   const component = TestRenderer.create(<DividerWithText>or</DividerWithText>)
   //   expect(component.toJSON()).toMatchSnapshot();
   // })
 
@@ -23,5 +25,4 @@ describe('DividerWithText', () => {
     fireEvent.click(button);
     expect(action).toHaveBeenCalledTimes(1);
   })
-
 })
