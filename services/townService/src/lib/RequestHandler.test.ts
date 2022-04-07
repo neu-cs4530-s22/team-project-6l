@@ -217,5 +217,10 @@ describe('Postgre Database Test', () => {
                     // Represents the list of friends to be returned as an empty list since the friend2 is not 
                     // added to the dataase before being added to the list of the friends of the player
                     expect(player1.friends).toStrictEqual([]);
+
+
+
+                    // These are all of the tests for now - will be adding more (need to work on correcting/filling out some of the 
+                    // logic of the backend friend connection and then using that to get the tests working)
   }
 }
