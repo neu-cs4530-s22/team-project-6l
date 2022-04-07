@@ -173,6 +173,49 @@ describe('Postgre Database Test', () => {
                 // Represents the test case to check whether the database still contains the friends or not after friend1 and friend2 have been removed
                 expect(friendClient).not.toContain({username: friend1.username});
                 expect(friendClient).not.toContain({username: friend2.username});
-            })
+            });
+
+        // Represents the 'it' block to test the case of when a friend or a player is added to the data base that is already
+        // there, should either throw an error or show no change, else add them. Another case of this might include adding a player
+        // as a friend who is already a friend or removing a player as a friend who was removed or not the users friend in teh first
+        // place
+        it('gets a list of friends if the player has friends added to the list that cannot be added or removed', async () => {
+            // Represents the player that is added for now to be used to check if they have friends or not
+            const player1: playerTestingInformation = {
+          username: 'Saul', 
+          email: 'Saul@gmail.com',
+          friends: [],
+          onlineActivity: true
+            };
+                    // Represents the second player that is added
+                    const friend1: playerTestingInformation = {
+                        username: 'Mad', 
+                        email: 'Mad@gmail.com',
+                        friends: [],
+                        onlineActivity: true
+                          };
+                    // Represents the second player that is added
+                    const friend3: playerTestingInformation = {
+                        username: 'Mad', 
+                        email: 'Mad@gmail.com',
+                        friends: [],
+                        onlineActivity: true
+                          };
+                    // Represents the second player that is added
+                    const friend2: playerTestingInformation = {
+                        username: 'Victoria', 
+                        email: 'Victoria@gmail.com',
+                        friends: [],
+                        onlineActivity: true
+                          };
+
+                    
+                    // Represents adding the player to the list of the player without them being in the database 
+                    // itself
+
+                    await friendClient.friendIsAddedHandler({username: friend2});
+                    // Represents the list of friends to be returned as an empty list since the friend2 is not 
+                    // added to the dataase before being added to the list of the friends of the player
+                    expect(player1.friends).toStrictEqual([]);
   }
 }
