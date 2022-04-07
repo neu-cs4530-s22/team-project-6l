@@ -1,3 +1,4 @@
+import { Avatar } from 'generated/graphql';
 import DebugLogger from '../DebugLogger';
 import TownsServiceClient, { TownJoinResponse } from '../TownsServiceClient';
 
@@ -18,6 +19,8 @@ export default class Video {
 
   private _userName: string;
 
+  private _avatar: Avatar;
+
   private townsServiceClient: TownsServiceClient = new TownsServiceClient();
 
   private _coveyTownID: string;
@@ -30,9 +33,10 @@ export default class Video {
 
   unPauseGame: () => void = () => { };
 
-  constructor(userName: string, coveyTownID: string) {
+  constructor(userName: string, coveyTownID: string, avatar: Avatar) {
     this._userName = userName;
     this._coveyTownID = coveyTownID;
+    this._avatar = avatar;
   }
 
   get isPubliclyListed(): boolean {
@@ -61,6 +65,7 @@ export default class Video {
         this.townsServiceClient.joinTown({
           coveyTownID: this._coveyTownID,
           userName: this._userName,
+          avatar: this._avatar,
         })
           .then((result) => {
             this.sessionToken = result.coveySessionToken;
@@ -100,12 +105,12 @@ export default class Video {
     return this.teardownPromise ?? Promise.resolve();
   }
 
-  public static async setup(username: string, coveyTownID: string): Promise<TownJoinResponse> {
+  public static async setup(username: string, coveyTownID: string, avatar: Avatar): Promise<TownJoinResponse> {
     let result = null;
 
 
     if (!Video.video) {
-      Video.video = new Video(username, coveyTownID);
+      Video.video = new Video(username, coveyTownID, avatar);
     }
 
     try {
@@ -130,6 +135,8 @@ export default class Video {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - JB TODO
     window.clowdr.video = Video.video;
+
+    console.log(result);
 
     return result;
   }

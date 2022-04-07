@@ -20,14 +20,6 @@ import {
   Tr,
   useToast
 } from '@chakra-ui/react';
-import BubbleGum from "avatars/BubbleGum.jpg"
-import ThreeSixty from "avatars/ThreeSixty.jpg";
-import Dragon from "avatars/Dragon.jpg";
-import Monkey from "avatars/Monkey.jpg";
-import OrangeBlackSkull from "avatars/OrangeBlackSkull.jpg";
-import SmileyFace from "avatars/SmileyFace.jpg";
-import Panda from "avatars/Panda.jpg";
-import Dog from "avatars/Dog.jpg";
 import useUserAccount from 'hooks/useUserAccount';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import Video from '../../classes/Video/Video';
@@ -72,32 +64,32 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   }, [updateTownListings]);
 
   const handleJoin = useCallback(async (coveyRoomID: string) => {
-    
-      if (!userName || userName.length === 0) {
-        toast({
-          title: 'Unable to join town',
-          description: 'Please select a username',
-          status: 'error',
-        });
-        return;
-      }
-      if (!coveyRoomID || coveyRoomID.length === 0) {
-        toast({
-          title: 'Unable to join town',
-          description: 'Please enter a town ID',
-          status: 'error',
-        });
-        return;
-      }
-      const initData = await Video.setup(userName, coveyRoomID);
-      const loggedIn = await doLogin(initData);
 
-      if (loggedIn) {
-        assert(initData.providerVideoToken);
-        await videoConnect(initData.providerVideoToken);
-      }
-    
-  }, [doLogin, userName, videoConnect, toast]);
+    if (!userName || userName.length === 0) {
+      toast({
+        title: 'Unable to join town',
+        description: 'Please select a username',
+        status: 'error',
+      });
+      return;
+    }
+    if (!coveyRoomID || coveyRoomID.length === 0) {
+      toast({
+        title: 'Unable to join town',
+        description: 'Please enter a town ID',
+        status: 'error',
+      });
+      return;
+    }
+    const initData = await Video.setup(userName, coveyRoomID, userState.avatar);
+    const loggedIn = await doLogin(initData);
+
+    if (loggedIn) {
+      assert(initData.providerVideoToken);
+      await videoConnect(initData.providerVideoToken);
+    }
+
+  }, [doLogin, userName, videoConnect, toast, userState]);
 
   const handleCreate = async () => {
     if (!userName || userName.length === 0) {

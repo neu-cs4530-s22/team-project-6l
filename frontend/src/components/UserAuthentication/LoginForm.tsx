@@ -1,14 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   FormControl,
   FormLabel,
   Input,
   Button,
-  Text,
 } from '@chakra-ui/react';
-import { useGetUserQuery, User } from 'generated/graphql';
-import useUserAccount from 'hooks/useUserAccount';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import auth from '../../firebaseAuth/firebase-config';
@@ -41,7 +38,7 @@ export default function LoginForm() {
     event.preventDefault();
     history.push("/forgot-password");
   }
-  
+
   return (
     <Box textAlign="left" w="400px" marginBottom="2">
       <FormControl>

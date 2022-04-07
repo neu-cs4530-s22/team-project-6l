@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
+import Avatar from '../types/Avatar';
 
 
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
@@ -30,6 +31,9 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+
+  avatar: Avatar
+
 }
 
 /**
@@ -39,6 +43,9 @@ export interface TownJoinRequest {
 export interface TownJoinResponse {
   /** Unique ID that represents this player * */
   coveyUserID: string;
+  
+  avatar: Avatar;
+
   /** Secret token that this player should use to authenticate
    * in future requests to this service * */
   coveySessionToken: string;

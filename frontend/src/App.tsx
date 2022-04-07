@@ -17,6 +17,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { createClient, Provider } from 'urql';
 import './App.css';
+import { Avatar } from 'generated/graphql';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClient';
@@ -52,6 +53,7 @@ type CoveyAppUpdate =
       townIsPubliclyListed: boolean;
       sessionToken: string;
       myPlayerID: string;
+      myAvatar: Avatar;
       socket: Socket;
       emitMovement: (location: UserLocation) => void;
     };
@@ -68,6 +70,7 @@ function defaultAppState(): CoveyAppState {
     currentTownIsPubliclyListed: false,
     sessionToken: '',
     userName: '',
+    myAvatar: Avatar.Dog,
     socket: null,
     emitMovement: () => { },
     apiClient: new TownsServiceClient(),
@@ -82,6 +85,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     currentTownID: state.currentTownID,
     currentTownIsPubliclyListed: state.currentTownIsPubliclyListed,
     myPlayerID: state.myPlayerID,
+    myAvatar: state.myAvatar,
     userName: state.userName,
     socket: state.socket,
     emitMovement: state.emitMovement,
@@ -98,6 +102,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.userName = update.data.userName;
       nextState.emitMovement = update.data.emitMovement;
       nextState.socket = update.data.socket;
+      nextState.myAvatar = update.data.myAvatar;
       break;
     case 'disconnect':
       state.socket?.disconnect();
@@ -108,8 +113,6 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
 
   return nextState;
 }
-
-
 
 
 function calculateNearbyPlayers(players: Player[], currentLocation: UserLocation) {
@@ -146,6 +149,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     async (initData: TownJoinResponse) => {
       const gamePlayerID = initData.coveyUserID;
       const sessionToken = initData.coveySessionToken;
+      const gamePlayerAvatar = initData.avatar;
       const url = process.env.REACT_APP_TOWNS_SERVICE_URL;
       assert(url);
       const video = Video.instance();
@@ -165,6 +169,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
+
       let localNearbyPlayers: Player[] = [];
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
@@ -260,6 +265,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           townIsPubliclyListed: video.isPubliclyListed,
           emitMovement,
           socket,
+          myAvatar: gamePlayerAvatar,
         },
       });
 
