@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
+import ForgotPassword from 'components/UserAuthentication/ForgotPassword';
 import React, {
   Dispatch,
   SetStateAction,
@@ -10,14 +11,17 @@ import React, {
   useReducer,
   useState,
 } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import { createClient, Provider } from 'urql';
 import './App.css';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import Login from './components/Login/Login';
+import MainScreen from './components/UserAuthentication/MainScreen';
+import Register from './components/UserAuthentication/Register';
 import { ChatProvider } from './components/VideoCall/VideoFrontend/components/ChatProvider';
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import UnsupportedBrowserWarning from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
@@ -30,6 +34,7 @@ import VideoOverlay from './components/VideoCall/VideoOverlay/VideoOverlay';
 import WorldMap from './components/world/WorldMap';
 import ConversationAreasContext from './contexts/ConversationAreasContext';
 import CoveyAppContext from './contexts/CoveyAppContext';
+import CurrentPlayerContext from './contexts/CurrentPlayerContext';
 import NearbyPlayersContext from './contexts/NearbyPlayersContext';
 import PlayerMovementContext, { PlayerMovementCallback } from './contexts/PlayerMovementContext';
 import PlayersInTownContext from './contexts/PlayersInTownContext';
@@ -183,6 +188,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       };
       socket.on('newPlayer', (player: ServerPlayer) => {
         localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
+        setPlayersInTown(localPlayers);
         recalculateNearbyPlayers();
       });
       socket.on('playerMoved', (player: ServerPlayer) => {
@@ -227,11 +233,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
-        if(existingArea){
+        if (existingArea) {
           existingArea.topic = undefined;
           existingArea.occupants = [];
         }
-        localConversationAreas = localConversationAreas.filter(a => a.label !== _conversationArea.label);
+        localConversationAreas = localConversationAreas.filter(
+          a => a.label !== _conversationArea.label,
+        );
         setConversationAreas(localConversationAreas);
         recalculateNearbyPlayers();
       });
@@ -285,6 +293,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     );
   }, [setupGameController, appState.sessionToken, videoInstance]);
 
+  const currentPlayer = playersInTown.find(player => player.id === appState.myPlayerID);
   return (
     <CoveyAppContext.Provider value={appState}>
       <VideoContext.Provider value={Video.instance()}>
@@ -292,9 +301,12 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           <PlayerMovementContext.Provider value={playerMovementCallbacks}>
             <PlayersInTownContext.Provider value={playersInTown}>
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
-                <ConversationAreasContext.Provider value={conversationAreas}>
-                  {page}
-                </ConversationAreasContext.Provider>
+                <CurrentPlayerContext.Provider
+                  value={currentPlayer !== undefined ? currentPlayer : null}>
+                  <ConversationAreasContext.Provider value={conversationAreas}>
+                    {page}
+                  </ConversationAreasContext.Provider>
+                </CurrentPlayerContext.Provider>
               </NearbyPlayersContext.Provider>
             </PlayersInTownContext.Provider>
           </PlayerMovementContext.Provider>
@@ -318,16 +330,35 @@ function EmbeddedTwilioAppWrapper() {
   );
 }
 
+const gqlClient = createClient({
+  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`,
+});
+
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <ChakraProvider>
-        <MuiThemeProvider theme={theme}>
-          <AppStateProvider>
-            <EmbeddedTwilioAppWrapper />
-          </AppStateProvider>
-        </MuiThemeProvider>
-      </ChakraProvider>
+      <Provider value={gqlClient}>
+        <ChakraProvider>
+          <MuiThemeProvider theme={theme}>
+            <Switch>
+              <Route exact path='/'>
+                <MainScreen />
+              </Route>
+              <Route path='/pre-join-screen'>
+                <AppStateProvider>
+                  <EmbeddedTwilioAppWrapper />
+                </AppStateProvider>
+              </Route>
+              <Route exact path='/register'>
+                <Register />
+              </Route>
+              <Route exact path="/forgot-password">
+                <ForgotPassword />
+              </Route>
+            </Switch>
+          </MuiThemeProvider>
+        </ChakraProvider>
+      </Provider>
     </BrowserRouter>
   );
 }

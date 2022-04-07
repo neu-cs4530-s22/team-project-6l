@@ -31,6 +31,7 @@ To create an account and configure your local environment:
 | `TWILIO_API_KEY_SID`    | The SID of the new API key you created.   |
 | `TWILIO_API_KEY_SECRET` | The secret for the API key you created.   |
 | `TWILIO_API_AUTH_TOKEN` | Visible on your twilio account dashboard. |
+| `DATABASE_URL`          | Connection string to PostgreSQL database. |
 
 ### Starting the backend
 
@@ -41,7 +42,19 @@ The backend will automatically restart if you change any of the files in the `se
 
 Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWNS_SERVICE_URL=http://localhost:8081` (if you deploy the towns service to another location, put that location here instead)
 
+### Configuring the Firebase 
+Add the following lines in the same `.env` file and replace `....` with the respective config value from the Firebase API config.
+```
+REACT_APP_APIKEY=....
+REACT_APP_AUTHDOMAIN=....
+REACT_APP_PROJECT_ID=....
+REACT_APP_STORAGE_BUCKET=....
+REACT_APP_MESSAGING_SENDER_ID=....
+REACT_APP_APP_ID=....
+REACT_APP_MEASUREMENT_ID=....
+```
 ### Running the frontend
 
 In the `frontend` directory, run `npm start` (again, you'll need to run `npm install` the very first time). After several moments (or minutes, depending on the speed of your machine), a browser will open with the frontend running locally.
 The frontend will automatically re-compile and reload in your browser if you change any files in the `frontend/src` directory.
+

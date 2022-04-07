@@ -7,6 +7,7 @@ import { buildSchema } from 'type-graphql';
 import addTownRoutes from './router/towns';
 import CoveyTownsStore from './lib/CoveyTownsStore';
 import initDatabase from './database';
+import UsersResolver from './resolvers/User';
 
 
 const main = async () => {
@@ -17,6 +18,18 @@ const main = async () => {
   const server = http.createServer(app);
 
   addTownRoutes(server, app);
+
+  const apollo = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [UsersResolver],
+      validate: false,
+    }),
+    context: () => ({ em: orm.em }),
+  });
+
+
+  await apollo.start();
+  apollo.applyMiddleware({ app });
 
   server.listen(process.env.PORT || 8081, () => {
     const address = server.address() as AddressInfo;
@@ -31,4 +44,3 @@ const main = async () => {
 };
 
 main();
-
