@@ -1,17 +1,11 @@
 import React from 'react';
 import '@testing-library/jest-dom';
+
 import { fireEvent, render } from '@testing-library/react';
 
 import DividerWithText from '../DividerWithText';
 
 describe('DividerWithText', () => {
-
-  // TODO: for some reasons the react-test-renderer library does not work
-  // import TestRenderer from 'react-test-renderer';
-  // it('should match the snapshot', () => {
-  //   const component = TestRenderer.create(<DividerWithText>or</DividerWithText>)
-  //   expect(component.toJSON()).toMatchSnapshot();
-  // })
 
   it('should show that it has rendered the or children', () => {
     const { getByTestId } = render(<DividerWithText>or</DividerWithText>);
