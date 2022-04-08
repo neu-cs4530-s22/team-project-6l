@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import auth from '../../firebase/firebase-config';
+import auth from '../../firebaseAuth/firebase-config';
 
 
 export default function ForgotPassword() {

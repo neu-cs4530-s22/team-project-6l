@@ -4,6 +4,52 @@ import { TwilioError } from 'twilio-video';
 import { settingsReducer, initialSettings, Settings, SettingsAction } from './settings/settingsReducer';
 import useActiveSinkId from './useActiveSinkId/useActiveSinkId';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
+import { Avatar, User } from 'generated/graphql';
+import UserContext, { UserUpdate } from 'contexts/UserContext';
+
+
+function UserStateReducer(state: User, update: UserUpdate): User {
+  const nextState = {
+    _id: state._id,
+    email: state.email,
+    avatar: state.avatar,
+    createdAt: state.createdAt,
+    lastOnline: state.lastOnline,
+    displayName: state.lastOnline,
+    username: state.username,
+    friends: state.friends
+  }
+
+  switch (update.action) {
+    case 'registerUser':
+      nextState._id = update.data._id;
+      nextState.email = update.data.email;
+      nextState.avatar = update.data.avatar;
+      nextState.createdAt = update.data.createdAt;
+      nextState.lastOnline = update.data.lastOnline;
+      nextState.displayName = update.data.displayName;
+      nextState.username = update.data.username;
+      nextState.friends = update.data.friends;
+      break;
+    default:
+      throw new Error('Unexpected state request ')
+  }
+
+  return nextState;
+};
+
+function defaultUserState(): User {
+  return {
+    _id: '',
+    email: '',
+    avatar: Avatar.Dog,
+    createdAt: '',
+    lastOnline: '',
+    displayName: '',
+    username: '',
+    friends: new Array<User>(),
+  };
+}
 
 export interface StateContextType {
   error: TwilioError | Error | null;
@@ -38,6 +84,8 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
   const [isFetching, setIsFetching] = useState(false);
   const [activeSinkId, setActiveSinkId] = useActiveSinkId();
   const [settings, dispatchSetting] = useReducer(settingsReducer, initialSettings);
+  const [userState, userDispatch] = useReducer(UserStateReducer, defaultUserState())
+
   const [roomType, setRoomType] = useState<RoomType>();
 
   let contextValue = {
@@ -51,49 +99,49 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
     roomType,
   } as StateContextType;
 
-    contextValue = {
-      ...contextValue,
-      getToken: async (user_identity, room_name) => {
-        const endpoint = process.env.REACT_APP_TOKEN_ENDPOINT || '/token';
+  contextValue = {
+    ...contextValue,
+    getToken: async (user_identity, room_name) => {
+      const endpoint = process.env.REACT_APP_TOKEN_ENDPOINT || '/token';
 
-        return fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_identity,
-            room_name,
-            create_conversation: process.env.REACT_APP_DISABLE_TWILIO_CONVERSATIONS !== 'true',
-          }),
-        }).then(res => res.json());
-      },
-      updateRecordingRules: async (room_sid, rules) => {
-        const endpoint = process.env.REACT_APP_TOKEN_ENDPOINT || '/recordingrules';
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_identity,
+          room_name,
+          create_conversation: process.env.REACT_APP_DISABLE_TWILIO_CONVERSATIONS !== 'true',
+        }),
+      }).then(res => res.json());
+    },
+    updateRecordingRules: async (room_sid, rules) => {
+      const endpoint = process.env.REACT_APP_TOKEN_ENDPOINT || '/recordingrules';
 
-        return fetch(endpoint, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ room_sid, rules }),
-          method: 'POST',
+      return fetch(endpoint, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ room_sid, rules }),
+        method: 'POST',
+      })
+        .then(async res => {
+          const jsonResponse = await res.json();
+
+          if (!res.ok) {
+            const recordingError = new Error(
+              jsonResponse.error?.message || 'There was an error updating recording rules'
+            );
+            recordingError.code = jsonResponse.error?.code;
+            return Promise.reject(recordingError);
+          }
+
+          return jsonResponse;
         })
-          .then(async res => {
-            const jsonResponse = await res.json();
-
-            if (!res.ok) {
-              const recordingError = new Error(
-                jsonResponse.error?.message || 'There was an error updating recording rules'
-              );
-              recordingError.code = jsonResponse.error?.code;
-              return Promise.reject(recordingError);
-            }
-
-            return jsonResponse;
-          })
-          .catch(err => setError(err));
-      },
-    };
+        .catch(err => setError(err));
+    },
+  };
 
   const getToken: StateContextType['getToken'] = (name, room) => {
     setIsFetching(true);
@@ -128,7 +176,9 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
 
   return (
     <StateContext.Provider value={{ ...contextValue, getToken, updateRecordingRules }}>
-      {props.children}
+      <UserContext.Provider value={{ userState, userDispatch }}>
+        {props.children}
+      </UserContext.Provider>
     </StateContext.Provider>
   );
 }
