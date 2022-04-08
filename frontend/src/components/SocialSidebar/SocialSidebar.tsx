@@ -1,9 +1,11 @@
-import { Heading, StackDivider, Tooltip, VStack } from '@chakra-ui/react';
+import { Flex, Heading, Spacer, StackDivider, Tooltip, VStack } from '@chakra-ui/react';
 import React from 'react';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
-import TownJoinInvite from '../TownJoinInvite/TownJoinInvite';
 import ConversationAreasList from './ConversationAreasList';
+import FriendList from './FriendList';
+import InvitationList from './InvitationList';
 import PlayersList from './PlayersList';
+import TownJoinInvite from './TownJoinInvite';
 
 export default function SocialSidebar(): JSX.Element {
   const { currentTownFriendlyName, currentTownID } = useCoveyAppState();
@@ -18,6 +20,11 @@ export default function SocialSidebar(): JSX.Element {
       height='100%'
       divider={<StackDivider borderColor='gray.200' />}
       borderRadius='4px'>
+      <Flex>
+        <Spacer />
+        <FriendList />
+        <InvitationList />
+      </Flex>
       <VStack align='left' spacing={2}>
         <Tooltip label={`Town ID: ${currentTownID}`}>
           <Heading fontSize='xl' as='h1'>

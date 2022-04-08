@@ -32,7 +32,7 @@ export default function PlayersInTownList(): JSX.Element {
           {/* TODO: Display User Profile */}
           <Text me={2}>You:</Text>
         </Center>
-        {currentPlayer ? <PlayerName player={currentPlayer} /> : ''}
+        <PlayerName player={currentPlayer} />
       </Flex>
 
       <Heading as='h2' fontSize='l'>

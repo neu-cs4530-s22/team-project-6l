@@ -352,7 +352,7 @@ export default function AppStateWrapper(): JSX.Element {
               <Route exact path='/register'>
                 <Register />
               </Route>
-              <Route exact path="/forgot-password">
+              <Route exact path='/forgot-password'>
                 <ForgotPassword />
               </Route>
             </Switch>
