@@ -42,7 +42,6 @@ describe('Postgre Database Test', () => {
   });
 
   afterAll(async () => {
-    server.close();
   });
   describe('Postgre Database Test', () => {
     it('Represents the test of returning an empty list of friends if the player just joined and has no friends in the town yet', async () => {
