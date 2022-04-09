@@ -33,12 +33,13 @@ export default function LoginForm() {
   };
 
   const onLoginClick = (event: React.MouseEvent) => {
+    event.preventDefault();
     if (!email || !password) {
       setAlert(true);
       if (!email) setAlertMess('Enter your email');
       else if (!password) setAlertMess('Enter your password');
+      return;
     }
-    event.preventDefault();
     logInWithEmailAndPassword();
   }
 
@@ -55,14 +56,14 @@ export default function LoginForm() {
       </FormControl>
       <FormControl>
         <FormLabel>Password</FormLabel>
-        <Input data-testid="login-password" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
+        <Input data-testid='login-password' type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
       </FormControl>
-      <Button data-testid="forgot-password-btn" fontSize='sm' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onForgotPassClick(e)}>Forgot Password?</Button>
+      <Button data-testid='forgot-password-btn' fontSize='sm' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onForgotPassClick(e)}>Forgot Password?</Button>
       {isAlert ?
         <Box marginTop="2">
           <Alert data-testid="alert-error" status='error'>
             <AlertIcon />
-            <AlertTitle data-testid="alert-message" mr={2}>{alertMess}</AlertTitle>
+            <AlertTitle data-testid='alert-message' mr={2}>{alertMess}</AlertTitle>
             <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
           </Alert>
         </Box> : <></>}

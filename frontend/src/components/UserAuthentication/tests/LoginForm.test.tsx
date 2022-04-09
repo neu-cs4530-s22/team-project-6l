@@ -1,29 +1,28 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import {signInWithEmailAndPassword} from 'firebase/auth';
 import LoginForm from '../LoginForm';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useHistory: () => ({
+    push: jest.fn(),
+  }),
+}));
 
 jest.mock('../../../firebase/firebase-config', () => ({
   auth: jest.fn().mockReturnThis(),
-  currentUser: {
-    email: 'test',
-    uid: '123',
-    emailVerified: true
-  },
+}));
+
+jest.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: jest.fn(),
-  createUserWithEmailAndPassword: jest.fn(() => ({
-    user: {
-      sendEmailVerification: jest.fn(),
-    },
-  })),
-  initializeApp: jest.fn()
 }));
 
 describe('LoginForm', () => {
-  beforeEach(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
-
   it('should render all the elements properly without Alert box', () => {
     const { getByTestId, queryByTestId } = render(<LoginForm />);
 
@@ -41,7 +40,6 @@ describe('LoginForm', () => {
   });
   it('should render Alert error with \'Enter your email\' error mess', async () => {
     render(<LoginForm />);
-
     // check to make sure the 'Enter your email' text is yet rendered
     expect(screen.queryByText('Enter your email')).toBeNull()
     const signInBtn = screen.getByTestId('sign-in-btn');
@@ -52,9 +50,35 @@ describe('LoginForm', () => {
       expect(screen.queryByText('Enter your email')).toBeDefined();
     })
   });
-  it('should render Alert error with \'Enter your password\' error mess', () => {
+  it('should update new email new email ', () => {
     render(<LoginForm />);
-    
+    const emailEl = screen.getByTestId('login-email');
+    expect(emailEl).toHaveValue('');
+
+    fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
+    expect(screen.getByTestId('login-email')).toHaveValue('testing@gmail.com');
+  });
+  it('should render Alert error with \'Enter your password\' error mess', async () => {
+    render(<LoginForm />);
+    const emailEl = screen.getByTestId('login-email');
+    fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
+    fireEvent.click(screen.getByTestId('sign-in-btn'));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Enter your email')).toBeNull();
+      expect(screen.queryByText('Enter your password')).toBeDefined();
+      expect(signInWithEmailAndPassword).not.toHaveBeenCalled();
+    });
+  })
+  it('should call signInWithEmailAndPassword method', async () => {
+    render(<LoginForm />);
+    const emailEl = screen.getByTestId('login-email');
+    fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
+    const passEl = screen.getByTestId('login-password');
+    fireEvent.change(passEl, { target: { value: '123456' } });
+    fireEvent.click(screen.getByTestId('sign-in-btn'));
+
+    expect(signInWithEmailAndPassword).toHaveBeenCalled();
   })
 })
 

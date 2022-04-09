@@ -55,15 +55,15 @@ export default function ForgotPassword() {
       >
         {isSent ?
           <>
-            <Text fontSize='sm' fontWeight="semibold">A reset link has been sent to your email.</Text>
-            <Button mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSignInClick(e)}> Sign in </Button>
+            <Text data-testid="sent-message" fontSize='sm' fontWeight="semibold">A reset link has been sent to your email.</Text>
+            <Button data-testid="signin-btn" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSignInClick(e)}> Sign in </Button>
           </> :
           <>
             <Text fontSize='2xl' fontWeight="semibold" marginTop="2">Forgot Your Password?</Text>
             <Box textAlign="left" marginTop="2">
               <FormControl>
                 <FormLabel>Enter your email</FormLabel>
-                <Input id="for-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
+                <Input data-testid="forgot-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
               </FormControl>
             </Box>
             {isAlert ?
