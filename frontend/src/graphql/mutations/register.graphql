@@ -1,9 +1,16 @@
 mutation RegisterUser($options: UserCreationInput!) {
   register(options: $options) {
     user {
-      email
+      _id
       username
+      createdAt
+      lastOnline
+      email
       displayName
+      avatar
+      friends {
+        username
+      }
     }
     errors {
       field

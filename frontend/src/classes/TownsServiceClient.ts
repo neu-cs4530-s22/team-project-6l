@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
+import { Avatar } from 'generated/graphql';
 import { ServerPlayer } from './Player';
 import { ServerConversationArea } from './ConversationArea';
 
@@ -11,6 +12,8 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+
+  avatar: Avatar;
 }
 
 /**
@@ -20,6 +23,8 @@ export interface TownJoinRequest {
 export interface TownJoinResponse {
   /** Unique ID that represents this player * */
   coveyUserID: string;
+
+  avatar: Avatar;
   /** Secret token that this player should use to authenticate
    * in future requests to this service * */
   coveySessionToken: string;
@@ -84,6 +89,7 @@ export interface ConversationCreateRequest {
   sessionToken: string;
   conversationArea: ServerConversationArea;
 }
+
 
 /**
  * Envelope that wraps any response from the server
@@ -150,10 +156,9 @@ export default class TownsServiceClient {
     const responseWrapper = await this._axios.post('/sessions', requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
-  
-  async createConversation(requestData: ConversationCreateRequest) : Promise<void>{
+
+  async createConversation(requestData: ConversationCreateRequest): Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/conversationAreas`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
-
 }

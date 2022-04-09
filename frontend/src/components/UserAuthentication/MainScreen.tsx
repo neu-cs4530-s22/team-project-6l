@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Text, Flex, Button, } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
-import auth from '../../firebase/firebase-config';
+import auth from '../../firebaseAuth/firebase-config';
 import SSOForm from './SSOForm';
 import DividerWithText from './DividerWithText';
 import LoginForm from './LoginForm';

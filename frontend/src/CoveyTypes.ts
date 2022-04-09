@@ -1,3 +1,4 @@
+import { Avatar } from 'generated/graphql';
 import { Socket } from 'socket.io-client';
 import { UserLocation } from './classes/Player';
 import TownsServiceClient from './classes/TownsServiceClient';
@@ -19,6 +20,7 @@ export type CoveyAppState = {
   currentTownID: string,
   currentTownIsPubliclyListed: boolean,
   myPlayerID: string,
+  myAvatar: Avatar,
   emitMovement: (location: UserLocation) => void,
   socket: Socket | null,
   apiClient: TownsServiceClient

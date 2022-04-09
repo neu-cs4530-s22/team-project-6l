@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import assert from "assert";
 import {
+  Avatar,
   Box,
   Button,
   Checkbox,
@@ -19,16 +20,19 @@ import {
   Tr,
   useToast
 } from '@chakra-ui/react';
+import useUserAccount from 'hooks/useUserAccount';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import Video from '../../classes/Video/Video';
 import { CoveyTownInfo, TownJoinResponse, } from '../../classes/TownsServiceClient';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+
 
 interface TownSelectionProps {
   doLogin: (initData: TownJoinResponse) => Promise<boolean>
 }
 
 export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Element {
+  const { userState } = useUserAccount();
   const [userName, setUserName] = useState<string>(Video.instance()?.userName || '');
   const [newTownName, setNewTownName] = useState<string>('');
   const [newTownIsPublic, setNewTownIsPublic] = useState<boolean>(true);
@@ -37,6 +41,10 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { connect: videoConnect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
+
+  useEffect(() => {
+    setUserName(userState.displayName);
+  }, [userState.displayName]);
 
   const updateTownListings = useCallback(() => {
     // console.log(apiClient);
@@ -56,38 +64,32 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   }, [updateTownListings]);
 
   const handleJoin = useCallback(async (coveyRoomID: string) => {
-    try {
-      if (!userName || userName.length === 0) {
-        toast({
-          title: 'Unable to join town',
-          description: 'Please select a username',
-          status: 'error',
-        });
-        return;
-      }
-      if (!coveyRoomID || coveyRoomID.length === 0) {
-        toast({
-          title: 'Unable to join town',
-          description: 'Please enter a town ID',
-          status: 'error',
-        });
-        return;
-      }
-      const initData = await Video.setup(userName, coveyRoomID);
 
-      const loggedIn = await doLogin(initData);
-      if (loggedIn) {
-        assert(initData.providerVideoToken);
-        await videoConnect(initData.providerVideoToken);
-      }
-    } catch (err) {
+    if (!userName || userName.length === 0) {
       toast({
-        title: 'Unable to connect to Towns Service',
-        description: err.toString(),
-        status: 'error'
-      })
+        title: 'Unable to join town',
+        description: 'Please select a username',
+        status: 'error',
+      });
+      return;
     }
-  }, [doLogin, userName, videoConnect, toast]);
+    if (!coveyRoomID || coveyRoomID.length === 0) {
+      toast({
+        title: 'Unable to join town',
+        description: 'Please enter a town ID',
+        status: 'error',
+      });
+      return;
+    }
+    const initData = await Video.setup(userName, coveyRoomID, userState.avatar);
+    const loggedIn = await doLogin(initData);
+
+    if (loggedIn) {
+      assert(initData.providerVideoToken);
+      await videoConnect(initData.providerVideoToken);
+    }
+
+  }, [doLogin, userName, videoConnect, toast, userState]);
 
   const handleCreate = async () => {
     if (!userName || userName.length === 0) {
@@ -120,7 +122,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       toast({
         title: `Town ${newTownName} is ready to go!`,
         description: <>{privateMessage}Please record these values in case you need to change the
-          town:<br/>Town ID: {newTownInfo.coveyTownID}<br/>Town Editing
+          town:<br />Town ID: {newTownInfo.coveyTownID}<br />Town Editing
           Password: {newTownInfo.coveyTownPassword}</>,
         status: 'success',
         isClosable: true,
@@ -130,25 +132,28 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
-        description: err.toString(),
+        description: (err instanceof Error ? err : "").toString(),
         status: 'error'
       })
     }
   };
+
+
 
   return (
     <>
       <form>
         <Stack>
           <Box p="4" borderWidth="1px" borderRadius="lg">
-            <Heading as="h2" size="lg">Select a username</Heading>
-
+            <Heading as="h2" size="lg">User Info</Heading>
             <FormControl>
               <FormLabel htmlFor="name">Name</FormLabel>
-              <Input autoFocus name="name" placeholder="Your name"
-                     value={userName}
-                     onChange={event => setUserName(event.target.value)}
+              <Input name="name"
+                value={userName}
+                isReadOnly
               />
+              <FormLabel marginTop="10px" htmlFor="avatar">Avatar</FormLabel>
+              <Avatar borderRadius='none' marginTop="5px" size='2xl' src={`/avatars/${userState.avatar}.jpg`} />
             </FormControl>
           </Box>
           <Box borderWidth="1px" borderRadius="lg">
@@ -157,20 +162,20 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
               <Box flex="1">
                 <FormControl>
                   <FormLabel htmlFor="townName">New Town Name</FormLabel>
-                  <Input name="townName" placeholder="New Town Name"
-                         value={newTownName}
-                         onChange={event => setNewTownName(event.target.value)}
+                  <Input autoFocus name="townName" placeholder="New Town Name"
+                    value={newTownName}
+                    onChange={event => setNewTownName(event.target.value)}
                   />
                 </FormControl>
               </Box><Box>
-              <FormControl>
-                <FormLabel htmlFor="isPublic">Publicly Listed</FormLabel>
-                <Checkbox id="isPublic" name="isPublic" isChecked={newTownIsPublic}
-                          onChange={(e) => {
-                            setNewTownIsPublic(e.target.checked)
-                          }}/>
-              </FormControl>
-            </Box>
+                <FormControl>
+                  <FormLabel htmlFor="isPublic">Publicly Listed</FormLabel>
+                  <Checkbox id="isPublic" name="isPublic" isChecked={newTownIsPublic}
+                    onChange={(e) => {
+                      setNewTownIsPublic(e.target.checked)
+                    }} />
+                </FormControl>
+              </Box>
               <Box>
                 <Button data-testid="newTownButton" onClick={handleCreate}>Create</Button>
               </Box>
@@ -184,11 +189,11 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
               <Flex p="4"><FormControl>
                 <FormLabel htmlFor="townIDToJoin">Town ID</FormLabel>
                 <Input name="townIDToJoin" placeholder="ID of town to join, or select from list"
-                       value={townIDToJoin}
-                       onChange={event => setTownIDToJoin(event.target.value)}/>
+                  value={townIDToJoin}
+                  onChange={event => setTownIDToJoin(event.target.value)} />
               </FormControl>
                 <Button data-testid='joinTownByIDButton'
-                        onClick={() => handleJoin(townIDToJoin)}>Connect</Button>
+                  onClick={() => handleJoin(townIDToJoin)}>Connect</Button>
               </Flex>
 
             </Box>
@@ -204,7 +209,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                       role='cell'>{town.coveyTownID}</Td>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
                         <Button onClick={() => handleJoin(town.coveyTownID)}
-                                disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
+                          disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
                   ))}
                 </Tbody>
               </Table>

@@ -19,8 +19,8 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { FcGoogle } from 'react-icons/fc';
-import auth from '../../firebase/firebase-config';
 import authCheck from './authCheck';
+import auth from '../../firebaseAuth/firebase-config';
 
 export default function SSOForm() {
   const history = useHistory();
@@ -35,8 +35,8 @@ export default function SSOForm() {
       provider = googleProvider;
     } else {
       provider = facebookProvider;
-    }
-
+    };
+    
     await signInWithPopup(auth, provider)
       .then(() => {
         history.push('/pre-join-screen');
