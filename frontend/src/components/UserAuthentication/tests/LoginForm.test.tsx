@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-jest.mock('../../../firebase/firebase-config', () => ({
+jest.mock('../../../firebaseAuth/firebase-config', () => ({
   auth: jest.fn().mockReturnThis(),
 }));
 

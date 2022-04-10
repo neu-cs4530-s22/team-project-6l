@@ -23,7 +23,7 @@ export default function LoginForm() {
   const [alertMess, setAlertMess] = React.useState('');
 
   const logInWithEmailAndPassword = async () => {
-    signInWithEmailAndPassword(auth, email, password)
+    await signInWithEmailAndPassword(auth, email, password)
       .then(() => history.push("/pre-join-screen"))
       .catch((error) => {
         const { code } = error;

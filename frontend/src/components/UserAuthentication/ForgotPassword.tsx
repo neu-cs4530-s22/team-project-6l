@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import auth from '../../firebase/firebase-config';
+import auth from '../../firebaseAuth/firebase-config';
 import authCheck from './authCheck';
 
 export default function ForgotPassword() {
@@ -29,9 +29,9 @@ export default function ForgotPassword() {
     history.push("/");
   });
 
-  const onSendingClick = (event: React.MouseEvent) => {
+  const onSendingClick = async (event: React.MouseEvent) => {
     event.preventDefault();
-    sendPasswordResetEmail(auth, email.trim())
+    await sendPasswordResetEmail(auth, email.trim())
     .then(() => setSent(true))
     .catch(error => {
       const {code} = error;
@@ -56,7 +56,7 @@ export default function ForgotPassword() {
         {isSent ?
           <>
             <Text data-testid="sent-message" fontSize='sm' fontWeight="semibold">A reset link has been sent to your email.</Text>
-            <Button data-testid="signin-btn" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSignInClick(e)}> Sign in </Button>
+            <Button data-testid="signin-btn" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSignInClick(e)}>Sign in</Button>
           </> :
           <>
             <Text fontSize='2xl' fontWeight="semibold" marginTop="2">Forgot Your Password?</Text>
@@ -68,7 +68,7 @@ export default function ForgotPassword() {
             </Box>
             {isAlert ?
             <Box marginTop="2">
-              <Alert status='error'>
+              <Alert data-testid="error-message" status='error'>
                 <AlertIcon />
                 <AlertTitle mr={2}>{alertMess}</AlertTitle>
                 <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
