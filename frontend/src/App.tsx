@@ -2,6 +2,9 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
 import ForgotPassword from 'components/UserAuthentication/ForgotPassword';
+import MainScreen from 'components/UserAuthentication/MainScreen';
+import Register from 'components/UserAuthentication/Register';
+import { Avatar } from 'generated/graphql';
 import React, {
   Dispatch,
   SetStateAction,
@@ -20,8 +23,6 @@ import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClient';
 import Video from './classes/Video/Video';
 import Login from './components/Login/Login';
-import MainScreen from './components/UserAuthentication/MainScreen';
-import Register from './components/UserAuthentication/Register';
 import { ChatProvider } from './components/VideoCall/VideoFrontend/components/ChatProvider';
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import UnsupportedBrowserWarning from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
@@ -53,6 +54,7 @@ type CoveyAppUpdate =
         townIsPubliclyListed: boolean;
         sessionToken: string;
         myPlayerID: string;
+        myAvatar: Avatar;
         socket: Socket;
         emitMovement: (location: UserLocation) => void;
       };
@@ -67,11 +69,13 @@ function defaultAppState(): CoveyAppState {
     currentTownIsPubliclyListed: false,
     sessionToken: '',
     userName: '',
+    myAvatar: Avatar.Dog,
     socket: null,
     emitMovement: () => {},
     apiClient: new TownsServiceClient(),
   };
 }
+
 function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyAppState {
   const nextState = {
     sessionToken: state.sessionToken,
@@ -79,6 +83,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     currentTownID: state.currentTownID,
     currentTownIsPubliclyListed: state.currentTownIsPubliclyListed,
     myPlayerID: state.myPlayerID,
+    myAvatar: state.myAvatar,
     userName: state.userName,
     socket: state.socket,
     emitMovement: state.emitMovement,
@@ -95,6 +100,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.userName = update.data.userName;
       nextState.emitMovement = update.data.emitMovement;
       nextState.socket = update.data.socket;
+      nextState.myAvatar = update.data.myAvatar;
       break;
     case 'disconnect':
       state.socket?.disconnect();
@@ -140,6 +146,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     async (initData: TownJoinResponse) => {
       const gamePlayerID = initData.coveyUserID;
       const sessionToken = initData.coveySessionToken;
+      const gamePlayerAvatar = initData.avatar;
       const url = process.env.REACT_APP_TOWNS_SERVICE_URL;
       assert(url);
       const video = Video.instance();
@@ -159,6 +166,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
+
       let localNearbyPlayers: Player[] = [];
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
@@ -254,6 +262,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           townIsPubliclyListed: video.isPubliclyListed,
           emitMovement,
           socket,
+          myAvatar: gamePlayerAvatar,
         },
       });
 
@@ -293,7 +302,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     );
   }, [setupGameController, appState.sessionToken, videoInstance]);
 
-  const currentPlayer = playersInTown.find(player => player.id === appState.myPlayerID);
+  const currentPlayer = playersInTown.filter(player => player.id === appState.myPlayerID)[0];
+
   return (
     <CoveyAppContext.Provider value={appState}>
       <VideoContext.Provider value={Video.instance()}>
@@ -301,8 +311,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           <PlayerMovementContext.Provider value={playerMovementCallbacks}>
             <PlayersInTownContext.Provider value={playersInTown}>
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
-                <CurrentPlayerContext.Provider
-                  value={currentPlayer !== undefined ? currentPlayer : null}>
+                <CurrentPlayerContext.Provider value={currentPlayer}>
                   <ConversationAreasContext.Provider value={conversationAreas}>
                     {page}
                   </ConversationAreasContext.Provider>
@@ -340,22 +349,22 @@ export default function AppStateWrapper(): JSX.Element {
       <Provider value={gqlClient}>
         <ChakraProvider>
           <MuiThemeProvider theme={theme}>
-            <Switch>
-              <Route exact path='/'>
-                <MainScreen />
-              </Route>
-              <Route path='/pre-join-screen'>
-                <AppStateProvider>
+            <AppStateProvider>
+              <Switch>
+                <Route exact path='/'>
+                  <MainScreen />
+                </Route>
+                <Route path='/pre-join-screen'>
                   <EmbeddedTwilioAppWrapper />
-                </AppStateProvider>
-              </Route>
-              <Route exact path='/register'>
-                <Register />
-              </Route>
-              <Route exact path='/forgot-password'>
-                <ForgotPassword />
-              </Route>
-            </Switch>
+                </Route>
+                <Route exact path='/register'>
+                  <Register />
+                </Route>
+                <Route exact path='/forgot-password'>
+                  <ForgotPassword />
+                </Route>
+              </Switch>
+            </AppStateProvider>
           </MuiThemeProvider>
         </ChakraProvider>
       </Provider>

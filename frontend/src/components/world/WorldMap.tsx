@@ -114,7 +114,6 @@ class CoveyGameScene extends Phaser.Scene {
     }
     conversationAreas.forEach(eachNewArea => {
       const existingArea = this.conversationAreas.find(area => area.label === eachNewArea.label);
-      // TODO - if it becomes necessary to support new conversation areas (dynamically created), need to create sprites here to enable rendering on phaser
       // assert(existingArea);
       if (existingArea) {
         // assert(!existingArea.conversationArea);
@@ -182,6 +181,7 @@ class CoveyGameScene extends Phaser.Scene {
         player.id,
         player.userName,
         location,
+        player.avatar,
         player.friends,
         player.invitations,
       );

@@ -5,6 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { fireEvent, render, RenderResult, waitFor, within } from '@testing-library/react'
 import userEvent, { TargetElement } from '@testing-library/user-event'
 import { nanoid } from 'nanoid';
+import { Avatar } from 'generated/graphql'
 import TownsServiceClient, { TownListResponse } from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
@@ -94,11 +95,13 @@ function wrappedTownSelection() {
     sessionToken: '',
     userName: '',
     socket: null,
+    myAvatar: Avatar.Dog,
+
     emitMovement: () => {
     },
     apiClient: new TownsServiceClient(),
   }}><ChatProvider>
-    <TownSelection doLogin={doLoginMock}/></ChatProvider></CoveyAppContext.Provider></ChakraProvider>;
+      <TownSelection doLogin={doLoginMock} /></ChatProvider></CoveyAppContext.Provider></ChakraProvider>;
 }
 
 describe('Town Selection - depends on Part 1 passing', () => {

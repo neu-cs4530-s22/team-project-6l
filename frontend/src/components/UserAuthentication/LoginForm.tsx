@@ -5,11 +5,10 @@ import {
   FormLabel,
   Input,
   Button,
-  Text,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import auth from '../../firebase/firebase-config';
+import auth from '../../firebaseAuth/firebase-config';
 
 export default function LoginForm() {
   const history = useHistory();
@@ -21,17 +20,17 @@ export default function LoginForm() {
       await signInWithEmailAndPassword(auth, email, password);
       history.push("/pre-join-screen");
     } catch (err) {
-      alert(err.message);
+      if (err instanceof Error)
+        alert(err.message);
 
     }
   };
-
   const onLoginClick = (event: React.MouseEvent) => {
+    event.preventDefault();
     if (!email && !password) {
       alert('Do something');
       return;
     }
-    event.preventDefault();
     logInWithEmailAndPassword();
   }
 

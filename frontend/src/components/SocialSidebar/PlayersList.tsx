@@ -1,9 +1,9 @@
-import { Box, Center, Flex, Heading, ListItem, OrderedList, Text } from '@chakra-ui/react';
+import { Avatar, Box, Center, Flex, Heading, ListItem, OrderedList, Text } from '@chakra-ui/react';
+import useCurrentPlayer from 'hooks/useCurrentPlayer';
+import useUserAccount from 'hooks/useUserAccount';
 import React from 'react';
-import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import PlayerItem from './PlayerItem';
-import PlayerName from './PlayerName';
 
 /**
  * Lists the current players in the town, along with the current town's name and ID
@@ -18,10 +18,14 @@ import PlayerName from './PlayerName';
  *
  */
 export default function PlayersInTownList(): JSX.Element {
+  const { userState } = useUserAccount();
   const players = usePlayersInTown();
   const currentPlayer = useCurrentPlayer();
-  const sorted = players.filter(p => p.id !== currentPlayer.id);
-  sorted.sort((p1, p2) =>
+  const friendUsernames = currentPlayer.friends.map(f => f.userName);
+  const otherPlayers = players.filter(
+    p => p.userName !== userState.username && friendUsernames.indexOf(p.userName) === -1,
+  );
+  otherPlayers.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
 
@@ -31,18 +35,24 @@ export default function PlayersInTownList(): JSX.Element {
         <Center>
           {/* TODO: Display User Profile */}
           <Text me={2}>You:</Text>
+          <Avatar
+            borderRadius='none'
+            marginTop='5px'
+            size='md'
+            src={`/avatars/${userState.avatar}.jpg`}
+          />
         </Center>
-        <PlayerName player={currentPlayer} />
+        <Text>{userState.username}</Text>
       </Flex>
 
       <Heading as='h2' fontSize='l'>
         Other players in this town:
       </Heading>
-      {sorted.length === 0 ? (
+      {otherPlayers.length === 0 ? (
         <Text my={1}>No other players in town</Text>
       ) : (
         <OrderedList>
-          {sorted.map(player => (
+          {otherPlayers.map(player => (
             <ListItem key={player.id}>
               <PlayerItem player={player} />
             </ListItem>

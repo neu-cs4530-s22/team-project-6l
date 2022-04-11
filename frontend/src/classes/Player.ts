@@ -1,3 +1,4 @@
+import { Avatar } from 'generated/graphql';
 import { nanoid } from 'nanoid';
 import InvitationMessage, { InvitationType } from './InvitationMessage';
 
@@ -5,6 +6,7 @@ export type PlayerListener = {
   onInvitationsChange?: (newInvitations: InvitationMessage[]) => void;
   onFriendsChange?: (newFriends: Player[]) => void;
 };
+
 export default class Player {
   public location?: UserLocation;
 
@@ -18,6 +20,8 @@ export default class Player {
 
   private _listeners: PlayerListener[] = [];
 
+  private readonly _avatar: Avatar;
+
   public sprite?: Phaser.GameObjects.Sprite;
 
   public label?: Phaser.GameObjects.Text;
@@ -26,11 +30,13 @@ export default class Player {
     id: string,
     userName: string,
     location: UserLocation,
+    avatar: Avatar,
     friends: Player[],
     invitations: InvitationMessage[],
   ) {
     this._id = id;
     this._userName = userName;
+    this._avatar = avatar;
     this.location = location;
     this._friends = friends;
     this._invitations = invitations;
@@ -42,6 +48,10 @@ export default class Player {
 
   get id(): string {
     return this._id;
+  }
+
+  get avatar(): Avatar {
+    return this._avatar;
   }
 
   get friends(): Player[] {
@@ -61,8 +71,6 @@ export default class Player {
   }
 
   acceptFriendInvitationFrom(from: string): void {
-    // TODO: call backend to accept and delete friend invitation,
-    // pass updated list of friends received from backend to listeners
     const mockDirection: Direction = 'front';
     const mockLocation = {
       x: 100,
@@ -74,7 +82,10 @@ export default class Player {
 
     this._invitations = this._invitations.filter(invitation => invitation.from !== from);
     this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
-    this._friends.push(new Player(nanoid(), from, mockLocation, [this], []));
+
+    // TODO: call backend to accept and delete friend invitation,
+    // pass updated list of friends received from backend to listeners
+    this._friends.push(new Player(nanoid(), from, mockLocation, Avatar.Dog, [this], []));
     this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
   }
 
@@ -100,9 +111,9 @@ export default class Player {
       moving: false,
       conversationLabel: undefined,
     };
-    const mockFrineds = [
-      new Player('123', 'annie', mockLocation, [], []),
-      new Player('234', 'bob', mockLocation, [], []),
+    const mockFriends = [
+      new Player('123', 'annie', mockLocation, Avatar.BubbleGum, [], []),
+      new Player('234', 'bob', mockLocation, Avatar.Dragon, [], []),
     ];
     const mockInvitations = [
       new InvitationMessage(
@@ -124,12 +135,18 @@ export default class Player {
       playerFromServer._id,
       playerFromServer._userName,
       playerFromServer.location,
-      mockFrineds,
+      playerFromServer._avatar,
+      mockFriends,
       mockInvitations,
     );
   }
 }
-export type ServerPlayer = { _id: string; _userName: string; location: UserLocation };
+export type ServerPlayer = {
+  _id: string;
+  _userName: string;
+  location: UserLocation;
+  _avatar: Avatar;
+};
 
 export type Direction = 'front' | 'back' | 'left' | 'right';
 

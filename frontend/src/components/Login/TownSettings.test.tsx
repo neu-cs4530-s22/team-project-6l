@@ -5,13 +5,14 @@ import '@testing-library/jest-dom'
 import { fireEvent, render, RenderResult, waitFor } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 import { TargetElement } from '@testing-library/user-event';
+import { Avatar } from 'generated/graphql';
 import TownSettings from './TownSettings';
 import TownsServiceClient from '../../classes/TownsServiceClient';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
 
 const mockUseCoveyAppState = jest.fn(() => (Promise.resolve()));
 const mockToast = jest.fn();
-const mockUseDisclosure = {isOpen: true, onOpen: jest.fn(), onClose: jest.fn()};
+const mockUseDisclosure = { isOpen: true, onOpen: jest.fn(), onClose: jest.fn() };
 
 jest.mock('../../classes/TownsServiceClient');
 jest.mock('../../hooks/useCoveyAppState', () => ({
@@ -22,8 +23,8 @@ jest.mock("@chakra-ui/react", () => {
   const ui = jest.requireActual("@chakra-ui/react");
   return {
     ...ui,
-    useToast: ()=>(mockToast),
-    useDisclosure: ()=>(mockUseDisclosure),
+    useToast: () => (mockToast),
+    useDisclosure: () => (mockUseDisclosure),
   };
 })
 const mockUpdateTown = jest.fn();
@@ -42,11 +43,12 @@ function wrappedTownSettings() {
     sessionToken: '',
     userName: '',
     socket: null,
+    myAvatar: Avatar.Dog,
     emitMovement: () => {
     },
     apiClient: new TownsServiceClient(),
   }}>
-    <TownSettings/></CoveyAppContext.Provider></ChakraProvider>;
+    <TownSettings /></CoveyAppContext.Provider></ChakraProvider>;
 }
 
 describe('Part 4 - Town Settings', () => {
@@ -168,7 +170,7 @@ describe('Part 4 - Town Settings', () => {
         }));
       expect(mockDeleteTown).not.toBeCalled();
 
-      await waitFor(()=>expect(mockUseDisclosure.onClose).toBeCalled());
+      await waitFor(() => expect(mockUseDisclosure.onClose).toBeCalled());
     }, 10000);
     it("Displays a toast 'Unable to update town' if an error is thrown by apiClient.updateTown", async () => {
       const params = {
@@ -259,7 +261,7 @@ describe('Part 4 - Town Settings', () => {
           status: 'success'
         }));
       expect(mockUpdateTown).not.toBeCalled();
-      await waitFor(()=>expect(mockUseDisclosure.onClose).toBeCalled());
+      await waitFor(() => expect(mockUseDisclosure.onClose).toBeCalled());
 
     }, 10000);
     it("Displays a toast 'Unable to delete town' if an error is thrown by apiClient.deleteTown", async () => {

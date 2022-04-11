@@ -66,6 +66,18 @@ export default class UsersResolver {
         ],
       };
     }
+
+    const userEmailFound = await em.findOne(User, { email });
+
+    if (userEmailFound) {
+      return {
+        errors: [{
+          field: 'email',
+          message: 'User with email is already registered.',
+        }],
+      };
+    }
+
     const user = em.create(User, { email, username, displayName, avatar });
 
     try {
