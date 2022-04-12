@@ -3,9 +3,7 @@ import CoveyTownsStore from './CoveyTownsStore';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import { ServerConversationArea } from '../client/TownsServiceClient';
-import { ChatMessage } from '../CoveyTypes';
 import { type } from 'os';
-import { Client } from 'twilio/lib/twiml/VoiceResponse';
 
 // Represents the information of the player that we are going to test our handlers with
 export interface playerTestingInformation {
@@ -36,10 +34,8 @@ export type playerToTest = {
 
 describe('Postgre Database Test', () => {
   
-  let friendClient: dbClient;
-
-  beforeAll(async () => {
-  });
+    // Represents initializing the friend data base client to be used for testing purposes
+  let friendClient: dataBaseClient;
 
   afterAll(async () => {
   });
