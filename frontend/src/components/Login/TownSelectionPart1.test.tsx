@@ -4,6 +4,7 @@ import '@testing-library/jest-dom'
 import { ChakraProvider } from '@chakra-ui/react'
 import { render, waitFor, within } from '@testing-library/react'
 import { nanoid } from 'nanoid';
+import { Avatar } from 'generated/graphql';
 import TownsServiceClient from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
@@ -89,11 +90,12 @@ function wrappedTownSelection() {
     sessionToken: '',
     userName: '',
     socket: null,
+    myAvatar: Avatar.Dog,
     emitMovement: () => {
     },
     apiClient: new TownsServiceClient(),
   }}><ChatProvider>
-    <TownSelection doLogin={doLoginMock}/></ChatProvider></CoveyAppContext.Provider></ChakraProvider>;
+      <TownSelection doLogin={doLoginMock} /></ChatProvider></CoveyAppContext.Provider></ChakraProvider>;
 }
 
 describe('Part 1 - Public town listing', () => {
@@ -108,7 +110,7 @@ describe('Part 1 - Public town listing', () => {
     await waitFor(() => {
       expect(mocklistTowns)
         .toHaveBeenCalledTimes(1);
-    }, {timeout: 200})
+    }, { timeout: 200 })
     renderData.unmount();
   });
   it('updates every 2000 msec', async () => {

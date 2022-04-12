@@ -1,6 +1,6 @@
+import { Connection, IDatabaseDriver, MikroORM } from '@mikro-orm/core';
 import CoveyTownController from './CoveyTownController';
 import { CoveyTownList } from '../CoveyTypes';
-import { Connection, IDatabaseDriver, MikroORM } from '@mikro-orm/core';
 
 
 function passwordMatches(provided: string, expected: string): boolean {
@@ -15,16 +15,17 @@ function passwordMatches(provided: string, expected: string): boolean {
 
 export default class CoveyTownsStore {
   private static _instance: CoveyTownsStore;
+
   private static _db: MikroORM<IDatabaseDriver<Connection>>;
 
   private _towns: CoveyTownController[] = [];
 
-  static attachDatabase(db: MikroORM<IDatabaseDriver<Connection>>): CoveyTownsStore {
-    if (CoveyTownsStore._db === undefined) {
+  static getDatabase(db?: MikroORM<IDatabaseDriver<Connection>>): MikroORM<IDatabaseDriver<Connection>> {
+    if (CoveyTownsStore._db === undefined && db) {
       CoveyTownsStore._db = db;
     }
 
-    return CoveyTownsStore._instance;
+    return CoveyTownsStore._db;
   }
 
   /**

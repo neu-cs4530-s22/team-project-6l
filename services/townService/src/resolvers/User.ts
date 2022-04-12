@@ -28,7 +28,7 @@ export default class UsersResolver {
   @Query(() => User, { description: 'Get a user with a given username', nullable: true })
   user(
     @Arg('username', () => String) username: string,
-    @Ctx() { em }: MyContext): Promise<User | null> {
+      @Ctx() { em }: MyContext): Promise<User | null> {
     this.request = 'user';
     return em.findOne(User, { username });
   }
@@ -42,7 +42,7 @@ export default class UsersResolver {
   @Mutation(() => UserResponse, { description: 'Create a new user' })
   async register(
     @Arg('options', () => UserCreationInput) new_user: UserCreationInput,
-    @Ctx() { em }: MyContext): Promise<UserResponse> {
+      @Ctx() { em }: MyContext): Promise<UserResponse> {
     this.request = 'register';
     const { username, email, displayName, avatar } = new_user;
 
@@ -66,6 +66,18 @@ export default class UsersResolver {
         ],
       };
     }
+
+    const userEmailFound = await em.findOne(User, { email });
+
+    if (userEmailFound) {
+      return {
+        errors: [{
+          field: 'email',
+          message: 'User with email is already registered.',
+        }],
+      };
+    }
+
     const user = em.create(User, { email, username, displayName, avatar });
 
     try {
@@ -81,14 +93,14 @@ export default class UsersResolver {
           }],
         };
       }
-      else {
-        return {
-          errors: [{
-            field: 'unknown',
-            message: error.message
-          }]
-        }
-      }
+
+      return {
+        errors: [{
+          field: 'unknown',
+          message: error.message,
+        }],
+      };
+
     }
 
     return {
@@ -107,9 +119,9 @@ export default class UsersResolver {
   @Mutation(() => UserResponse, { description: "Update a user's avatar and/or add a friend", nullable: true })
   async update(
     @Arg('username', () => String) username: string,
-    @Arg('avatar', () => Avatar, { nullable: true }) avatar: Avatar,
-    @Arg('friend', () => String, { nullable: true }) friend: string,
-    @Ctx() { em }: MyContext): Promise<UserResponse | null> {
+      @Arg('avatar', () => Avatar, { nullable: true }) avatar: Avatar,
+      @Arg('friend', () => String, { nullable: true }) friend: string,
+      @Ctx() { em }: MyContext): Promise<UserResponse | null> {
 
     this.request = 'update';
     const user = await em.findOne(User, { username });
@@ -145,7 +157,7 @@ export default class UsersResolver {
   @Mutation(() => Boolean, { description: 'Delete a user' })
   async delete(
     @Arg('username', () => String) username: string,
-    @Ctx() { em }: MyContext): Promise<boolean> {
+      @Ctx() { em }: MyContext): Promise<boolean> {
     this.request = 'delete';
     try {
       await em.nativeDelete(User, { username });

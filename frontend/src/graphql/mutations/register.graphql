@@ -1,0 +1,20 @@
+mutation RegisterUser($options: UserCreationInput!) {
+  register(options: $options) {
+    user {
+      _id
+      username
+      createdAt
+      lastOnline
+      email
+      displayName
+      avatar
+      friends {
+        username
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

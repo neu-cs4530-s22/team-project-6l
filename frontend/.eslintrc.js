@@ -10,7 +10,9 @@ module.exports = {
     'plugin:react/recommended',
   ],
   parserOptions: {
-    project: './tsconfig.json',
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
     warnOnUnsupportedTypeScriptVersion: false,
   },
   settings: {

@@ -1,6 +1,10 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
+import ForgotPassword from 'components/UserAuthentication/ForgotPassword';
+import MainScreen from 'components/UserAuthentication/MainScreen';
+import Register from 'components/UserAuthentication/Register';
+import { Avatar } from 'generated/graphql';
 import React, {
   Dispatch,
   SetStateAction,
@@ -10,8 +14,9 @@ import React, {
   useReducer,
   useState,
 } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import { createClient, Provider } from 'urql';
 import './App.css';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
@@ -30,6 +35,7 @@ import VideoOverlay from './components/VideoCall/VideoOverlay/VideoOverlay';
 import WorldMap from './components/world/WorldMap';
 import ConversationAreasContext from './contexts/ConversationAreasContext';
 import CoveyAppContext from './contexts/CoveyAppContext';
+import CurrentPlayerContext from './contexts/CurrentPlayerContext';
 import NearbyPlayersContext from './contexts/NearbyPlayersContext';
 import PlayerMovementContext, { PlayerMovementCallback } from './contexts/PlayerMovementContext';
 import PlayersInTownContext from './contexts/PlayersInTownContext';
@@ -48,6 +54,7 @@ type CoveyAppUpdate =
         townIsPubliclyListed: boolean;
         sessionToken: string;
         myPlayerID: string;
+        myAvatar: Avatar;
         socket: Socket;
         emitMovement: (location: UserLocation) => void;
       };
@@ -62,11 +69,13 @@ function defaultAppState(): CoveyAppState {
     currentTownIsPubliclyListed: false,
     sessionToken: '',
     userName: '',
+    myAvatar: Avatar.Dog,
     socket: null,
     emitMovement: () => {},
     apiClient: new TownsServiceClient(),
   };
 }
+
 function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyAppState {
   const nextState = {
     sessionToken: state.sessionToken,
@@ -74,6 +83,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     currentTownID: state.currentTownID,
     currentTownIsPubliclyListed: state.currentTownIsPubliclyListed,
     myPlayerID: state.myPlayerID,
+    myAvatar: state.myAvatar,
     userName: state.userName,
     socket: state.socket,
     emitMovement: state.emitMovement,
@@ -90,6 +100,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.userName = update.data.userName;
       nextState.emitMovement = update.data.emitMovement;
       nextState.socket = update.data.socket;
+      nextState.myAvatar = update.data.myAvatar;
       break;
     case 'disconnect':
       state.socket?.disconnect();
@@ -135,6 +146,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     async (initData: TownJoinResponse) => {
       const gamePlayerID = initData.coveyUserID;
       const sessionToken = initData.coveySessionToken;
+      const gamePlayerAvatar = initData.avatar;
       const url = process.env.REACT_APP_TOWNS_SERVICE_URL;
       assert(url);
       const video = Video.instance();
@@ -154,6 +166,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
+
       let localNearbyPlayers: Player[] = [];
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
@@ -183,6 +196,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       };
       socket.on('newPlayer', (player: ServerPlayer) => {
         localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
+        setPlayersInTown(localPlayers);
         recalculateNearbyPlayers();
       });
       socket.on('playerMoved', (player: ServerPlayer) => {
@@ -227,11 +241,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
-        if(existingArea){
+        if (existingArea) {
           existingArea.topic = undefined;
           existingArea.occupants = [];
         }
-        localConversationAreas = localConversationAreas.filter(a => a.label !== _conversationArea.label);
+        localConversationAreas = localConversationAreas.filter(
+          a => a.label !== _conversationArea.label,
+        );
         setConversationAreas(localConversationAreas);
         recalculateNearbyPlayers();
       });
@@ -246,6 +262,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           townIsPubliclyListed: video.isPubliclyListed,
           emitMovement,
           socket,
+          myAvatar: gamePlayerAvatar,
         },
       });
 
@@ -285,6 +302,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     );
   }, [setupGameController, appState.sessionToken, videoInstance]);
 
+  const currentPlayer = playersInTown.filter(player => player.id === appState.myPlayerID)[0];
+
   return (
     <CoveyAppContext.Provider value={appState}>
       <VideoContext.Provider value={Video.instance()}>
@@ -292,9 +311,11 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           <PlayerMovementContext.Provider value={playerMovementCallbacks}>
             <PlayersInTownContext.Provider value={playersInTown}>
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
-                <ConversationAreasContext.Provider value={conversationAreas}>
-                  {page}
-                </ConversationAreasContext.Provider>
+                <CurrentPlayerContext.Provider value={currentPlayer}>
+                  <ConversationAreasContext.Provider value={conversationAreas}>
+                    {page}
+                  </ConversationAreasContext.Provider>
+                </CurrentPlayerContext.Provider>
               </NearbyPlayersContext.Provider>
             </PlayersInTownContext.Provider>
           </PlayerMovementContext.Provider>
@@ -318,16 +339,35 @@ function EmbeddedTwilioAppWrapper() {
   );
 }
 
+const gqlClient = createClient({
+  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`,
+});
+
 export default function AppStateWrapper(): JSX.Element {
   return (
     <BrowserRouter>
-      <ChakraProvider>
-        <MuiThemeProvider theme={theme}>
-          <AppStateProvider>
-            <EmbeddedTwilioAppWrapper />
-          </AppStateProvider>
-        </MuiThemeProvider>
-      </ChakraProvider>
+      <Provider value={gqlClient}>
+        <ChakraProvider>
+          <MuiThemeProvider theme={theme}>
+            <AppStateProvider>
+              <Switch>
+                <Route exact path='/'>
+                  <MainScreen />
+                </Route>
+                <Route path='/pre-join-screen'>
+                  <EmbeddedTwilioAppWrapper />
+                </Route>
+                <Route exact path='/register'>
+                  <Register />
+                </Route>
+                <Route exact path='/forgot-password'>
+                  <ForgotPassword />
+                </Route>
+              </Switch>
+            </AppStateProvider>
+          </MuiThemeProvider>
+        </ChakraProvider>
+      </Provider>
     </BrowserRouter>
   );
 }

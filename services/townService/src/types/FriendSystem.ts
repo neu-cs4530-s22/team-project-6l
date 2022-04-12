@@ -7,7 +7,7 @@ import Player from './Player';
  */
 export default class FriendSystem {
   /** The current location of this user in the world map * */
-  public isOnline: onlineActivity
+  public isOnline: onlineActivity;
 
   /** The unique identifier for this player * */
   private readonly _id: string;
