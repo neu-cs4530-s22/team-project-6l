@@ -9,13 +9,20 @@ type PlayerItemProps = {
 export default function PlayerItem({ player }: PlayerItemProps): JSX.Element {
   console.log(player.avatar);
   return (
-    <Flex p={2}>
+    <Flex m={2}>
       <Center>
-        <Avatar borderRadius='none' marginTop="5px" size='md' src={`/avatars/${player.avatar}.jpg`} />
-        <Text>{player.userName}</Text>
+        <Avatar
+          borderRadius='none'
+          marginTop='5px'
+          size='md'
+          src={`/avatars/${player.avatar}.jpg`}
+        />
+        <Text ms={2}>{player.userName}</Text>
       </Center>
       <Spacer />
-      <FriendRequest username={player.userName} />
+      <Center>
+        <FriendRequest username={player.userName} />
+      </Center>
     </Flex>
   );
 }
