@@ -3,35 +3,45 @@ import {
   ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay,
   useDisclosure, Image, Stack, Box, RadioGroup, Radio, useRadio, chakra, useRadioGroup
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { useRegisterUserMutation } from "../../../../../../generated/graphql";
+import { useContext, useEffect, useState } from "react";
+import { User, useRegisterUserMutation } from "../../../../../../generated/graphql";
 import { Avatar } from "../../../../../../generated/graphql"
-import BubbleGum from "avatars/BubbleGum.jpg"
-import ThreeSixty from "avatars/ThreeSixty.jpg";
-import Dragon from "avatars/Dragon.jpg";
-import Monkey from "avatars/Monkey.jpg";
-import OrangeBlackSkull from "avatars/OrangeBlackSkull.jpg";
-import SmileyFace from "avatars/SmileyFace.jpg";
-import Panda from "avatars/Panda.jpg";
-import Dog from "avatars/Dog.jpg";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import useUserAccount from "hooks/useUserAccount";
 
-const avatarFilepath = "avatars";
+interface RegisterUserScreenProps {
+}
 
-const avatarsTopRow = [
-  { name: Avatar.BubbleGum, image: BubbleGum },
-  { name: Avatar.ThreeSixty, image: ThreeSixty },
-  { name: Avatar.Dog, image: Dog },
-  { name: Avatar.Dragon, image: Dragon },
-]
+const avatarsTop = Object.values(Avatar).map(value => {
+  return { name: value, image: `/avatars/${value}.jpg` }
+});
 
-const avatarsBottomRow = [
-  { name: Avatar.Monkey, image: Monkey },
-  { name: Avatar.OrangeBlackSkull, image: OrangeBlackSkull },
-  { name: Avatar.SmileyFace, image: SmileyFace },
-  { name: Avatar.Panda, image: Panda },
-]
 
-export function RegisterUserScreen({ email }: { email: string }) {
+
+export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
+  const { userState, userDispatch } = useUserAccount();
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isRegistered, setIsRegistered] = useState(false);
+  const { value, getRadioProps, getRootProps } = useRadioGroup({
+    defaultValue: Avatar.Dog,
+  });
+  const [, register] = useRegisterUserMutation();
+
+  useEffect(() => {
+    console.log('user state has been updated');
+    console.log(userState);
+    if (!userState.displayName) {
+      console.log(`we checked for display name: ${userState.displayName}`);
+      onOpen();
+    }
+    else {
+      onClose();
+    }
+  }, [userState])
+
+
+  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false })
   function AvatarRadio(props: any) {
     const { avatar, ...radioProps } = props;
     const { state, getInputProps, getCheckboxProps, htmlProps, getLabelProps } =
@@ -52,111 +62,105 @@ export function RegisterUserScreen({ email }: { email: string }) {
     )
   }
 
-  const [, register] = useRegisterUserMutation();
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
-  const [registed, setRegistered] = useState(false);
-  const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
-
-  const handleAvatarChange = (value: any) => {
-    console.log(`new avatar: ${value}`);
-  }
-
-  const { value, getRadioProps, getRootProps } = useRadioGroup({
-    defaultValue: Avatar.Dog,
-    onChange: handleAvatarChange,
-
-  })
+  const auth = getAuth();
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      setEmail(user.email!);
+    }
+  });
 
   const handleSubmit = async (e: any) => {
-    setRegistered(true);
     // use to prevent submitting a request before hand. done input sanitizing
     e.preventDefault();
-
-    const avatarEnum = Avatar[value as keyof typeof Avatar];
-    console.log(avatarEnum);
 
     const response = await register({
       options: {
         avatar: Avatar[value as keyof typeof Avatar],
         displayName: displayName,
         email: email,
-        username: username
+        username: email
       }
     });
+
+    userDispatch({
+      action: 'registerUser',
+      data: {
+        _id: response.data?.register.user?._id!,
+        email: response.data?.register.user?.email!,
+        avatar: response.data?.register.user?.avatar!,
+        createdAt: response.data?.register.user?.createdAt!,
+        lastOnline: response.data?.register.user?.lastOnline!,
+        displayName: response.data?.register.user?.displayName!,
+        username: response.data?.register.user?.username!,
+        friends: new Array<User>(),
+      }
+    });
+
+    // const doesUserAlreadyExist = response.register.errors?.map((err) => err.field === 'username');
+
+    // console.log(doesUserAlreadyExist);
   };
 
   return (
-    <>
-      <Button onClick={onOpen}>Open Modal</Button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size='xl'
+      closeOnOverlayClick={false}
+    >
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Create your account</ModalHeader>
+        <form onSubmit={handleSubmit}>
+          <ModalBody pb={6}>
 
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        size='xl'
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create your account</ModalHeader>
-          <ModalCloseButton />
-          <form onSubmit={handleSubmit}>
-            <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input value={email} isReadOnly />
+            </FormControl>
 
-              <FormControl>
-                <FormLabel>Email</FormLabel>
-                <Input placeholder={email} isReadOnly />
-              </FormControl>
+            <FormControl mt={4} isRequired>
+              <FormLabel>Display Name</FormLabel>
+              <Input placeholder='Display name' onChange={e => setDisplayName(e.currentTarget.value)} />
+            </FormControl>
 
-              <FormControl mt={4} isRequired>
-                <FormLabel>Username</FormLabel>
-                <Input placeholder='Username' onChange={e => setUsername(e.currentTarget.value)} />
-              </FormControl>
+            <FormControl mt={4} isRequired>
+              <FormLabel>Avatar</FormLabel>
 
-              <FormControl mt={4} isRequired>
-                <FormLabel>Display Name</FormLabel>
-                <Input placeholder='Display name' onChange={e => setDisplayName(e.currentTarget.value)} />
-              </FormControl>
-
-              <FormControl mt={4} isRequired>
-                <FormLabel>Avatar</FormLabel>
-
-                <Stack direction='column' align={"center"} {...getRootProps()} spacing={"5"}>
-                  <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
-                    {avatarsTopRow.map((avatar) => {
-                      return (
-                        <AvatarRadio
-                          key={avatar.name}
-                          avatar={avatar.image}
-                          {...getRadioProps({ value: avatar.name })}
-                        />
-                      )
-                    })}
-
-                  </Stack>
-                  <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
-                    {avatarsBottomRow.map((avatar) => {
-                      return (
-                        <AvatarRadio
-                          key={avatar.name}
-                          avatar={avatar.image}
-                          {...getRadioProps({ value: avatar.name })}
-                        />
-                      )
-                    })}
-                  </Stack>
+              <Stack direction='column' align={"center"} {...getRootProps()} spacing={"5"}>
+                <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
+                  {avatarsTop.slice(0, 4).map((avatar) => {
+                    return (
+                      <AvatarRadio
+                        key={avatar.name}
+                        avatar={avatar.image}
+                        {...getRadioProps({ value: avatar.name })}
+                      />
+                    )
+                  })}
                 </Stack>
-              </FormControl>
-            </ModalBody>
+                <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
+                  {avatarsTop.slice(4, avatarsTop.length).map((avatar) => {
+                    return (
+                      <AvatarRadio
+                        key={avatar.name}
+                        avatar={avatar.image}
+                        {...getRadioProps({ value: avatar.name })}
+                      />
+                    )
+                  })}
+                </Stack>
+              </Stack>
+            </FormControl>
+          </ModalBody>
 
-            <ModalFooter>
-              <Button colorScheme='blue' mr={3} type='submit' onClick={onClose}>
-                Save
-              </Button>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
-    </>
+          <ModalFooter>
+            <Button colorScheme='blue' mr={3} type='submit' onClick={onClose}>
+              Save
+            </Button>
+          </ModalFooter>
+        </form>
+      </ModalContent>
+    </Modal>
   )
 };

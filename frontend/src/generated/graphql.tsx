@@ -124,16 +124,30 @@ export type RegisterUserMutationVariables = Exact<{
 }>;
 
 
-export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', user?: { __typename?: 'User', email: string, username: string, displayName: string } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', user?: { __typename?: 'User', _id: string, username: string, createdAt: string, lastOnline: string, email: string, displayName: string, avatar: Avatar, friends: Array<{ __typename?: 'User', username: string }> } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type GetUserQueryVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+
+export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: string, displayName: string, avatar: Avatar, createdAt: string, lastOnline: string, email: string, username: string, friends: Array<{ __typename?: 'User', username: string }> } | null };
 
 
 export const RegisterUserDocument = gql`
     mutation RegisterUser($options: UserCreationInput!) {
   register(options: $options) {
     user {
-      email
+      _id
       username
+      createdAt
+      lastOnline
+      email
       displayName
+      avatar
+      friends {
+        username
+      }
     }
     errors {
       field
@@ -145,4 +159,24 @@ export const RegisterUserDocument = gql`
 
 export function useRegisterUserMutation() {
   return Urql.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(RegisterUserDocument);
+};
+export const GetUserDocument = gql`
+    query GetUser($username: String!) {
+  user(username: $username) {
+    _id
+    displayName
+    avatar
+    createdAt
+    lastOnline
+    email
+    username
+    friends {
+      username
+    }
+  }
+}
+    `;
+
+export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserQuery>({ query: GetUserDocument, ...options });
 };

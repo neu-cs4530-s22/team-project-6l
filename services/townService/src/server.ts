@@ -36,7 +36,7 @@ const main = async () => {
     // eslint-disable-next-line no-console
     console.log(`Listening on ${address.port}`);
     if (process.env.DEMO_TOWN_ID) {
-      CoveyTownsStore.attachDatabase(orm);
+      CoveyTownsStore.getDatabase(orm);
       CoveyTownsStore.getInstance()
         .createTown(process.env.DEMO_TOWN_ID, false);
     }

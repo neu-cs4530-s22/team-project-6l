@@ -15,4 +15,4 @@ export type ChatMessage = {
   dateCreated: Date;
 };
 
-export type FriendList = { username: string; email: string; }[];;
+export type FriendList = { username: string; email: string; }[];

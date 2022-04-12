@@ -5,17 +5,10 @@ import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
-import { userInfo, UserInfo } from 'os';
-import mikroOrmConfig from '../mikro-orm.config';
-import Migration20220330023402 from '../migrations/Migration20220330023402';
-import { DatabaseDriver, MikroORM } from '@mikro-orm/core';
-import initDatabase from '../database';
-import { ConnectionPolicyContext } from 'twilio/lib/rest/voice/v1/connectionPolicy';
-import { config } from 'dotenv';
-import { ExportConfigurationContext } from 'twilio/lib/rest/bulkexports/v1/exportConfiguration';
-import { ConfigurationInstance } from 'twilio/lib/rest/conversations/v1/service/configuration';
-import { Options } from 'prettier';
- export interface userEmailOfUser {
+import Avatar from '../types/Avatar';
+import User from '../types/User';
+
+export interface UserEmailOfUser {
   userName: string;
 }
 
@@ -43,6 +36,8 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+
+  avatar: Avatar
 }
 
 /**
@@ -52,6 +47,8 @@ export interface TownJoinRequest {
 export interface TownJoinResponse {
   /** Unique ID that represents this player * */
   coveyUserID: string;
+
+  avatar: Avatar;
   /** Secret token that this player should use to authenticate
    * in future requests to this service * */
   coveySessionToken: string;
@@ -138,13 +135,14 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       message: 'Error: No such town',
     };
   }
-  const newPlayer = new Player(requestData.userName);
+  const newPlayer = new Player(requestData.userName, requestData.avatar);
   const newSession = await coveyTownController.addPlayer(newPlayer);
   assert(newSession.videoToken);
   return {
     isOK: true,
     response: {
       coveyUserID: newPlayer.id,
+      avatar: newPlayer.avatar,
       coveySessionToken: newSession.sessionToken,
       providerVideoToken: newSession.videoToken,
       currentPlayers: coveyTownController.players,
@@ -210,10 +208,10 @@ export function townUpdateHandler(requestData: TownUpdateRequest): ResponseEnvel
  * * Ask the TownController to create the conversation area
  * @param _requestData Conversation area create request
  */
-export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest) : ResponseEnvelope<Record<string, null>> {
+export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest): ResponseEnvelope<Record<string, null>> {
   const townsStore = CoveyTownsStore.getInstance();
   const townController = townsStore.getControllerForTown(_requestData.coveyTownID);
-  if (!townController?.getSessionByToken(_requestData.sessionToken)){
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
     return {
       isOK: false, response: {}, message: `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
     };
@@ -248,13 +246,13 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
       socket.emit('townClosing');
       socket.disconnect(true);
     },
-    onConversationAreaDestroyed(conversation: ServerConversationArea){
+    onConversationAreaDestroyed(conversation: ServerConversationArea) {
       socket.emit('conversationDestroyed', conversation);
     },
-    onConversationAreaUpdated(conversation: ServerConversationArea){
+    onConversationAreaUpdated(conversation: ServerConversationArea) {
       socket.emit('conversationUpdated', conversation);
     },
-    onChatMessage(message: ChatMessage){
+    onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
     },
   };
@@ -268,32 +266,30 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
  * @returns 
  */
 export async function FriendListHandler(
-  requestData: userEmailOfUser,
-):  Promise<ResponseEnvelope<userEmailOfUser[]>> {
+  requestData: UserEmailOfUser,
+): Promise<ResponseEnvelope<UserEmailOfUser>> {
 
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
-  const friendMigration: MikroORM = new MikroORM();
   // Represents connecting to the database to extract the information to use
-  friendMigration.connect();
-  let allFriendsList: userEmailOfUser[];
-  try {
-    const player = await friendMigration.em.findOne({ username: requestData.userName });
-    const { myFriends } = player;
-    allFriendsList = await friendMigration.em..find({ username: { $in: myFriends } }).project({ email: 1, isOnline: 1, location: 1, _id: 0 }).toArray();
-  } catch (err) {
-    friendMigration.close();
+  const currentPlayer = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
+
+  if (currentPlayer?.email) {
     return {
-      isOK: false,
-      message: 'Given user does not exist in the data base with that provided email',
+      isOK: true,
+      // Represents returning a list of all of the friends of the given user
+      response: {
+        userName: currentPlayer?.email,
+      },
     };
   }
-  friendMigration.close();
+
   return {
-    isOK: true,
-    // Represents returning a list of all of the friends of the given user
-    response: allFriendsList,
+    isOK: false,
+    response: {
+      userName: 'None',
+    },
   };
 }
 
@@ -305,40 +301,32 @@ export async function FriendListHandler(
  * @param requestData 
  * @returns 
  */
- export async function friendIsAddedHandler(
+export async function friendIsAddedHandler(
   requestData: FriendAdd,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
 
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
-  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
   // Represents connecting to the database to extract the information to use
-  friendMigration.connect();
   // Represents fetching yourself through your own email
-  const playerUser = await friendMigration.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).findOne({ email: requestData.userName });
-    // check if the person with this email-id exists in the database
-    const AllPlayersEmails = await friendMigration.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).distinct('email');
-  const { yourFriends } = playerUser;
+  const playerUser = await CoveyTownsStore.getDatabase().em.findOne(User, { email: requestData.userName });
+  // check if the person with this email-id exists in the database
   // Represents checking if the given friend exists with the user email given
-  const friendPresent = AllPlayersEmails.includes(requestData.friendUserName);
+  const friendUser = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.friendUserName }, { populate: ['friends'] });
+
 
   // Represents if the friend is already a friend
-  const friendToBeAdded =
-    !yourFriends.includes(requestData.friendUserName) &&
-    friendPresent && requestData.friendUserName !== requestData.userName;
-  if (friendToBeAdded) {
-    await friendMigration.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).updateOne({ email: requestData.userName }, { $push: { yourFriends: requestData.friendUserName } });
-    friendMigration.close();
+  if (friendUser) {
+    playerUser?.friends.add(friendUser);
     return {
       isOK: true,
       response: {},
       message: 'Friend is successfully added to your list of friends',
     };
   }
-  friendMigration.close();
   return {
-    isOK: true,
+    isOK: false,
     response: {},
     message: 'Friend cannot added to your list of friends',
   };
@@ -351,18 +339,17 @@ export async function FriendListHandler(
  * @param requestData 
  * @returns 
  */
- export async function friendIsRemovedHandler(
+export async function friendIsRemovedHandler(
   requestData: FriendRemove,
-):Promise<ResponseEnvelope<Record<string, null>>> {
+): Promise<ResponseEnvelope<Record<string, null>>> {
 
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
-  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
   // Represents connecting to the database to extract the information to use
-  friendMigration.connect();
-  await friendMigration.attachDatabase(CoveyTownsStore._db).collection(COLLECTION_NAME).updateOne({ email: requestData.userEmail }, { $pull: { friends: requestData.friendEmail } });
-  friendMigration.close();
+  const player = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
+  const friend = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.friendUserName });
+
   return {
     isOK: true,
     message: 'Friend is succesfully removed.',
@@ -371,30 +358,32 @@ export async function FriendListHandler(
 
 // Represents the function that takes in the player into consideration and simply deletes a player based on if they are in the data base
 // in the case of which, this function will be used for testing purposes
-export async function deletesPlayer(requestData: userEmailOfUser) :Promise<ResponseEnvelope<Record<string, null>>>  {
+export async function deletesPlayer(requestData: UserEmailOfUser): Promise<ResponseEnvelope<Record<string, null>>> {
   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and deletes
   // them from the list of players in the database
-  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
   // await friendMigration.em.delete the user from the database
-  //friendMigration.close();
+  // friendMigration.close();
+  const player = CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
   return {
-    isOK : true,
-    message : "Player from the user database is deleted",
-  }
-  
+    isOK: true,
+    message: 'Player from the user database is deleted',
+  };
+
 }
 
 // Represents the function that takes in the player into consideration and simply adds a player based on if they are in the data base
 // in the case of which, this function will be used for testing purposes
-export async function addsPlayer(requestData: userEmailOfUser) :Promise<ResponseEnvelope<Record<string, null>>>  {
+export async function addsPlayer(requestData: UserEmailOfUser): Promise<ResponseEnvelope<Record<string, null>>> {
   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and adds
   // them from the list of players in the database
-  const friendMigration: MikroORM = new MikroORM(ConfigurationInstance);
   // Represents getting the player out and checking if they are already in the list
-  const playerAdd = await friendMigration.em
   // Represents checking whether the player is already in the list and if not, add it into the database and close the friendMigration client
+  const player = CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
 
-  
+  return {
+    isOK: true,
+    message: 'Player has been added',
+  };
 }
 
 /**
