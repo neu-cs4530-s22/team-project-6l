@@ -1,10 +1,9 @@
-import { Avatar, Box, Center, Flex, Heading, ListItem, OrderedList, Text } from '@chakra-ui/react';
-import useUserAccount from 'hooks/useUserAccount';
+import { Box, Heading, List, Text } from '@chakra-ui/react';
+import useCurrentPlayer from 'hooks/useCurrentPlayer';
 import React from 'react';
-import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
+import FriendItem from './FriendItem';
 import PlayerItem from './PlayerItem';
-import PlayerName from './PlayerName';
 
 /**
  * Lists the current players in the town, along with the current town's name and ID
@@ -19,39 +18,47 @@ import PlayerName from './PlayerName';
  *
  */
 export default function PlayersInTownList(): JSX.Element {
-  const { userState } = useUserAccount();
-  const { userName } = useCoveyAppState();
   const players = usePlayersInTown();
-  const currentPlayer = players.find(p => p.userName === userName);
-  const sorted = players.filter(p => p.userName !== userName);
-  sorted.sort((p1, p2) =>
+  const currentPlayer = useCurrentPlayer();
+  const friendUsernames = currentPlayer.friends.map(f => f.userName);
+  const otherPlayers = players.filter(
+    p => p.userName !== currentPlayer.userName && friendUsernames.indexOf(p.userName) === -1,
+  );
+  otherPlayers.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
 
   return (
     <Box>
-      <Flex mt={1} mb={2} me={2}>
-        <Center>
-          {/* TODO: Display User Profile */}
-          <Text me={2}>You:</Text>
-          <Avatar borderRadius='none' marginTop="5px" size='md' src={`/avatars/${userState.avatar}.jpg`} />
-        </Center>
-        {currentPlayer ? <PlayerName player={currentPlayer} /> : ''}
-      </Flex>
-
       <Heading as='h2' fontSize='l'>
+        Your profile:
+      </Heading>
+      <FriendItem player={currentPlayer} />
+
+      <Heading as='h2' fontSize='l' mt={4}>
+        Friends in this town:
+      </Heading>
+      {friendUsernames.length === 0 ? (
+        <Text my={1}>No friends in town</Text>
+      ) : (
+        <List>
+          {currentPlayer.friends.map(friend => (
+            <FriendItem key={friend.id} player={friend} />
+          ))}
+        </List>
+      )}
+
+      <Heading as='h2' fontSize='l' mt={4}>
         Other players in this town:
       </Heading>
-      {sorted.length === 0 ? (
+      {otherPlayers.length === 0 ? (
         <Text my={1}>No other players in town</Text>
       ) : (
-        <OrderedList>
-          {sorted.map(player => (
-            <ListItem key={player.id}>
-              <PlayerItem player={player} />
-            </ListItem>
+        <List>
+          {otherPlayers.map(player => (
+            <PlayerItem key={player.id} player={player} />
           ))}
-        </OrderedList>
+        </List>
       )}
     </Box>
   );

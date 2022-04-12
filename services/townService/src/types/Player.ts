@@ -3,7 +3,6 @@ import { ServerConversationArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
 import Avatar from './Avatar';
 
-
 /**
  * Each user who is connected to a town is represented by a Player object
  */
@@ -17,6 +16,7 @@ export default class Player {
   /** The player's username, which is not guaranteed to be unique within the town * */
   private readonly _userName: string;
 
+  /** The player's avatar */
   private readonly _avatar: Avatar;
 
   /** The current ConversationArea that the player is in, or undefined if they are not located within one */
@@ -56,11 +56,11 @@ export default class Player {
 
   /**
    * Checks to see if a player's location is within the specified conversation area
-   * 
+   *
    * This method is resilient to floating point errors that could arise if any of the coordinates of
    * `this.location` are dramatically smaller than those of the conversation area's bounding box.
-   * @param conversation 
-   * @returns 
+   * @param conversation
+   * @returns
    */
   isWithin(conversation: ServerConversationArea): boolean {
     return (
@@ -70,5 +70,4 @@ export default class Player {
       this.location.y < conversation.boundingBox.y + conversation.boundingBox.height / 2
     );
   }
-
 }

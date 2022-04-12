@@ -1,9 +1,10 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
+import ForgotPassword from 'components/UserAuthentication/ForgotPassword';
 import MainScreen from 'components/UserAuthentication/MainScreen';
 import Register from 'components/UserAuthentication/Register';
-import ForgotPassword from 'components/UserAuthentication/ForgotPassword';
+import { Avatar } from 'generated/graphql';
 import React, {
   Dispatch,
   SetStateAction,
@@ -17,7 +18,6 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { createClient, Provider } from 'urql';
 import './App.css';
-import { Avatar } from 'generated/graphql';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClient';
@@ -35,6 +35,7 @@ import VideoOverlay from './components/VideoCall/VideoOverlay/VideoOverlay';
 import WorldMap from './components/world/WorldMap';
 import ConversationAreasContext from './contexts/ConversationAreasContext';
 import CoveyAppContext from './contexts/CoveyAppContext';
+import CurrentPlayerContext from './contexts/CurrentPlayerContext';
 import NearbyPlayersContext from './contexts/NearbyPlayersContext';
 import PlayerMovementContext, { PlayerMovementCallback } from './contexts/PlayerMovementContext';
 import PlayersInTownContext from './contexts/PlayersInTownContext';
@@ -45,22 +46,20 @@ export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
 type CoveyAppUpdate =
   | {
-    action: 'doConnect';
-    data: {
-      userName: string;
-      townFriendlyName: string;
-      townID: string;
-      townIsPubliclyListed: boolean;
-      sessionToken: string;
-      myPlayerID: string;
-      myAvatar: Avatar;
-      socket: Socket;
-      emitMovement: (location: UserLocation) => void;
-    };
-  }
+      action: 'doConnect';
+      data: {
+        userName: string;
+        townFriendlyName: string;
+        townID: string;
+        townIsPubliclyListed: boolean;
+        sessionToken: string;
+        myPlayerID: string;
+        myAvatar: Avatar;
+        socket: Socket;
+        emitMovement: (location: UserLocation) => void;
+      };
+    }
   | { action: 'disconnect' };
-
-
 
 function defaultAppState(): CoveyAppState {
   return {
@@ -72,11 +71,10 @@ function defaultAppState(): CoveyAppState {
     userName: '',
     myAvatar: Avatar.Dog,
     socket: null,
-    emitMovement: () => { },
+    emitMovement: () => {},
     apiClient: new TownsServiceClient(),
   };
 }
-
 
 function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyAppState {
   const nextState = {
@@ -113,7 +111,6 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
 
   return nextState;
 }
-
 
 function calculateNearbyPlayers(players: Player[], currentLocation: UserLocation) {
   const isWithinCallRadius = (p: Player, location: UserLocation) => {
@@ -305,6 +302,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     );
   }, [setupGameController, appState.sessionToken, videoInstance]);
 
+  const currentPlayer = playersInTown.filter(player => player.id === appState.myPlayerID)[0];
+
   return (
     <CoveyAppContext.Provider value={appState}>
       <VideoContext.Provider value={Video.instance()}>
@@ -312,9 +311,11 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           <PlayerMovementContext.Provider value={playerMovementCallbacks}>
             <PlayersInTownContext.Provider value={playersInTown}>
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
-                <ConversationAreasContext.Provider value={conversationAreas}>
-                  {page}
-                </ConversationAreasContext.Provider>
+                <CurrentPlayerContext.Provider value={currentPlayer}>
+                  <ConversationAreasContext.Provider value={conversationAreas}>
+                    {page}
+                  </ConversationAreasContext.Provider>
+                </CurrentPlayerContext.Provider>
               </NearbyPlayersContext.Provider>
             </PlayersInTownContext.Provider>
           </PlayerMovementContext.Provider>
@@ -339,7 +340,7 @@ function EmbeddedTwilioAppWrapper() {
 }
 
 const gqlClient = createClient({
-  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`
+  url: `${process.env.REACT_APP_TOWNS_SERVICE_URL}/graphql`,
 });
 
 export default function AppStateWrapper(): JSX.Element {
@@ -350,16 +351,16 @@ export default function AppStateWrapper(): JSX.Element {
           <MuiThemeProvider theme={theme}>
             <AppStateProvider>
               <Switch>
-                <Route exact path="/">
+                <Route exact path='/'>
                   <MainScreen />
                 </Route>
-                <Route path="/pre-join-screen">
+                <Route path='/pre-join-screen'>
                   <EmbeddedTwilioAppWrapper />
                 </Route>
-                <Route exact path="/register">
+                <Route exact path='/register'>
                   <Register />
                 </Route>
-                <Route exact path="/forgot-password">
+                <Route exact path='/forgot-password'>
                   <ForgotPassword />
                 </Route>
               </Switch>
