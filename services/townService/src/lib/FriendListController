@@ -1,59 +1,36 @@
-import { Connection, IDatabaseDriver, MikroORM } from '@mikro-orm/core';
 import CoveyTownController from './CoveyTownController';
-import { CoveyTownList } from '../CoveyTypes';
+import { FriendList } from '../CoveyTypes';
 
+export default class FriendListController {
+  private static _instance: FriendListController;
 
-function passwordMatches(provided: string, expected: string): boolean {
-  if (provided === expected) {
-    return true;
-  }
-  if (process.env.MASTER_TOWN_PASSWORD && process.env.MASTER_TOWN_PASWORD === provided) {
-    return true;
-  }
-  return false;
-}
-
-export default class CoveyTownsStore {
-  private static _instance: CoveyTownsStore;
-
-  private static _db: MikroORM<IDatabaseDriver<Connection>>;
-
-  private _towns: CoveyTownController[] = [];
-
-  static getDatabase(db?: MikroORM<IDatabaseDriver<Connection>>): MikroORM<IDatabaseDriver<Connection>> {
-    if (CoveyTownsStore._db === undefined && db) {
-      CoveyTownsStore._db = db;
-    }
-
-    return CoveyTownsStore._db;
-  }
+  private _friends: FriendListController[] = [];
 
   /**
    * Retrieve the singleton CoveyTownsStore.
    * 
    * There is only a single instance of the CoveyTownsStore - it follows the singleton pattern
    */
-  static getInstance(): CoveyTownsStore {
-    if (CoveyTownsStore._instance === undefined) {
-      CoveyTownsStore._instance = new CoveyTownsStore();
+  static getInstance(): FriendListController {
+    if (FriendListController._instance === undefined) {
+        FriendListController._instance = new FriendListController();
     }
-
-    return CoveyTownsStore._instance;
+    return FriendListController._instance;
   }
 
   /**
-   * Given a town ID, fetch the CoveyTownController
-   * @param coveyTownID town ID to fetch
-   * @returns the existing town controller, or undefined if there is no such town ID
+   * Given a email, fetch the friend
+   * @param friend email ID to fetch
+   * @returns the existing friend controller, or undefined if there is no such email ID
    */
   getControllerForTown(coveyTownID: string): CoveyTownController | undefined {
-    return this._towns.find(town => town.coveyTownID === coveyTownID);
+    return this._friends.find(email => email.coveyTownID === coveyTownID);
   }
 
   /**
    * @returns List of all publicly visible towns
    */
-  getTowns(): CoveyTownList {
+  getTowns(): FriendList {
     return this._towns.filter(townController => townController.isPubliclyListed)
       .map(townController => ({
         coveyTownID: townController.coveyTownID,
@@ -107,7 +84,7 @@ export default class CoveyTownsStore {
    * @param coveyTownPassword 
    * @returns true if the town exists and is successfully deleted, false otherwise
    */
-  deleteTown(coveyTownID: string, coveyTownPassword: string): boolean {
+  deleteFriend(email: string): boolean {
     const existingTown = this.getControllerForTown(coveyTownID);
     if (existingTown && passwordMatches(coveyTownPassword, existingTown.townUpdatePassword)) {
       this._towns = this._towns.filter(town => town !== existingTown);

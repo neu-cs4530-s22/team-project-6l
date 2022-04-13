@@ -93,14 +93,14 @@ export default class UsersResolver {
           }],
         };
       }
-      
+
       return {
         errors: [{
           field: 'unknown',
           message: error.message,
         }],
       };
-      
+
     }
 
     return {

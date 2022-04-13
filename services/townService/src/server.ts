@@ -7,7 +7,7 @@ import { buildSchema } from 'type-graphql';
 import addTownRoutes from './router/towns';
 import CoveyTownsStore from './lib/CoveyTownsStore';
 import initDatabase from './database';
-import  UsersResolver  from './resolvers/User';
+import UsersResolver from './resolvers/User';
 
 
 const main = async () => {
@@ -36,6 +36,7 @@ const main = async () => {
     // eslint-disable-next-line no-console
     console.log(`Listening on ${address.port}`);
     if (process.env.DEMO_TOWN_ID) {
+      CoveyTownsStore.getDatabase(orm);
       CoveyTownsStore.getInstance()
         .createTown(process.env.DEMO_TOWN_ID, false);
     }
@@ -43,4 +44,3 @@ const main = async () => {
 };
 
 main();
-
