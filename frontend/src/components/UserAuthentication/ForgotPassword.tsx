@@ -6,43 +6,42 @@ import {
   Input,
   Button,
   Text,
-  IconButton,
+  Flex,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  CloseButton,
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import auth from '../../firebaseAuth/firebase-config';
-
+import authCheck from './authCheck';
 
 export default function ForgotPassword() {
   const history = useHistory();
   const [email, setEmail] = React.useState('');
   const [isSent, setSent] = React.useState(false);
+  const [isAlert, setAlert] = React.useState(false);
+  const [alertMess, setAlertMess] = React.useState('');
 
   const onSignInClick = ((event: React.MouseEvent) => {
     event.preventDefault();
     history.push("/");
   });
 
-  const onSendingClick = (event: React.MouseEvent) => {
+  const onSendingClick = async (event: React.MouseEvent) => {
     event.preventDefault();
-
-    if (email) {
-      setSent(true);
-      sendPasswordResetEmail(auth, email.trim());
-    } else {
-      alert("Please enter the valid email");
-    }
+    await sendPasswordResetEmail(auth, email.trim())
+    .then(() => setSent(true))
+    .catch(error => {
+      const {code} = error;
+      setAlert(true);
+      setAlertMess(authCheck(code));
+    })
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-      }}
-    >
+    <Flex height="100vh" width="full" justifyContent="center" align="center" flexDirection="column">
       <Box
         textAlign="left"
         w="800px" maxW='lg'
@@ -56,23 +55,31 @@ export default function ForgotPassword() {
       >
         {isSent ?
           <>
-            <Text fontSize='sm' fontWeight="semibold">A reset link has been sent to your email.</Text>
-            <Button mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSignInClick(e)}> Sign in </Button>
+            <Text data-testid="sent-message" fontSize='sm' fontWeight="semibold">A reset link has been sent to your email.</Text>
+            <Button data-testid="signin-btn" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSignInClick(e)}>Sign in</Button>
           </> :
           <>
             <Text fontSize='2xl' fontWeight="semibold" marginTop="2">Forgot Your Password?</Text>
             <Box textAlign="left" marginTop="2">
               <FormControl>
                 <FormLabel>Enter your email</FormLabel>
-                <Input id="for-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
+                <Input data-testid="forgot-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
               </FormControl>
             </Box>
+            {isAlert ?
+            <Box marginTop="2">
+              <Alert data-testid="error-message" status='error'>
+                <AlertIcon />
+                <AlertTitle mr={2}>{alertMess}</AlertTitle>
+                <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
+              </Alert>
+            </Box> : <></>}
             <Box justifyContent="flex-end" display="flex">
               <Button mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onSendingClick(e)}> Reset </Button>
             </Box>
           </>
         }
       </Box>
-    </div>
+    </Flex>
   );
 }
