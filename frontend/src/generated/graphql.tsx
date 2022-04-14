@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import * as Urql from 'urql';
 
-
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -26,7 +25,7 @@ export enum Avatar {
   OrangeBlackSkull = 'OrangeBlackSkull',
   Panda = 'Panda',
   SmileyFace = 'SmileyFace',
-  ThreeSixty = 'ThreeSixty'
+  ThreeSixty = 'ThreeSixty',
 }
 
 /** Describes the field causing the error along with an error message */
@@ -42,22 +41,33 @@ export type Mutation = {
   __typename?: 'Mutation';
   /** Delete a user */
   delete: Scalars['Boolean'];
+  /** Delete pending invitation */
+  deleteFriendInvitation: Scalars['Boolean'];
   /** Create a new user */
   register: UserResponse;
+  /** Send friend invitation to another user */
+  sendFriendInvitation?: Maybe<UserResponse>;
   /** Update a user's avatar and/or add a friend */
   update?: Maybe<UserResponse>;
 };
-
 
 export type MutationDeleteArgs = {
   username: Scalars['String'];
 };
 
+export type MutationDeleteFriendInvitationArgs = {
+  sender: Scalars['String'];
+  username: Scalars['String'];
+};
 
 export type MutationRegisterArgs = {
   options: UserCreationInput;
 };
 
+export type MutationSendFriendInvitationArgs = {
+  sendTo: Scalars['String'];
+  username: Scalars['String'];
+};
 
 export type MutationUpdateArgs = {
   avatar?: InputMaybe<Avatar>;
@@ -72,7 +82,6 @@ export type Query = {
   /** Get all users */
   users: Array<User>;
 };
-
 
 export type QueryUserArgs = {
   username: Scalars['String'];
@@ -90,6 +99,8 @@ export type User = {
   displayName: Scalars['String'];
   /** The user's email */
   email: Scalars['String'];
+  /** Open friend invitations */
+  friendInvitations: Array<Scalars['String']>;
   /** List of the user's friends */
   friends: Array<User>;
   /** Time the user was last online */
@@ -119,64 +130,173 @@ export type UserResponse = {
   user?: Maybe<User>;
 };
 
+export type AddFriendMutationVariables = Exact<{
+  username: Scalars['String'];
+  friend?: InputMaybe<Scalars['String']>;
+}>;
+
+export type AddFriendMutation = {
+  __typename?: 'Mutation';
+  update?: {
+    __typename?: 'UserResponse';
+    user?: { __typename?: 'User'; username: string; lastOnline: string } | null;
+  } | null;
+};
+
+export type RemoveInvitationMutationVariables = Exact<{
+  sender: Scalars['String'];
+  username: Scalars['String'];
+}>;
+
+export type RemoveInvitationMutation = { __typename?: 'Mutation'; deleteFriendInvitation: boolean };
+
 export type RegisterUserMutationVariables = Exact<{
   options: UserCreationInput;
 }>;
 
+export type RegisterUserMutation = {
+  __typename?: 'Mutation';
+  register: {
+    __typename?: 'UserResponse';
+    user?: {
+      __typename?: 'User';
+      _id: string;
+      username: string;
+      createdAt: string;
+      lastOnline: string;
+      email: string;
+      displayName: string;
+      avatar: Avatar;
+      friends: Array<{ __typename?: 'User'; username: string }>;
+    } | null;
+    errors?: Array<{ __typename?: 'FieldError'; field: string; message: string }> | null;
+  };
+};
 
-export type RegisterUserMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', user?: { __typename?: 'User', _id: string, username: string, createdAt: string, lastOnline: string, email: string, displayName: string, avatar: Avatar, friends: Array<{ __typename?: 'User', username: string }> } | null, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+export type AddFriendInvitationMutationVariables = Exact<{
+  sendTo: Scalars['String'];
+  username: Scalars['String'];
+}>;
+
+export type AddFriendInvitationMutation = {
+  __typename?: 'Mutation';
+  sendFriendInvitation?: {
+    __typename?: 'UserResponse';
+    user?: { __typename?: 'User'; username: string } | null;
+    errors?: Array<{ __typename?: 'FieldError'; field: string; message: string }> | null;
+  } | null;
+};
 
 export type GetUserQueryVariables = Exact<{
   username: Scalars['String'];
 }>;
 
+export type GetUserQuery = {
+  __typename?: 'Query';
+  user?: {
+    __typename?: 'User';
+    _id: string;
+    displayName: string;
+    avatar: Avatar;
+    createdAt: string;
+    lastOnline: string;
+    email: string;
+    username: string;
+    friendInvitations: Array<string>;
+    friends: Array<{ __typename?: 'User'; username: string }>;
+  } | null;
+};
 
-export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: string, displayName: string, avatar: Avatar, createdAt: string, lastOnline: string, email: string, username: string, friends: Array<{ __typename?: 'User', username: string }> } | null };
+export const AddFriendDocument = gql`
+  mutation AddFriend($username: String!, $friend: String) {
+    update(username: $username, friend: $friend) {
+      user {
+        username
+        lastOnline
+      }
+    }
+  }
+`;
 
+export function useAddFriendMutation() {
+  return Urql.useMutation<AddFriendMutation, AddFriendMutationVariables>(AddFriendDocument);
+}
+export const RemoveInvitationDocument = gql`
+  mutation RemoveInvitation($sender: String!, $username: String!) {
+    deleteFriendInvitation(sender: $sender, username: $username)
+  }
+`;
 
+export function useRemoveInvitationMutation() {
+  return Urql.useMutation<RemoveInvitationMutation, RemoveInvitationMutationVariables>(
+    RemoveInvitationDocument,
+  );
+}
 export const RegisterUserDocument = gql`
-    mutation RegisterUser($options: UserCreationInput!) {
-  register(options: $options) {
-    user {
+  mutation RegisterUser($options: UserCreationInput!) {
+    register(options: $options) {
+      user {
+        _id
+        username
+        createdAt
+        lastOnline
+        email
+        displayName
+        avatar
+        friends {
+          username
+        }
+      }
+      errors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+export function useRegisterUserMutation() {
+  return Urql.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(
+    RegisterUserDocument,
+  );
+}
+export const AddFriendInvitationDocument = gql`
+  mutation AddFriendInvitation($sendTo: String!, $username: String!) {
+    sendFriendInvitation(sendTo: $sendTo, username: $username) {
+      user {
+        username
+      }
+      errors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+export function useAddFriendInvitationMutation() {
+  return Urql.useMutation<AddFriendInvitationMutation, AddFriendInvitationMutationVariables>(
+    AddFriendInvitationDocument,
+  );
+}
+export const GetUserDocument = gql`
+  query GetUser($username: String!) {
+    user(username: $username) {
       _id
-      username
+      displayName
+      avatar
       createdAt
       lastOnline
       email
-      displayName
-      avatar
+      username
       friends {
         username
       }
-    }
-    errors {
-      field
-      message
+      friendInvitations
     }
   }
-}
-    `;
-
-export function useRegisterUserMutation() {
-  return Urql.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(RegisterUserDocument);
-};
-export const GetUserDocument = gql`
-    query GetUser($username: String!) {
-  user(username: $username) {
-    _id
-    displayName
-    avatar
-    createdAt
-    lastOnline
-    email
-    username
-    friends {
-      username
-    }
-  }
-}
-    `;
+`;
 
 export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'>) {
   return Urql.useQuery<GetUserQuery>({ query: GetUserDocument, ...options });
-};
+}

@@ -12,8 +12,11 @@ import {
   UnorderedList,
   useDisclosure,
 } from '@chakra-ui/react';
-import InvitationMessage from 'classes/InvitationMessage';
+import InvitationMessage, { InvitationType } from 'classes/InvitationMessage';
 import { PlayerListener } from 'classes/Player';
+import { useGetUserQuery } from 'generated/graphql';
+import usePlayersInTown from 'hooks/usePlayersInTown';
+import useUserAccount from 'hooks/useUserAccount';
 import React, { useEffect, useState } from 'react';
 import { IoMdMail } from 'react-icons/io';
 import useCurrentPlayer from '../../hooks/useCurrentPlayer';
@@ -21,8 +24,14 @@ import InvitationItem from './InvitationItem';
 
 export default function InvitationList(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
+  const playersInTown = usePlayersInTown();
   const [invitations, setInvitations] = useState(currentPlayer.invitations);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [result, reexecuteQuery] = useGetUserQuery({
+    variables: {
+      username: currentPlayer.email,
+    },
+  });
 
   useEffect(() => {
     const updateListener: PlayerListener = {
@@ -31,6 +40,32 @@ export default function InvitationList(): JSX.Element {
       },
     };
     currentPlayer.addListener(updateListener);
+
+    // const timerId = setTimeout(() => {
+    //   reexecuteQuery({
+    //     variables: {
+    //       username: currentPlayer.email,
+    //     },
+    //     requestPolicy: 'network-only',
+    //   });
+    // }, 1000);
+
+    // if (result.data?.user) {
+    //   const invitationMessages: InvitationMessage[] = result.data?.user?.friendInvitations.map(
+    //     i => {
+    //       const selectedPlayer = playersInTown.filter(p => p.email !== i);
+
+    //       return new InvitationMessage(
+    //         currentPlayer.userName,
+    //         selectedPlayer[0].userName,
+    //         InvitationType.Friend,
+    //       );
+    //     },
+    //   );
+
+    //   setInvitations(invitationMessages);
+    // }
+
     return () => {
       currentPlayer.removeListener(updateListener);
     };

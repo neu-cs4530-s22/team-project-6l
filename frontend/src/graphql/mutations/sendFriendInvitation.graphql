@@ -1,0 +1,11 @@
+mutation AddFriendInvitation($sendTo: String!, $username: String!) {
+  sendFriendInvitation(sendTo: $sendTo, username: $username) {
+    user {
+      username
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

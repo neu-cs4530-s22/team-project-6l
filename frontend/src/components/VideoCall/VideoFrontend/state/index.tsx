@@ -1,12 +1,16 @@
 import React, { createContext, useContext, useReducer, useState } from 'react';
 import { RecordingRules, RoomType } from '../types';
 import { TwilioError } from 'twilio-video';
-import { settingsReducer, initialSettings, Settings, SettingsAction } from './settings/settingsReducer';
+import {
+  settingsReducer,
+  initialSettings,
+  Settings,
+  SettingsAction,
+} from './settings/settingsReducer';
 import useActiveSinkId from './useActiveSinkId/useActiveSinkId';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
 import { Avatar, User } from 'generated/graphql';
 import UserContext, { UserUpdate } from 'contexts/UserContext';
-
 
 function UserStateReducer(state: User, update: UserUpdate): User {
   const nextState = {
@@ -17,8 +21,9 @@ function UserStateReducer(state: User, update: UserUpdate): User {
     lastOnline: state.lastOnline,
     displayName: state.lastOnline,
     username: state.username,
-    friends: state.friends
-  }
+    friends: state.friends,
+    friendInvitations: state.friendInvitations,
+  };
 
   switch (update.action) {
     case 'registerUser':
@@ -30,13 +35,14 @@ function UserStateReducer(state: User, update: UserUpdate): User {
       nextState.displayName = update.data.displayName;
       nextState.username = update.data.username;
       nextState.friends = update.data.friends;
+      nextState.friendInvitations = update.data.friendInvitations;
       break;
     default:
-      throw new Error('Unexpected state request ')
+      throw new Error('Unexpected state request ');
   }
 
   return nextState;
-};
+}
 
 function defaultUserState(): User {
   return {
@@ -48,13 +54,18 @@ function defaultUserState(): User {
     displayName: '',
     username: '',
     friends: new Array<User>(),
+    friendInvitations: new Array<string>(),
   };
 }
 
 export interface StateContextType {
   error: TwilioError | Error | null;
   setError(error: TwilioError | Error | null): void;
-  getToken(name: string, room: string, passcode?: string): Promise<{ room_type: RoomType; token: string }>;
+  getToken(
+    name: string,
+    room: string,
+    passcode?: string,
+  ): Promise<{ room_type: RoomType; token: string }>;
   user?: { displayName: undefined; photoURL: undefined; passcode?: string };
   signIn?(passcode?: string): Promise<void>;
   signOut?(): Promise<void>;
@@ -84,7 +95,7 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
   const [isFetching, setIsFetching] = useState(false);
   const [activeSinkId, setActiveSinkId] = useActiveSinkId();
   const [settings, dispatchSetting] = useReducer(settingsReducer, initialSettings);
-  const [userState, userDispatch] = useReducer(UserStateReducer, defaultUserState())
+  const [userState, userDispatch] = useReducer(UserStateReducer, defaultUserState());
 
   const [roomType, setRoomType] = useState<RoomType>();
 
@@ -131,7 +142,7 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
 
           if (!res.ok) {
             const recordingError = new Error(
-              jsonResponse.error?.message || 'There was an error updating recording rules'
+              jsonResponse.error?.message || 'There was an error updating recording rules',
             );
             recordingError.code = jsonResponse.error?.code;
             return Promise.reject(recordingError);

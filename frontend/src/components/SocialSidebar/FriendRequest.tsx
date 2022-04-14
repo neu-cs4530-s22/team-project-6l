@@ -14,15 +14,21 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
+import { useAddFriendInvitationMutation } from 'generated/graphql';
+import useCurrentPlayer from 'hooks/useCurrentPlayer';
+import useUserAccount from 'hooks/useUserAccount';
 import React, { useCallback, useState } from 'react';
 import useMaybeVideo from '../../hooks/useMaybeVideo';
 
-type FreindRequestProps = {
+type FriendRequestProps = {
   username: string;
+  email: string;
 };
-export default function FriendRequest({ username }: FreindRequestProps): JSX.Element {
+export default function FriendRequest({ username, email }: FriendRequestProps): JSX.Element {
   const [requestMessage, setRequestMessage] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [, sendInvitation] = useAddFriendInvitationMutation();
+  const { userState } = useUserAccount();
   const video = useMaybeVideo();
   const toast = useToast();
 
@@ -46,13 +52,17 @@ export default function FriendRequest({ username }: FreindRequestProps): JSX.Ele
   }, [onClose, video, disableSpace]);
 
   const sendFriendRequest = useCallback(() => {
-    // TODO: call backend to send friend request
+    sendInvitation({
+      username: userState.email,
+      sendTo: email,
+    });
+
     toast({
       title: `Sent friend request to ${username} with message: ${requestMessage}`,
       status: 'success',
     });
     closeFriendRequest();
-  }, [toast, closeFriendRequest, username, requestMessage]);
+  }, [toast, closeFriendRequest, username, requestMessage, sendInvitation, userState, email]);
 
   return (
     <Box>

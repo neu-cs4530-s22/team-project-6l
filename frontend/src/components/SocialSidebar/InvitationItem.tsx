@@ -15,6 +15,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { useAddFriendMutation, useRemoveInvitationMutation } from 'generated/graphql';
 import useCurrentPlayer from 'hooks/useCurrentPlayer';
 import React, { useCallback } from 'react';
 import { BsTrashFill } from 'react-icons/bs';
@@ -26,14 +27,21 @@ type InvitationItemProps = {
 export default function InvitationItem({ invitation }: InvitationItemProps): JSX.Element {
   const currentPlayer = useCurrentPlayer();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [, addFriend] = useAddFriendMutation();
+  const [, deleteFriendInvitation] = useRemoveInvitationMutation();
 
   const acceptInvitation = useCallback(() => {
     onClose();
     if (invitation.type === InvitationType.Friend) {
       currentPlayer.acceptFriendInvitationFrom(invitation.from);
+
+      addFriend({
+        username: invitation.from,
+        friend: currentPlayer.userName,
+      });
     }
     currentPlayer.acceptTownJoinInvitationFrom(invitation.from);
-  }, [currentPlayer, invitation, onClose]);
+  }, [addFriend, currentPlayer, invitation, onClose]);
 
   const rejectInvitation = useCallback(() => {
     onClose();
@@ -42,7 +50,11 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
 
   const deleteInvitation = useCallback(() => {
     currentPlayer.rejectInvitationFrom(invitation.from);
-  }, [currentPlayer, invitation]);
+    deleteFriendInvitation({
+      username: invitation.toEmail,
+      sender: invitation.fromEmail,
+    });
+  }, [currentPlayer, deleteFriendInvitation, invitation]);
 
   return (
     <Box>

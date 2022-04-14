@@ -55,6 +55,7 @@ type CoveyAppUpdate =
         sessionToken: string;
         myPlayerID: string;
         myAvatar: Avatar;
+        email: string;
         socket: Socket;
         emitMovement: (location: UserLocation) => void;
       };
@@ -69,6 +70,7 @@ function defaultAppState(): CoveyAppState {
     currentTownIsPubliclyListed: false,
     sessionToken: '',
     userName: '',
+    email: '',
     myAvatar: Avatar.Dog,
     socket: null,
     emitMovement: () => {},
@@ -84,6 +86,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     currentTownIsPubliclyListed: state.currentTownIsPubliclyListed,
     myPlayerID: state.myPlayerID,
     myAvatar: state.myAvatar,
+    email: state.email,
     userName: state.userName,
     socket: state.socket,
     emitMovement: state.emitMovement,
@@ -101,6 +104,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.emitMovement = update.data.emitMovement;
       nextState.socket = update.data.socket;
       nextState.myAvatar = update.data.myAvatar;
+      nextState.email = update.data.email;
       break;
     case 'disconnect':
       state.socket?.disconnect();
@@ -146,7 +150,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     async (initData: TownJoinResponse) => {
       const gamePlayerID = initData.coveyUserID;
       const sessionToken = initData.coveySessionToken;
-      const gamePlayerAvatar = initData.avatar;
       const url = process.env.REACT_APP_TOWNS_SERVICE_URL;
       assert(url);
       const video = Video.instance();
@@ -162,7 +165,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let lastRecalculateNearbyPlayers = 0;
       let currentLocation: UserLocation = { moving: false, rotation: 'front', x: 0, y: 0 };
 
+      console.log(initData.currentPlayers);
       let localPlayers = initData.currentPlayers.map(sp => Player.fromServerPlayer(sp));
+
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
@@ -262,7 +267,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           townIsPubliclyListed: video.isPubliclyListed,
           emitMovement,
           socket,
-          myAvatar: gamePlayerAvatar,
+          myAvatar: video.avatar,
+          email: video.email,
         },
       });
 

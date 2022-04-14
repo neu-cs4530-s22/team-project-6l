@@ -1,8 +1,16 @@
-import { Collection, Entity, Enum, ManyToMany, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import {
+  ArrayType,
+  Collection,
+  Entity,
+  Enum,
+  ManyToMany,
+  OptionalProps,
+  PrimaryKey,
+  Property,
+  Unique,
+} from '@mikro-orm/core';
 import { Field, ID, ObjectType } from 'type-graphql';
 import Avatar from './Avatar';
-
-
 /**
  * Represents a {@link User}, along with a GraphQl schema and SQL table representation
  * using MikroORM and TypeGraphQl decorators.
@@ -10,7 +18,7 @@ import Avatar from './Avatar';
 @ObjectType()
 @Entity()
 export default class User {
-  [OptionalProps]?: 'lastOnline' | 'createdAt';
+  [OptionalProps]?: 'lastOnline' | 'createdAt' | 'friendInvitations';
 
   /** Unique numerical identifier for user used in the database */
   @Field(() => ID, { description: 'Unique identifier for user' })
@@ -52,4 +60,9 @@ export default class User {
   @Field(() => [User], { description: "List of the user's friends" })
   @ManyToMany(() => User)
   friends = new Collection<User>(this);
+
+  /** List of usernames that sent out friend requests to this User */
+  @Field(() => [String], { description: 'Open friend invitations' })
+  @Property({ type: ArrayType, default: [] as string[] })
+  friendInvitations = [] as string[];
 }

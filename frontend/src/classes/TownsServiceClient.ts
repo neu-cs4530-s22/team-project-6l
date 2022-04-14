@@ -14,6 +14,8 @@ export interface TownJoinRequest {
   coveyTownID: string;
   /** avatar of the player that would  like to join * */
   avatar: Avatar;
+  /** Unique email ID to distinguish player */
+  email: string;
 }
 
 /**
@@ -23,8 +25,6 @@ export interface TownJoinRequest {
 export interface TownJoinResponse {
   /** Unique ID that represents this player * */
   coveyUserID: string;
-  /** This player's avatar * */
-  avatar: Avatar;
   /** Secret token that this player should use to authenticate
    * in future requests to this service * */
   coveySessionToken: string;

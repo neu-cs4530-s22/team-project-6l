@@ -27,7 +27,6 @@ const main = async () => {
     context: () => ({ em: orm.em }),
   });
 
-
   await apollo.start();
   apollo.applyMiddleware({ app });
 
@@ -35,10 +34,9 @@ const main = async () => {
     const address = server.address() as AddressInfo;
     // eslint-disable-next-line no-console
     console.log(`Listening on ${address.port}`);
+    CoveyTownsStore.getDatabase(orm);
     if (process.env.DEMO_TOWN_ID) {
-      CoveyTownsStore.getDatabase(orm);
-      CoveyTownsStore.getInstance()
-        .createTown(process.env.DEMO_TOWN_ID, false);
+      CoveyTownsStore.getInstance().createTown(process.env.DEMO_TOWN_ID, false);
     }
   });
 };
