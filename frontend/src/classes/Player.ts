@@ -126,7 +126,7 @@ export default class Player {
     const friendInvitations: InvitationMessage[] = playerFromServer._invitations.map(
       invitation =>
         new InvitationMessage(
-          friends.find(f => f._userName === invitation)?._email || invitation,
+          friends.find(f => f.email === invitation)?.userName || invitation,
           invitation,
           playerFromServer._userName,
           playerFromServer._email,

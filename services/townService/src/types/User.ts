@@ -4,6 +4,8 @@ import {
   Entity,
   Enum,
   ManyToMany,
+  ManyToOne,
+  OneToMany,
   OptionalProps,
   PrimaryKey,
   Property,
@@ -11,6 +13,8 @@ import {
 } from '@mikro-orm/core';
 import { Field, ID, ObjectType } from 'type-graphql';
 import Avatar from './Avatar';
+import InvitationMessage from './InvitationMessage';
+import InvitationMessageType from './InvitationMessageType';
 /**
  * Represents a {@link User}, along with a GraphQl schema and SQL table representation
  * using MikroORM and TypeGraphQl decorators.
@@ -61,8 +65,7 @@ export default class User {
   @ManyToMany(() => User)
   friends = new Collection<User>(this);
 
-  /** List of usernames that sent out friend requests to this User */
-  @Field(() => [String], { description: 'Open friend invitations' })
-  @Property({ type: ArrayType, default: [] as string[] })
-  friendInvitations = [] as string[];
+  @Field(() => [InvitationMessage], { description: 'List of pending invitations' })
+  @OneToMany(() => InvitationMessageType, invitation => invitation)
+  invitations = new Collection<InvitationMessage>(this);
 }

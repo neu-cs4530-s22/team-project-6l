@@ -5,6 +5,8 @@ import Avatar from '../types/Avatar';
 import { MyContext } from '../types/MyContext';
 import UserCreationInput from '../types/UserValidation/UserCreationInput';
 import UserResponse from '../types/UserValidation/UserResponse';
+import InvitationMessage from '../types/InvitationMessage';
+import InvitationType from '../types/InvitationType';
 
 @Resolver()
 export default class UsersResolver {
@@ -121,49 +123,57 @@ export default class UsersResolver {
     nullable: true,
   })
   async sendFriendInvitation(
-    @Arg('username', () => String) username: string,
-    @Arg('sendTo', () => String) sendTo: string,
+    @Arg('from', () => String) from: string,
+    @Arg('to', () => String) to: string,
+    @Arg('message', () => String) message: string,
     @Ctx() { em }: MyContext,
   ): Promise<UserResponse | null> {
     this.request = 'friendInvitation';
 
-    const sendToUser = await em.findOne(
-      User,
-      { username: sendTo },
-      { populate: ['friendInvitations'] },
-    );
+    const existingInvitation = await em.findOne(InvitationMessage, { fromEmail: from, toEmail: to });
+    const fromUser = await em.findOne(User, { username: from });
+    const toUser = await em.findOne(User, { username: to });
 
-    if (!sendToUser) {
+    // Make sure we are not adding a duplicate invitation
+    // or that the two users are currently not friends
+    try {
+      if (!existingInvitation && fromUser && toUser) {
+        const newInvitation = em.create(InvitationMessage, {
+          from: fromUser.displayName,
+          fromEmail: fromUser.email,
+          to: toUser.displayName,
+          toEmail: toUser.email,
+          message,
+          invitationType: InvitationType.Friend,
+        });
+
+        em.persistAndFlush(newInvitation);
+
+        return {
+          user: toUser,
+        };
+      }
       return {
         errors: [
           {
-            field: 'username',
-            message: `The user ${sendTo} does not exists`,
+            field: !fromUser ? 'fromUser' : 'toUser',
+            message: 'One of the users involved does not exist',
+          },
+        ],
+      };
+
+    } catch (err) {
+      const error = err as Error;
+      return {
+        errors: [
+          {
+            field: 'unknown',
+            message: error.message,
           },
         ],
       };
     }
 
-    // Make sure we are not adding a duplicate invitation
-    // or that the two users are currently not friends
-    if (
-      !sendToUser.friendInvitations.find(e => e === username) ||
-      !sendToUser.friends.getItems().find(u => u.username === username)
-    ) {
-      sendToUser.friendInvitations.push(username);
-      await em.persistAndFlush(sendToUser);
-      return {
-        user: sendToUser,
-      };
-    }
-    return {
-      errors: [
-        {
-          field: 'sendTo',
-          message: `The user ${sendTo} has a pending friend invitation or is already in your friend's list`,
-        },
-      ],
-    };
   }
 
   @Mutation(() => Boolean, { description: 'Delete pending invitation' })
@@ -174,15 +184,15 @@ export default class UsersResolver {
     this.request = 'delete';
 
     try {
-      const existing = await em.findOneOrFail(User, { username }, { populate: ['friendInvitations'] });
 
-      console.log(existing.friendInvitations);
+      const existing = await em.findOneOrFail(User, { username }, { populate: ['invitations'] });
+
+      existing.inv
+
 
       existing.friendInvitations = existing.friendInvitations.filter(i =>
         i !== sender,
       ) as string[] & string;
-
-      console.log(existing.friendInvitations);
 
       em.persistAndFlush(existing);
 

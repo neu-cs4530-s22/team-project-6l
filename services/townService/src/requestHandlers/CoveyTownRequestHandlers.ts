@@ -152,7 +152,6 @@ export async function townJoinHandler(
       requestData.email,
       existingPlayer.avatar,
       existingPlayer.friends.isInitialized() ? existingPlayer.friends.getItems().map(u => new Player(u.displayName, u.email, u.avatar)) : [],
-      existingPlayer.friendInvitations,
     );
   }
   const newSession = await coveyTownController.addPlayer(newPlayer);
