@@ -1,33 +1,32 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Field, ID, ObjectType } from 'type-graphql';
 import InvitationType from './InvitationType';
+// eslint-disable-next-line import/no-cycle
+import User from './User';
 
 @ObjectType()
+@Entity()
 export default class InvitationMessage {
-  @Field(() => String, { description: 'Friend display name of recipient' })
-  from!: string;
 
-  @Field(() => String, { description: 'Recipient email' })
-  fromEmail!: string;
+  /** Unique numerical identifier for invitation used in the database */
+  @Field(() => ID, { description: 'Unique identifier for user' })
+  @PrimaryKey()
+  _id!: number;
 
-  @Field(() => String, { description: 'Friend display name of receiver' })
-  to!: string;
+  @Field(() => User, { description: 'User that is sending the invitation' })
+  @ManyToOne(() => User)
+  from!: User;
 
-  @Field(() => String, { description: 'Receiver email' })
-  toEmail!: string;
+  @Field(() => User, { description: 'User that is receiving the invitation' })
+  @ManyToOne(() => User)
+  to!: User;
 
   @Field(() => String, { description: 'Message to display the receiver of invitation' })
+  @Property({ type: 'string' })
   message!: string;
 
   @Field(() => InvitationType, { description: 'Type of invitation' })
+  @Enum(() => InvitationType)
   invitationType!: InvitationType;
-
-  constructor(from: string, fromEmail: string, to: string, toEmail: string, message: string, invitationType: InvitationType) {
-    this.from = from;
-    this.fromEmail = fromEmail;
-    this.to = to;
-    this.toEmail = toEmail;
-    this.message = message;
-    this.invitationType = invitationType;
-  }
 }
 

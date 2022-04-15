@@ -13,8 +13,8 @@ import {
 } from '@mikro-orm/core';
 import { Field, ID, ObjectType } from 'type-graphql';
 import Avatar from './Avatar';
+// eslint-disable-next-line import/no-cycle
 import InvitationMessage from './InvitationMessage';
-import InvitationMessageType from './InvitationMessageType';
 /**
  * Represents a {@link User}, along with a GraphQl schema and SQL table representation
  * using MikroORM and TypeGraphQl decorators.
@@ -50,7 +50,7 @@ export default class User {
   @Property({ type: 'string' })
   email!: string;
 
-  /** Display name that is shown in the frontend when user is connected to town */
+  /** DisplayString name that is shown in the frontend when user is connected to town */
   @Field({ description: 'The name to display when connected to a town' })
   @Property({ type: 'string' })
   displayName!: string;
@@ -66,6 +66,6 @@ export default class User {
   friends = new Collection<User>(this);
 
   @Field(() => [InvitationMessage], { description: 'List of pending invitations' })
-  @OneToMany(() => InvitationMessageType, invitation => invitation)
+  @OneToMany(() => InvitationMessage, invitation => invitation.from)
   invitations = new Collection<InvitationMessage>(this);
 }
