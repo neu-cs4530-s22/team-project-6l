@@ -1,4 +1,4 @@
-import { Avatar, User } from 'generated/graphql';
+import { Avatar, InvitationMessage, User } from 'generated/graphql';
 import React from 'react';
 
 function defaultUserState(): User {
@@ -11,7 +11,7 @@ function defaultUserState(): User {
     displayName: '',
     username: '',
     friends: new Array<User>(),
-    friendInvitations: new Array<string>(),
+    invitations: new Array<InvitationMessage>(),
   };
 }
 export type UserUpdate =
@@ -26,7 +26,7 @@ export type UserUpdate =
         displayName: string;
         username: string;
         friends: Array<User>;
-        friendInvitations: Array<string>;
+        invitations: Array<InvitationMessage>;
       };
     }
   | { action: 'deleteUser' };

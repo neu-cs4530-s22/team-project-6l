@@ -1,6 +1,5 @@
-import { Avatar } from 'generated/graphql';
+import { Avatar, InvitationMessage } from 'generated/graphql';
 import { nanoid } from 'nanoid';
-import InvitationMessage, { InvitationType } from './InvitationMessage';
 
 export type PlayerListener = {
   onInvitationsChange?: (newInvitations: InvitationMessage[]) => void;
@@ -110,38 +109,15 @@ export default class Player {
   }
 
   static fromServerPlayer(playerFromServer: ServerPlayer): Player {
-    const friends: Player[] = playerFromServer._friends.map(
-      serverPlayer =>
-        new Player(
-          serverPlayer._id,
-          serverPlayer._userName,
-          serverPlayer.location,
-          serverPlayer._avatar,
-          [],
-          [],
-          serverPlayer._email,
-        ),
-    );
-
-    const friendInvitations: InvitationMessage[] = playerFromServer._invitations.map(
-      invitation =>
-        new InvitationMessage(
-          friends.find(f => f.email === invitation)?.userName || invitation,
-          invitation,
-          playerFromServer._userName,
-          playerFromServer._email,
-          InvitationType.Friend,
-          'abc',
-        ),
-    );
-
     return new Player(
       playerFromServer._id,
       playerFromServer._userName,
       playerFromServer.location,
       playerFromServer._avatar,
-      friends,
-      friendInvitations,
+      playerFromServer._friends.map(
+        sp => new Player(sp._id, sp._userName, sp.location, sp._avatar, [], [], sp._email),
+      ),
+      playerFromServer._invitations,
       playerFromServer._email,
     );
   }
@@ -153,7 +129,7 @@ export type ServerPlayer = {
   _avatar: Avatar;
   _email: string;
   _friends: ServerPlayer[];
-  _invitations: string[];
+  _invitations: InvitationMessage[];
 };
 
 export type Direction = 'front' | 'back' | 'left' | 'right';

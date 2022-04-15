@@ -21,7 +21,11 @@ import {
   useRadioGroup,
 } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
-import { User, useRegisterUserMutation } from '../../../../../../generated/graphql';
+import {
+  InvitationMessage,
+  User,
+  useRegisterUserMutation,
+} from '../../../../../../generated/graphql';
 import { Avatar } from '../../../../../../generated/graphql';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import useUserAccount from 'hooks/useUserAccount';
@@ -101,7 +105,7 @@ export default function RegisterUserScreen({}: RegisterUserScreenProps) {
         displayName: response.data?.register.user?.displayName!,
         username: response.data?.register.user?.username!,
         friends: new Array<User>(),
-        friendInvitations: new Array<string>(),
+        invitations: new Array<InvitationMessage>(),
       },
     });
 

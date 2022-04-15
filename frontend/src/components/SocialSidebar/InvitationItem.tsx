@@ -15,11 +15,15 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useAddFriendMutation, useRemoveInvitationMutation } from 'generated/graphql';
+import {
+  useAddFriendMutation,
+  useDeleteFriendInvitationMutation,
+  InvitationMessage,
+  InvitationType,
+} from 'generated/graphql';
 import useCurrentPlayer from 'hooks/useCurrentPlayer';
 import React, { useCallback } from 'react';
 import { BsTrashFill } from 'react-icons/bs';
-import InvitationMessage, { InvitationType } from '../../classes/InvitationMessage';
 
 type InvitationItemProps = {
   invitation: InvitationMessage;
@@ -28,11 +32,11 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
   const currentPlayer = useCurrentPlayer();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [, addFriend] = useAddFriendMutation();
-  const [, deleteFriendInvitation] = useRemoveInvitationMutation();
+  const [, deleteFriendInvitation] = useDeleteFriendInvitationMutation();
 
   const acceptInvitation = useCallback(() => {
     onClose();
-    if (invitation.type === InvitationType.Friend) {
+    if (invitation.invitationType === InvitationType.Friend) {
       currentPlayer.acceptFriendInvitationFrom(invitation.from);
 
       addFriend({
@@ -50,9 +54,10 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
 
   const deleteInvitation = useCallback(() => {
     currentPlayer.rejectInvitationFrom(invitation.from);
+    const userId = `${invitation.to}`;
     deleteFriendInvitation({
-      username: invitation.toEmail,
-      sender: invitation.fromEmail,
+      to: userId,
+      from: invitation.fromEmail,
     });
   }, [currentPlayer, deleteFriendInvitation, invitation]);
 
@@ -71,7 +76,9 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
         <ModalOverlay />
         <ModalContent>
           <ModalHeader pb={0}>
-            {invitation.type === InvitationType.Friend ? 'Friend Request' : 'Town Join Invitation'}
+            {invitation.invitationType === InvitationType.Friend
+              ? 'Friend Request'
+              : 'Town Join Invitation'}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>

@@ -11,7 +11,7 @@ import auth from '../../../../../firebaseAuth/firebase-config';
 import RegisterUserScreen from './RegisterUserScreen/RegisterUserScreen';
 import useUserAccount from 'hooks/useUserAccount';
 import { signOut } from 'firebase/auth';
-import { Avatar, useGetUserQuery, User } from 'generated/graphql';
+import { Avatar, InvitationMessage, useGetUserQuery, User } from 'generated/graphql';
 
 export enum Steps {
   roomNameStep,
@@ -64,7 +64,7 @@ export default function PreJoinScreens(props: {
         displayName: '',
         username: '',
         friends: new Array<User>(),
-        friendInvitations: new Array<string>(),
+        invitations: new Array<InvitationMessage>(),
       },
     });
 
@@ -101,7 +101,7 @@ export default function PreJoinScreens(props: {
           displayName: result.data.user.displayName,
           username: result.data.user?.username,
           friends: new Array<User>(),
-          friendInvitations: new Array<string>(),
+          invitations: new Array<InvitationMessage>(),
         },
       });
     }

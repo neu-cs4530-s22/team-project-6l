@@ -1,10 +1,8 @@
 import {
-  ArrayType,
   Collection,
   Entity,
   Enum,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   OptionalProps,
   PrimaryKey,
@@ -66,6 +64,6 @@ export default class User {
   friends = new Collection<User>(this);
 
   @Field(() => [InvitationMessage], { description: 'List of pending invitations' })
-  @OneToMany(() => InvitationMessage, invitation => invitation.from)
+  @OneToMany(() => InvitationMessage, invitation => invitation.to, { orphanRemoval: true })
   invitations = new Collection<InvitationMessage>(this);
 }

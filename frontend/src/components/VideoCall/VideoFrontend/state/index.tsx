@@ -9,7 +9,7 @@ import {
 } from './settings/settingsReducer';
 import useActiveSinkId from './useActiveSinkId/useActiveSinkId';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
-import { Avatar, User } from 'generated/graphql';
+import { Avatar, User, InvitationMessage } from 'generated/graphql';
 import UserContext, { UserUpdate } from 'contexts/UserContext';
 
 function UserStateReducer(state: User, update: UserUpdate): User {
@@ -22,7 +22,7 @@ function UserStateReducer(state: User, update: UserUpdate): User {
     displayName: state.lastOnline,
     username: state.username,
     friends: state.friends,
-    friendInvitations: state.friendInvitations,
+    invitations: state.invitations,
   };
 
   switch (update.action) {
@@ -35,7 +35,7 @@ function UserStateReducer(state: User, update: UserUpdate): User {
       nextState.displayName = update.data.displayName;
       nextState.username = update.data.username;
       nextState.friends = update.data.friends;
-      nextState.friendInvitations = update.data.friendInvitations;
+      nextState.invitations = update.data.invitations;
       break;
     default:
       throw new Error('Unexpected state request ');
@@ -54,7 +54,7 @@ function defaultUserState(): User {
     displayName: '',
     username: '',
     friends: new Array<User>(),
-    friendInvitations: new Array<string>(),
+    invitations: new Array<InvitationMessage>(),
   };
 }
 

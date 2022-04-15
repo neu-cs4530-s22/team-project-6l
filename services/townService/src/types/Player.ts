@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
 import Avatar from './Avatar';
+import InvitationMessage from './InvitationMessage';
 
 /**
  * Each user who is connected to a town is represented by a Player object
@@ -23,7 +24,7 @@ export default class Player {
 
   private readonly _email: string;
 
-  private _invitations: string[];
+  private _invitations: InvitationMessage[];
 
   /** The current ConversationArea that the player is in, or undefined if they are not located within one */
   private _activeConversationArea?: ServerConversationArea;
@@ -33,7 +34,7 @@ export default class Player {
     email: string,
     avatar: Avatar,
     friends?: Player[],
-    invitations?: string[],
+    invitations?: InvitationMessage[],
   ) {
     this.location = {
       x: 0,
@@ -69,7 +70,7 @@ export default class Player {
     return this._friends;
   }
 
-  get invitations(): string[] {
+  get invitations(): InvitationMessage[] {
     return this._invitations;
   }
 

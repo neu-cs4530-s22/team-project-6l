@@ -165,7 +165,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let lastRecalculateNearbyPlayers = 0;
       let currentLocation: UserLocation = { moving: false, rotation: 'front', x: 0, y: 0 };
 
-      console.log(initData.currentPlayers);
       let localPlayers = initData.currentPlayers.map(sp => Player.fromServerPlayer(sp));
 
       let localConversationAreas = initData.conversationAreas.map(sa =>

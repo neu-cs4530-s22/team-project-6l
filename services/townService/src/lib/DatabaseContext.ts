@@ -6,7 +6,7 @@ export default class DatabaseContext {
 
   @UseRequestContext()
   async getUser(username: string): Promise<User | null> {
-    const player = await this.orm.em.findOne(User, { username }, { populate: ['friends'] });
+    const player = await this.orm.em.findOne(User, { username }, { populate: ['friends', 'invitations'] });
 
     return player;
   }

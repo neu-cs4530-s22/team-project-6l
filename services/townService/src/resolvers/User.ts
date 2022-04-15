@@ -19,7 +19,7 @@ export default class UsersResolver {
   @Query(() => [User], { description: 'Get all users' })
   users(@Ctx() { em }: MyContext): Promise<User[]> {
     this.request = 'users';
-    return em.find(User, {}, { populate: ['friends'] });
+    return em.find(User, {}, { populate: ['friends', 'invitations'] });
   }
 
   /**
@@ -132,17 +132,13 @@ export default class UsersResolver {
 
     const fromUser = await em.findOne(User, { username: from }, { populate: ['invitations'] });
     const toUser = await em.findOne(User, { username: to }, { populate: ['invitations'] });
-
-    console.log(fromUser);
-    console.log(toUser);
-    const existingInvitation = toUser?.invitations.getItems().find(async (invitation) => em.findOne(InvitationMessage, { _id: invitation._id }));
-
+    const existingInvitation = toUser?.invitations.getItems().find(async (invitation) => em.findOne(InvitationMessage, { from: invitation.fromEmail }));
 
     // Make sure we are not adding a duplicate invitation
     // or that the two users are currently not friends
     try {
       if (!existingInvitation && fromUser && toUser) {
-        const invitation = em.create(InvitationMessage, { from: fromUser, to: toUser, message, invitationType: InvitationType.Friend });
+        const invitation = em.create(InvitationMessage, { to: fromUser, from: fromUser.displayName, fromEmail: fromUser.email, message, invitationType: InvitationType.Friend });
 
 
         toUser.invitations.add(invitation);
@@ -177,30 +173,34 @@ export default class UsersResolver {
 
   }
 
-  // @Mutation(() => Boolean, { description: 'Delete pending invitation' })
-  // async deleteFriendInvitation(
-  //   @Arg('from', () => String) from: string,
-  //   @Arg('to', () => String) to: string,
-  //   @Ctx() { em }: MyContext): Promise<boolean> {
-  //   this.request = 'delete';
+  @Mutation(() => Boolean, { description: 'Delete pending invitation' })
+  async deleteFriendInvitation(
+    @Arg('from', () => String) from: string,
+    @Arg('to', () => String) to: string,
+    @Ctx() { em }: MyContext): Promise<boolean> {
+    this.request = 'delete';
 
-  //   try {
+    const userId = parseInt(to, 10);
 
-  //     const existing = await em.findOneOrFail(User, { username: to }, { populate: ['invitations'] });
+    try {
+      const existing = await em.findOneOrFail(User, { _id: userId }, { populate: ['invitations'] });
 
-  //     existing.invitations.getItems().filter(invitation => invitation.fromEmail !== from && invitation.toEmail !== to);
+      const selectedInvitation = existing.invitations.getItems().find(i => i.fromEmail === from);
 
 
-  //     existing.invitations.remove(invitation => invitation.fromEmail !== from
-  //       && invitation.toEmail !== to);
+      if (selectedInvitation) {
+        existing.invitations.remove(selectedInvitation);
+      } else {
+        return false;
+      }
 
-  //     em.persistAndFlush(existing);
+      em.persistAndFlush(existing);
 
-  //     return true;
-  //   } catch {
-  //     return false;
-  //   }
-  // }
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   /**
    * Update a user's avatar or friend list. The avatar and friend parameters are optional,

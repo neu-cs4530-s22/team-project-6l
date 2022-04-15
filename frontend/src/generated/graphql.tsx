@@ -37,6 +37,28 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
+export type InvitationMessage = {
+  __typename?: 'InvitationMessage';
+  /** Unique identifier for user */
+  _id: Scalars['ID'];
+  /** Friendly display name of invitation sender */
+  from: Scalars['String'];
+  /** Email of the invitation sender */
+  fromEmail: Scalars['String'];
+  /** Type of invitation */
+  invitationType: InvitationType;
+  /** Message to display the receiver of invitation */
+  message: Scalars['String'];
+  /** User that is sending the invitation */
+  to: User;
+};
+
+/** Type of invitation (friend, town join) */
+export enum InvitationType {
+  Friend = 'Friend',
+  TownJoin = 'TownJoin',
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Delete a user */
@@ -56,8 +78,8 @@ export type MutationDeleteArgs = {
 };
 
 export type MutationDeleteFriendInvitationArgs = {
-  sender: Scalars['String'];
-  username: Scalars['String'];
+  from: Scalars['String'];
+  to: Scalars['String'];
 };
 
 export type MutationRegisterArgs = {
@@ -65,8 +87,9 @@ export type MutationRegisterArgs = {
 };
 
 export type MutationSendFriendInvitationArgs = {
-  sendTo: Scalars['String'];
-  username: Scalars['String'];
+  from: Scalars['String'];
+  message: Scalars['String'];
+  to: Scalars['String'];
 };
 
 export type MutationUpdateArgs = {
@@ -99,10 +122,10 @@ export type User = {
   displayName: Scalars['String'];
   /** The user's email */
   email: Scalars['String'];
-  /** Open friend invitations */
-  friendInvitations: Array<Scalars['String']>;
   /** List of the user's friends */
   friends: Array<User>;
+  /** List of pending invitations */
+  invitations: Array<InvitationMessage>;
   /** Time the user was last online */
   lastOnline: Scalars['String'];
   /** The user's unique username */
@@ -143,12 +166,15 @@ export type AddFriendMutation = {
   } | null;
 };
 
-export type RemoveInvitationMutationVariables = Exact<{
-  sender: Scalars['String'];
-  username: Scalars['String'];
+export type DeleteFriendInvitationMutationVariables = Exact<{
+  to: Scalars['String'];
+  from: Scalars['String'];
 }>;
 
-export type RemoveInvitationMutation = { __typename?: 'Mutation'; deleteFriendInvitation: boolean };
+export type DeleteFriendInvitationMutation = {
+  __typename?: 'Mutation';
+  deleteFriendInvitation: boolean;
+};
 
 export type RegisterUserMutationVariables = Exact<{
   options: UserCreationInput;
@@ -173,16 +199,17 @@ export type RegisterUserMutation = {
   };
 };
 
-export type AddFriendInvitationMutationVariables = Exact<{
-  sendTo: Scalars['String'];
-  username: Scalars['String'];
+export type SendFriendInvitationMutationVariables = Exact<{
+  message: Scalars['String'];
+  to: Scalars['String'];
+  from: Scalars['String'];
 }>;
 
-export type AddFriendInvitationMutation = {
+export type SendFriendInvitationMutation = {
   __typename?: 'Mutation';
   sendFriendInvitation?: {
     __typename?: 'UserResponse';
-    user?: { __typename?: 'User'; username: string } | null;
+    user?: { __typename?: 'User'; displayName: string } | null;
     errors?: Array<{ __typename?: 'FieldError'; field: string; message: string }> | null;
   } | null;
 };
@@ -202,8 +229,14 @@ export type GetUserQuery = {
     lastOnline: string;
     email: string;
     username: string;
-    friendInvitations: Array<string>;
     friends: Array<{ __typename?: 'User'; username: string }>;
+    invitations: Array<{
+      __typename?: 'InvitationMessage';
+      from: string;
+      fromEmail: string;
+      message: string;
+      invitationType: InvitationType;
+    }>;
   } | null;
 };
 
@@ -221,15 +254,15 @@ export const AddFriendDocument = gql`
 export function useAddFriendMutation() {
   return Urql.useMutation<AddFriendMutation, AddFriendMutationVariables>(AddFriendDocument);
 }
-export const RemoveInvitationDocument = gql`
-  mutation RemoveInvitation($sender: String!, $username: String!) {
-    deleteFriendInvitation(sender: $sender, username: $username)
+export const DeleteFriendInvitationDocument = gql`
+  mutation DeleteFriendInvitation($to: String!, $from: String!) {
+    deleteFriendInvitation(to: $to, from: $from)
   }
 `;
 
-export function useRemoveInvitationMutation() {
-  return Urql.useMutation<RemoveInvitationMutation, RemoveInvitationMutationVariables>(
-    RemoveInvitationDocument,
+export function useDeleteFriendInvitationMutation() {
+  return Urql.useMutation<DeleteFriendInvitationMutation, DeleteFriendInvitationMutationVariables>(
+    DeleteFriendInvitationDocument,
   );
 }
 export const RegisterUserDocument = gql`
@@ -260,11 +293,11 @@ export function useRegisterUserMutation() {
     RegisterUserDocument,
   );
 }
-export const AddFriendInvitationDocument = gql`
-  mutation AddFriendInvitation($sendTo: String!, $username: String!) {
-    sendFriendInvitation(sendTo: $sendTo, username: $username) {
+export const SendFriendInvitationDocument = gql`
+  mutation sendFriendInvitation($message: String!, $to: String!, $from: String!) {
+    sendFriendInvitation(message: $message, to: $to, from: $from) {
       user {
-        username
+        displayName
       }
       errors {
         field
@@ -274,9 +307,9 @@ export const AddFriendInvitationDocument = gql`
   }
 `;
 
-export function useAddFriendInvitationMutation() {
-  return Urql.useMutation<AddFriendInvitationMutation, AddFriendInvitationMutationVariables>(
-    AddFriendInvitationDocument,
+export function useSendFriendInvitationMutation() {
+  return Urql.useMutation<SendFriendInvitationMutation, SendFriendInvitationMutationVariables>(
+    SendFriendInvitationDocument,
   );
 }
 export const GetUserDocument = gql`
@@ -292,7 +325,12 @@ export const GetUserDocument = gql`
       friends {
         username
       }
-      friendInvitations
+      invitations {
+        from
+        fromEmail
+        message
+        invitationType
+      }
     }
   }
 `;

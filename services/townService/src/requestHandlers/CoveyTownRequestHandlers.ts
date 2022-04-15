@@ -9,7 +9,6 @@ import {
   ServerConversationArea,
 } from '../client/TownsServiceClient';
 import Avatar from '../types/Avatar';
-import User from '../types/User';
 
 export interface UserEmailOfUser {
   userName: string;
@@ -39,10 +38,10 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+  /** avatar of the player that would  like to join * */
+  avatar: Avatar;
   /** Unique email ID to distinguish player */
   email: string;
-
-  avatar: Avatar;
 }
 
 /**
@@ -133,6 +132,7 @@ export async function townJoinHandler(
 ): Promise<ResponseEnvelope<TownJoinResponse>> {
   const townsStore = CoveyTownsStore.getInstance();
   const database = CoveyTownsStore.getDatabase();
+
   const coveyTownController = townsStore.getControllerForTown(requestData.coveyTownID);
   if (!coveyTownController) {
     return {
@@ -152,8 +152,10 @@ export async function townJoinHandler(
       requestData.email,
       existingPlayer.avatar,
       existingPlayer.friends.isInitialized() ? existingPlayer.friends.getItems().map(u => new Player(u.displayName, u.email, u.avatar)) : [],
+      existingPlayer.invitations.isInitialized() ? existingPlayer.invitations.getItems() : [],
     );
   }
+
   const newSession = await coveyTownController.addPlayer(newPlayer);
   assert(newSession.videoToken);
   return {
@@ -389,7 +391,7 @@ export async function friendIsRemovedHandler(
 
   return {
     isOK: true,
-    message: 'Friend is succesfully removed.',
+    message: `Friend with username ${friend?.displayName} succesfully removed from ${player?.displayName}'list of friends.`,
   };
 }
 
@@ -400,10 +402,10 @@ export async function deletesPlayer(requestData: UserEmailOfUser): Promise<Respo
   // them from the list of players in the database
   // await friendMigration.em.delete the user from the database
   // friendMigration.close();
-  const player = CoveyTownsStore.getDatabase().getUser(requestData.userName);
+  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
   return {
     isOK: true,
-    message: 'Player from the user database is deleted',
+    message: `Player ${player?.displayName} from the user database is deleted`,
   };
 
 }
@@ -415,11 +417,11 @@ export async function addsPlayer(requestData: UserEmailOfUser): Promise<Response
   // them from the list of players in the database
   // Represents getting the player out and checking if they are already in the list
   // Represents checking whether the player is already in the list and if not, add it into the database and close the friendMigration client
-  const player = CoveyTownsStore.getDatabase().getUser(requestData.userName);
+  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
 
   return {
     isOK: true,
-    message: 'Player has been added',
+    message: `Player ${player?.displayName} has been added`,
   };
 }
 

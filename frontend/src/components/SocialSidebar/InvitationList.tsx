@@ -12,11 +12,8 @@ import {
   UnorderedList,
   useDisclosure,
 } from '@chakra-ui/react';
-import InvitationMessage, { InvitationType } from 'classes/InvitationMessage';
 import { PlayerListener } from 'classes/Player';
-import { useGetUserQuery } from 'generated/graphql';
-import usePlayersInTown from 'hooks/usePlayersInTown';
-import useUserAccount from 'hooks/useUserAccount';
+import { InvitationMessage } from 'generated/graphql';
 import React, { useEffect, useState } from 'react';
 import { IoMdMail } from 'react-icons/io';
 import useCurrentPlayer from '../../hooks/useCurrentPlayer';
@@ -24,14 +21,8 @@ import InvitationItem from './InvitationItem';
 
 export default function InvitationList(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
-  const playersInTown = usePlayersInTown();
   const [invitations, setInvitations] = useState(currentPlayer.invitations);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [result, reexecuteQuery] = useGetUserQuery({
-    variables: {
-      username: currentPlayer.email,
-    },
-  });
 
   useEffect(() => {
     const updateListener: PlayerListener = {
@@ -86,7 +77,7 @@ export default function InvitationList(): JSX.Element {
           <PopoverBody>
             <UnorderedList ms={0}>
               {invitations.map(invitation => (
-                <InvitationItem key={invitation.from} invitation={invitation} />
+                <InvitationItem key={invitation.fromEmail} invitation={invitation} />
               ))}
             </UnorderedList>
           </PopoverBody>
