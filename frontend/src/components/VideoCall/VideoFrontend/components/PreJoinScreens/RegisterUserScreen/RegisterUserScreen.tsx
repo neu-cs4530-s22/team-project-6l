@@ -108,10 +108,6 @@ export default function RegisterUserScreen({}: RegisterUserScreenProps) {
         invitations: new Array<InvitationMessage>(),
       },
     });
-
-    // const doesUserAlreadyExist = response.register.errors?.map((err) => err.field === 'username');
-
-    // console.log(doesUserAlreadyExist);
   };
 
   return (

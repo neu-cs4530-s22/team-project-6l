@@ -43,14 +43,25 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
         username: invitation.from,
         friend: currentPlayer.userName,
       });
+
+      const userId = `${invitation.to}`;
+      deleteFriendInvitation({
+        to: userId,
+        from: invitation.fromEmail,
+      });
     }
     currentPlayer.acceptTownJoinInvitationFrom(invitation.from);
-  }, [addFriend, currentPlayer, invitation, onClose]);
+  }, [addFriend, currentPlayer, invitation, onClose, deleteFriendInvitation]);
 
   const rejectInvitation = useCallback(() => {
     onClose();
     currentPlayer.rejectInvitationFrom(invitation.from);
-  }, [currentPlayer, invitation, onClose]);
+    const userId = `${invitation.to}`;
+    deleteFriendInvitation({
+      to: userId,
+      from: invitation.fromEmail,
+    });
+  }, [currentPlayer, invitation, onClose, deleteFriendInvitation]);
 
   const deleteInvitation = useCallback(() => {
     currentPlayer.rejectInvitationFrom(invitation.from);
