@@ -1,5 +1,5 @@
-import { Avatar } from 'generated/graphql';
 import { nanoid } from 'nanoid';
+import { Avatar } from '../generated/graphql';
 import InvitationMessage, { InvitationType } from './InvitationMessage';
 
 export type PlayerListener = {

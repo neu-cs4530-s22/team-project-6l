@@ -7,7 +7,6 @@ type PlayerItemProps = {
   player: Player;
 };
 export default function PlayerItem({ player }: PlayerItemProps): JSX.Element {
-  console.log(player.avatar);
   return (
     <Flex m={2}>
       <Center>
