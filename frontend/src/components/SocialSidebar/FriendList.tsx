@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Icon,
+  ListItem,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -22,6 +23,9 @@ export default function FriendList(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
   const [friends, setFriends] = useState(currentPlayer.friends);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  friends.sort((p1, p2) =>
+    p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
+  );
 
   useEffect(() => {
     const updateListener: PlayerListener = {
@@ -39,7 +43,7 @@ export default function FriendList(): JSX.Element {
     <Box>
       <Popover offset={[-15, 10]} isOpen={isOpen} onClose={onClose}>
         <PopoverTrigger>
-          <Button onClick={onOpen} size='sm' mx={1}>
+          <Button data-testid='friend-button' onClick={onOpen} size='sm' mx={1}>
             <Icon w={5} h={5} as={IoMdContact} />
           </Button>
         </PopoverTrigger>
@@ -50,7 +54,9 @@ export default function FriendList(): JSX.Element {
           <PopoverBody>
             <UnorderedList ms={0}>
               {friends.map(friend => (
-                <PlayerName key={friend.id} player={friend} />
+                <ListItem key={friend.id}>
+                  <PlayerName player={friend} />
+                </ListItem>
               ))}
             </UnorderedList>
           </PopoverBody>
