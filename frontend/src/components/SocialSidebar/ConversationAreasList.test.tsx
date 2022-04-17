@@ -7,11 +7,11 @@ import { act } from 'react-dom/test-utils';
 import BoundingBox from '../../classes/BoundingBox';
 import ConversationArea, { ConversationAreaListener } from '../../classes/ConversationArea';
 import Player from '../../classes/Player';
-import { Avatar } from '../../generated/graphql';
 import * as useConversationAreas from '../../hooks/useConversationAreas';
 import * as usePlayersInTown from '../../hooks/usePlayersInTown';
 import ConversationAreasList from './ConversationAreasList';
 import * as PlayerName from './PlayerName';
+import * as TestUtils from './TestUtils';
 
 function createConversationForTesting(params?: {
   label?: string;
@@ -39,16 +39,6 @@ describe('ConversationAreasList', () => {
         </React.StrictMode>
       </ChakraProvider>,
     );
-  const randomAvatar = (): Avatar => {
-    const avatars = [
-      Avatar.BubbleGum,
-      Avatar.Dog,
-      Avatar.Dragon,
-      Avatar.SmileyFace,
-      Avatar.ThreeSixty,
-    ];
-    return avatars[Math.floor(Math.random() * avatars.length)];
-  };
   const expectProperlyRenderedConversationAreas = async (
     renderData: RenderResult,
     areas: ConversationArea[],
@@ -142,7 +132,7 @@ describe('ConversationAreasList', () => {
               rotation: 'front',
               moving: false,
             },
-            randomAvatar(),
+            TestUtils.randomAvatar(),
             [],
             [],
           ),

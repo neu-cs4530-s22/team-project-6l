@@ -5,31 +5,15 @@ import { render, RenderResult, waitFor } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 import React from 'react';
 import InvitationMessage, { InvitationType } from '../../classes/InvitationMessage';
-import Player, { UserLocation } from '../../classes/Player';
-import { Avatar } from '../../generated/graphql';
+import Player from '../../classes/Player';
 import * as useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import * as usePlayersInTown from '../../hooks/usePlayersInTown';
 import * as FriendItem from './FriendItem';
 import * as PlayerItem from './PlayerItem';
 import PlayersList from './PlayersList';
+import * as TestUtils from './TestUtils';
 
 describe('PlayersInTownList', () => {
-  const randomAvatar = (): Avatar => {
-    const avatars = [
-      Avatar.BubbleGum,
-      Avatar.Dog,
-      Avatar.Dragon,
-      Avatar.SmileyFace,
-      Avatar.ThreeSixty,
-    ];
-    return avatars[Math.floor(Math.random() * avatars.length)];
-  };
-  const randomLocation = (): UserLocation => ({
-    moving: Math.random() < 0.5,
-    rotation: 'front',
-    x: Math.random() * 1000,
-    y: Math.random() * 1000,
-  });
   const wrappedPlayersListComponent = () => (
     <ChakraProvider>
       <React.StrictMode>
@@ -102,8 +86,8 @@ describe('PlayersInTownList', () => {
         new Player(
           `testingPlayerID${i}-${nanoid()}`,
           `testingPlayerUser${i}-${nanoid()}}`,
-          randomLocation(),
-          randomAvatar(),
+          TestUtils.randomLocation(),
+          TestUtils.randomAvatar(),
           [],
           [],
         ),
@@ -123,8 +107,8 @@ describe('PlayersInTownList', () => {
     currentPlayer = new Player(
       `testingPlayerID0-${nanoid()}`,
       `testingPlayerUser0-${nanoid()}}`,
-      randomLocation(),
-      randomAvatar(),
+      TestUtils.randomLocation(),
+      TestUtils.randomAvatar(),
       friends,
       invitations,
     );
@@ -134,6 +118,11 @@ describe('PlayersInTownList', () => {
     );
     usePlayersInTownSpy.mockReturnValue(players);
     useCurrentPlayerSpy.mockReturnValue(currentPlayer);
+  });
+  afterAll(() => {
+    consoleErrorSpy.mockRestore();
+    usePlayersInTownSpy.mockRestore();
+    useCurrentPlayerSpy.mockRestore();
   });
   it("Renders a list of all players' user names, without checking sort", async () => {
     // players array is already sorted correctly
@@ -181,8 +170,8 @@ describe('PlayersInTownList', () => {
       const newPlayer = new Player(
         `testingPlayerID-${i}.new`,
         `testingPlayerUser${i}.new`,
-        randomLocation(),
-        randomAvatar(),
+        TestUtils.randomLocation(),
+        TestUtils.randomAvatar(),
         [],
         [],
       );

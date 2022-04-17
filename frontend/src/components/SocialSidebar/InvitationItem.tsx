@@ -15,10 +15,10 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import useCurrentPlayer from 'hooks/useCurrentPlayer';
 import React, { useCallback } from 'react';
 import { BsTrashFill } from 'react-icons/bs';
 import InvitationMessage, { InvitationType } from '../../classes/InvitationMessage';
+import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 
 type InvitationItemProps = {
   invitation: InvitationMessage;
@@ -46,19 +46,19 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
 
   return (
     <Box>
-      <Flex onClick={onOpen} py={2}>
+      <Flex data-testid='invitation-item' onClick={onOpen} py={2}>
         <Center>
           <Text>{invitation.from}</Text>
         </Center>
         <Spacer />
-        <Button onClick={deleteInvitation} size='sm' ms={2}>
+        <Button data-testid='delete-invitation-button' onClick={deleteInvitation} size='sm' ms={2}>
           <Icon as={BsTrashFill} />
         </Button>
       </Flex>
       <Modal isOpen={isOpen} onClose={onClose} blockScrollOnMount={false}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader pb={0}>
+          <ModalHeader data-testid='invitation-modal-header' pb={0}>
             {invitation.type === InvitationType.Friend ? 'Friend Request' : 'Town Join Invitation'}
           </ModalHeader>
           <ModalCloseButton />
@@ -76,10 +76,16 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={acceptInvitation}>
+            <Button
+              data-testid='accept-invitation-button'
+              colorScheme='blue'
+              mr={3}
+              onClick={acceptInvitation}>
               Accept
             </Button>
-            <Button onClick={rejectInvitation}>Reject</Button>
+            <Button data-testid='reject-invitation-button' onClick={rejectInvitation}>
+              Reject
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
