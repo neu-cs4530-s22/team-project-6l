@@ -9,6 +9,7 @@ import {
   ServerConversationArea,
 } from '../client/TownsServiceClient';
 import Avatar from '../types/Avatar';
+import InvitationMessage from '../types/InvitationMessage';
 
 export interface UserEmailOfUser {
   userName: string;
@@ -151,7 +152,9 @@ export async function townJoinHandler(
       requestData.userName,
       requestData.email,
       existingPlayer.avatar,
-      existingPlayer.friends.isInitialized() ? existingPlayer.friends.getItems().map(u => new Player(u.displayName, u.email, u.avatar)) : [],
+      existingPlayer.friends.isInitialized()
+        ? existingPlayer.friends.getItems().map(u => new Player(u.displayName, u.email, u.avatar))
+        : [],
       existingPlayer.invitations.isInitialized() ? existingPlayer.invitations.getItems() : [],
     );
   }
@@ -294,20 +297,22 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
     },
+    onInvitationSent(invitation: InvitationMessage) {
+      socket.emit('invitationSent', invitation);
+    },
   };
 }
 
 /**
  * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
  * therefore updating the list of the friends based on the user choice
- * @param requestData 
- * @returns 
+ * @param requestData
+ * @returns
  */
 export async function FriendListHandler(
   requestData: UserEmailOfUser,
 ): Promise<ResponseEnvelope<UserEmailOfUser>> {
-
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
@@ -332,18 +337,16 @@ export async function FriendListHandler(
   };
 }
 
-
 /**
  * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
  * therefore updating the list of the friends based on the user choice
- * @param requestData 
- * @returns 
+ * @param requestData
+ * @returns
  */
 export async function friendIsAddedHandler(
   requestData: FriendAdd,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
-
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
@@ -353,7 +356,6 @@ export async function friendIsAddedHandler(
   // check if the person with this email-id exists in the database
   // Represents checking if the given friend exists with the user email given
   const friendUser = await CoveyTownsStore.getDatabase().getUser(requestData.friendUserName);
-
 
   // Represents if the friend is already a friend
   if (friendUser) {
@@ -373,15 +375,14 @@ export async function friendIsAddedHandler(
 
 /**
  * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
  * therefore updating the list of the friends based on the user choice
- * @param requestData 
- * @returns 
+ * @param requestData
+ * @returns
  */
 export async function friendIsRemovedHandler(
   requestData: FriendRemove,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
-
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
@@ -397,7 +398,9 @@ export async function friendIsRemovedHandler(
 
 // Represents the function that takes in the player into consideration and simply deletes a player based on if they are in the data base
 // in the case of which, this function will be used for testing purposes
-export async function deletesPlayer(requestData: UserEmailOfUser): Promise<ResponseEnvelope<Record<string, null>>> {
+export async function deletesPlayer(
+  requestData: UserEmailOfUser,
+): Promise<ResponseEnvelope<Record<string, null>>> {
   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and deletes
   // them from the list of players in the database
   // await friendMigration.em.delete the user from the database
@@ -407,12 +410,13 @@ export async function deletesPlayer(requestData: UserEmailOfUser): Promise<Respo
     isOK: true,
     message: `Player ${player?.displayName} from the user database is deleted`,
   };
-
 }
 
 // Represents the function that takes in the player into consideration and simply adds a player based on if they are in the data base
 // in the case of which, this function will be used for testing purposes
-export async function addsPlayer(requestData: UserEmailOfUser): Promise<ResponseEnvelope<Record<string, null>>> {
+export async function addsPlayer(
+  requestData: UserEmailOfUser,
+): Promise<ResponseEnvelope<Record<string, null>>> {
   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and adds
   // them from the list of players in the database
   // Represents getting the player out and checking if they are already in the list

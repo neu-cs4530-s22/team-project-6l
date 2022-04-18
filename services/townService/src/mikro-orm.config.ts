@@ -1,4 +1,4 @@
-import { MikroORM } from '@mikro-orm/core';
+import { FlushMode, MikroORM } from '@mikro-orm/core';
 import path from 'path';
 import InvitationMessage from './types/InvitationMessage';
 import User from './types/User';
@@ -16,5 +16,6 @@ export default {
   driverOptions: {
     connection: { ssl: { rejectUnauthorized: false } },
   },
+  flushMode: FlushMode.ALWAYS,
   allowGlobalContext: true,
 } as Parameters<typeof MikroORM.init>[0];

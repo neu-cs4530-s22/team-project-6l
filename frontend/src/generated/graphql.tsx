@@ -39,8 +39,6 @@ export type FieldError = {
 
 export type InvitationMessage = {
   __typename?: 'InvitationMessage';
-  /** Unique identifier for user */
-  _id: Scalars['ID'];
   /** Friendly display name of invitation sender */
   from: Scalars['String'];
   /** Email of the invitation sender */
@@ -176,6 +174,25 @@ export type DeleteFriendInvitationMutation = {
   deleteFriendInvitation: boolean;
 };
 
+export type GetFriendInvitationsQueryVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+export type GetFriendInvitationsQuery = {
+  __typename?: 'Query';
+  user?: {
+    __typename?: 'User';
+    invitations: Array<{
+      __typename?: 'InvitationMessage';
+      from: string;
+      fromEmail: string;
+      message: string;
+      invitationType: InvitationType;
+      to: { __typename?: 'User'; username: string; displayName: string };
+    }>;
+  } | null;
+};
+
 export type RegisterUserMutationVariables = Exact<{
   options: UserCreationInput;
 }>;
@@ -264,6 +281,31 @@ export function useDeleteFriendInvitationMutation() {
   return Urql.useMutation<DeleteFriendInvitationMutation, DeleteFriendInvitationMutationVariables>(
     DeleteFriendInvitationDocument,
   );
+}
+export const GetFriendInvitationsDocument = gql`
+  query GetFriendInvitations($username: String!) {
+    user(username: $username) {
+      invitations {
+        from
+        fromEmail
+        message
+        invitationType
+        to {
+          username
+          displayName
+        }
+      }
+    }
+  }
+`;
+
+export function useGetFriendInvitationsQuery(
+  options: Omit<Urql.UseQueryArgs<GetFriendInvitationsQueryVariables>, 'query'>,
+) {
+  return Urql.useQuery<GetFriendInvitationsQuery>({
+    query: GetFriendInvitationsDocument,
+    ...options,
+  });
 }
 export const RegisterUserDocument = gql`
   mutation RegisterUser($options: UserCreationInput!) {

@@ -17,9 +17,10 @@ export default class UsersResolver {
    * @returns
    */
   @Query(() => [User], { description: 'Get all users' })
-  users(@Ctx() { em }: MyContext): Promise<User[]> {
+  async users(@Ctx() { em }: MyContext): Promise<User[]> {
     this.request = 'users';
-    return em.find(User, {}, { populate: ['friends', 'invitations'] });
+    const user = await em.find(User, {}, { populate: ['friends', 'invitations'] });
+    return user;
   }
 
   /**
@@ -28,12 +29,13 @@ export default class UsersResolver {
    * @returns User
    */
   @Query(() => User, { description: 'Get a user with a given username', nullable: true })
-  user(
+  async user(
     @Arg('username', () => String) username: string,
     @Ctx() { em }: MyContext,
   ): Promise<User | null> {
     this.request = 'user';
-    return em.findOne(User, { username }, { populate: ['friends', 'invitations'] });
+    const user = await em.findOne(User, { username }, { populate: ['friends', 'invitations'] });
+    return user;
   }
 
   /**
@@ -110,7 +112,6 @@ export default class UsersResolver {
           },
         ],
       };
-
     }
 
     return {
@@ -130,35 +131,42 @@ export default class UsersResolver {
   ): Promise<UserResponse | null> {
     this.request = 'friendInvitation';
 
-    const fromUser = await em.findOne(User, { username: from }, { populate: ['invitations'] });
-    const toUser = await em.findOne(User, { username: to }, { populate: ['invitations'] });
-    const existingInvitation = toUser?.invitations.getItems().find(async (invitation) => em.findOne(InvitationMessage, { from: invitation.fromEmail }));
+    // toUser and fromUser are managed entities
+    const fromUser = await em.findOneOrFail(User, { username: from });
+    const toUser = await em.findOneOrFail(User, { username: to }, { populate: ['invitations'] });
+    const existingInvitation = await toUser.invitations
+      .getItems()
+      .find(invitation => invitation.fromEmail === fromUser.email);
+    // const doesInvitationExist = toUser?.invitations.contains(invitation);
+    //   console.log(doesInvitationExist);
 
     // Make sure we are not adding a duplicate invitation
     // or that the two users are currently not friends
     try {
-      if (!existingInvitation && fromUser && toUser) {
-        const invitation = em.create(InvitationMessage, { to: fromUser, from: fromUser.displayName, fromEmail: fromUser.email, message, invitationType: InvitationType.Friend });
-
-
+      if (!existingInvitation) {
+        const invitation = em.create(InvitationMessage, {
+          to: toUser,
+          from: fromUser.displayName,
+          fromEmail: fromUser.email,
+          message,
+          invitationType: InvitationType.Friend,
+        });
         toUser.invitations.add(invitation);
-
-
-        em.persistAndFlush([invitation, toUser]);
+        await em.persistAndFlush(toUser);
 
         return {
           user: toUser,
         };
       }
+
       return {
         errors: [
           {
-            field: !fromUser ? 'fromUser' : 'toUser',
-            message: 'One of the users involved does not exist',
+            field: 'fromUser',
+            message: 'Recepient already has an invitation from sender',
           },
         ],
       };
-
     } catch (err) {
       const error = err as Error;
       return {
@@ -170,31 +178,30 @@ export default class UsersResolver {
         ],
       };
     }
-
   }
 
   @Mutation(() => Boolean, { description: 'Delete pending invitation' })
   async deleteFriendInvitation(
     @Arg('from', () => String) from: string,
     @Arg('to', () => String) to: string,
-    @Ctx() { em }: MyContext): Promise<boolean> {
+    @Ctx() { em }: MyContext,
+  ): Promise<boolean> {
     this.request = 'delete';
 
-    const userId = parseInt(to, 10);
-
     try {
-      const existing = await em.findOneOrFail(User, { _id: userId }, { populate: ['invitations'] });
+      // some calls to this endpoint use the user's numerical id instead of username
+      const filter = Number(to) ? { _id: parseInt(to, 10) } : { username: to };
 
-      const selectedInvitation = existing.invitations.getItems().find(i => i.fromEmail === from);
-
+      const toUser = await em.findOneOrFail(User, filter, { populate: ['invitations'] });
+      const selectedInvitation = toUser.invitations.getItems().find(i => i.fromEmail === from);
 
       if (selectedInvitation) {
-        existing.invitations.remove(selectedInvitation);
+        toUser.invitations.remove(selectedInvitation);
       } else {
         return false;
       }
 
-      em.persistAndFlush(existing);
+      await em.persistAndFlush(toUser);
 
       return true;
     } catch {

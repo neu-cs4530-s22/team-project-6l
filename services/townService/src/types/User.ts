@@ -1,4 +1,5 @@
 import {
+  Cascade,
   Collection,
   Entity,
   Enum,
@@ -64,6 +65,9 @@ export default class User {
   friends = new Collection<User>(this);
 
   @Field(() => [InvitationMessage], { description: 'List of pending invitations' })
-  @OneToMany(() => InvitationMessage, invitation => invitation.to, { orphanRemoval: true })
+  @OneToMany(() => InvitationMessage, invitation => invitation.to, {
+    cascade: [Cascade.ALL],
+    orphanRemoval: true,
+  })
   invitations = new Collection<InvitationMessage>(this);
 }

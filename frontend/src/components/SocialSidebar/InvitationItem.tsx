@@ -36,7 +36,7 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
 
   const acceptInvitation = useCallback(() => {
     onClose();
-    if (invitation.invitationType === InvitationType.Friend) {
+    if (InvitationType[invitation.invitationType] === 'Friend') {
       currentPlayer.acceptFriendInvitationFrom(invitation.from);
 
       addFriend({
@@ -44,9 +44,8 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
         friend: currentPlayer.userName,
       });
 
-      const userId = `${invitation.to}`;
       deleteFriendInvitation({
-        to: userId,
+        to: invitation.to.username,
         from: invitation.fromEmail,
       });
     }
@@ -56,18 +55,18 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
   const rejectInvitation = useCallback(() => {
     onClose();
     currentPlayer.rejectInvitationFrom(invitation.from);
-    const userId = `${invitation.to}`;
+    // const userId = `${invitation.to}`;
     deleteFriendInvitation({
-      to: userId,
+      to: invitation.to.username,
       from: invitation.fromEmail,
     });
   }, [currentPlayer, invitation, onClose, deleteFriendInvitation]);
 
   const deleteInvitation = useCallback(() => {
     currentPlayer.rejectInvitationFrom(invitation.from);
-    const userId = `${invitation.to}`;
+
     deleteFriendInvitation({
-      to: userId,
+      to: invitation.to.username,
       from: invitation.fromEmail,
     });
   }, [currentPlayer, deleteFriendInvitation, invitation]);

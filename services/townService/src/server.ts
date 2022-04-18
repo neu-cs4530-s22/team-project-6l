@@ -9,14 +9,12 @@ import CoveyTownsStore from './lib/CoveyTownsStore';
 import initDatabase from './database';
 import UsersResolver from './resolvers/User';
 
-
 const main = async () => {
   const orm = await initDatabase();
 
   const app = Express();
   app.use(CORS());
   const server = http.createServer(app);
-
   addTownRoutes(server, app);
 
   const apollo = new ApolloServer({
