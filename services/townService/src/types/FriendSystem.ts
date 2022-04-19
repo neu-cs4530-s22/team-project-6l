@@ -1,13 +1,12 @@
+import { nanoid } from 'nanoid';
 import { ServerConversationArea } from '../client/TownsServiceClient';
-import { onlineActivity, UserLocation } from '../CoveyTypes';
-import Player from './Player';
 
 /**
  * Each user who is connected to a town is represented by a Player object
  */
 export default class FriendSystem {
   /** The current location of this user in the world map * */
-  public isOnline: onlineActivity;
+  public isOnline: boolean;
 
   /** The unique identifier for this player * */
   private readonly _id: string;
@@ -19,9 +18,7 @@ export default class FriendSystem {
   private _activeConversationArea?: ServerConversationArea;
 
   constructor(userName: string) {
-    this.isOnline = {
-      moving: false,
-    };
+    this.isOnline = true;
     this._userName = userName;
     this._id = nanoid();
   }

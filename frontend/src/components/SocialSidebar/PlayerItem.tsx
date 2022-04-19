@@ -1,13 +1,12 @@
 import { Avatar, Center, Flex, Spacer, Text } from '@chakra-ui/react';
 import React from 'react';
 import Player from '../../classes/Player';
-import FriendRequest from './FreindRequest';
+import FriendRequest from './FriendRequest';
 
 type PlayerItemProps = {
   player: Player;
 };
 export default function PlayerItem({ player }: PlayerItemProps): JSX.Element {
-  console.log(player.avatar);
   return (
     <Flex m={2}>
       <Center>
@@ -21,7 +20,7 @@ export default function PlayerItem({ player }: PlayerItemProps): JSX.Element {
       </Center>
       <Spacer />
       <Center>
-        <FriendRequest username={player.userName} />
+        <FriendRequest username={player.userName} email={player.email} />
       </Center>
     </Flex>
   );

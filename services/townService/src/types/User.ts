@@ -1,8 +1,19 @@
-import { Collection, Entity, Enum, ManyToMany, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import {
+  Cascade,
+  Collection,
+  Entity,
+  Enum,
+  ManyToMany,
+  OneToMany,
+  OptionalProps,
+  PrimaryKey,
+  Property,
+  Unique,
+} from '@mikro-orm/core';
 import { Field, ID, ObjectType } from 'type-graphql';
 import Avatar from './Avatar';
-
-
+// eslint-disable-next-line import/no-cycle
+import InvitationMessage from './InvitationMessage';
 /**
  * Represents a {@link User}, along with a GraphQl schema and SQL table representation
  * using MikroORM and TypeGraphQl decorators.
@@ -10,7 +21,7 @@ import Avatar from './Avatar';
 @ObjectType()
 @Entity()
 export default class User {
-  [OptionalProps]?: 'lastOnline' | 'createdAt';
+  [OptionalProps]?: 'lastOnline' | 'createdAt' | 'friendInvitations';
 
   /** Unique numerical identifier for user used in the database */
   @Field(() => ID, { description: 'Unique identifier for user' })
@@ -38,7 +49,7 @@ export default class User {
   @Property({ type: 'string' })
   email!: string;
 
-  /** Display name that is shown in the frontend when user is connected to town */
+  /** DisplayString name that is shown in the frontend when user is connected to town */
   @Field({ description: 'The name to display when connected to a town' })
   @Property({ type: 'string' })
   displayName!: string;
@@ -52,4 +63,11 @@ export default class User {
   @Field(() => [User], { description: "List of the user's friends" })
   @ManyToMany(() => User)
   friends = new Collection<User>(this);
+
+  @Field(() => [InvitationMessage], { description: 'List of pending invitations' })
+  @OneToMany(() => InvitationMessage, invitation => invitation.to, {
+    cascade: [Cascade.ALL],
+    orphanRemoval: true,
+  })
+  invitations = new Collection<InvitationMessage>(this);
 }

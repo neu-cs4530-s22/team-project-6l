@@ -1,24 +1,42 @@
 import {
-  Button, FormControl, FormLabel, Input, Modal, ModalBody,
-  ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay,
-  useDisclosure, Image, Stack, Box, RadioGroup, Radio, useRadio, chakra, useRadioGroup
-} from "@chakra-ui/react";
-import { useContext, useEffect, useState } from "react";
-import { User, useRegisterUserMutation } from "../../../../../../generated/graphql";
-import { Avatar } from "../../../../../../generated/graphql"
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import useUserAccount from "hooks/useUserAccount";
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
+  Image,
+  Stack,
+  Box,
+  RadioGroup,
+  Radio,
+  useRadio,
+  chakra,
+  useRadioGroup,
+} from '@chakra-ui/react';
+import { useContext, useEffect, useState } from 'react';
+import {
+  InvitationMessage,
+  User,
+  useRegisterUserMutation,
+} from '../../../../../../generated/graphql';
+import { Avatar } from '../../../../../../generated/graphql';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import useUserAccount from 'hooks/useUserAccount';
 
-interface RegisterUserScreenProps {
-}
+interface RegisterUserScreenProps {}
 
 const avatarsTop = Object.values(Avatar).map(value => {
-  return { name: value, image: `/avatars/${value}.jpg` }
+  return { name: value, image: `/avatars/${value}.jpg` };
 });
 
-
-
-export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
+export default function RegisterUserScreen({}: RegisterUserScreenProps) {
   const { userState, userDispatch } = useUserAccount();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -29,19 +47,14 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
   const [, register] = useRegisterUserMutation();
 
   useEffect(() => {
-    console.log('user state has been updated');
-    console.log(userState);
     if (!userState.displayName) {
-      console.log(`we checked for display name: ${userState.displayName}`);
       onOpen();
-    }
-    else {
+    } else {
       onClose();
     }
-  }, [userState])
+  }, [userState]);
 
-
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false })
+  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false });
   function AvatarRadio(props: any) {
     const { avatar, ...radioProps } = props;
     const { state, getInputProps, getCheckboxProps, htmlProps, getLabelProps } =
@@ -54,12 +67,11 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
           boxSize='85px'
           {...getCheckboxProps()}
           bg={state.isChecked ? 'green.300' : 'transparent'}
-          p={1.5}
-        >
+          p={1.5}>
           <Image src={avatar} boxSize='75px' objectFit='cover' {...getLabelProps()} />
         </Box>
       </chakra.label>
-    )
+    );
   }
 
   const auth = getAuth();
@@ -78,8 +90,8 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
         avatar: Avatar[value as keyof typeof Avatar],
         displayName: displayName,
         email: email,
-        username: email
-      }
+        username: email,
+      },
     });
 
     userDispatch({
@@ -93,27 +105,18 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
         displayName: response.data?.register.user?.displayName!,
         username: response.data?.register.user?.username!,
         friends: new Array<User>(),
-      }
+        invitations: new Array<InvitationMessage>(),
+      },
     });
-
-    // const doesUserAlreadyExist = response.register.errors?.map((err) => err.field === 'username');
-
-    // console.log(doesUserAlreadyExist);
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size='xl'
-      closeOnOverlayClick={false}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} size='xl' closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Create your account</ModalHeader>
         <form onSubmit={handleSubmit}>
           <ModalBody pb={6}>
-
             <FormControl>
               <FormLabel>Email</FormLabel>
               <Input value={email} isReadOnly />
@@ -121,33 +124,36 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
 
             <FormControl mt={4} isRequired>
               <FormLabel>Display Name</FormLabel>
-              <Input placeholder='Display name' onChange={e => setDisplayName(e.currentTarget.value)} />
+              <Input
+                placeholder='Display name'
+                onChange={e => setDisplayName(e.currentTarget.value)}
+              />
             </FormControl>
 
             <FormControl mt={4} isRequired>
               <FormLabel>Avatar</FormLabel>
 
-              <Stack direction='column' align={"center"} {...getRootProps()} spacing={"5"}>
-                <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
-                  {avatarsTop.slice(0, 4).map((avatar) => {
+              <Stack direction='column' align={'center'} {...getRootProps()} spacing={'5'}>
+                <Stack direction='row' spacing={'7'} wrap={'wrap'} align={'center'}>
+                  {avatarsTop.slice(0, 4).map(avatar => {
                     return (
                       <AvatarRadio
                         key={avatar.name}
                         avatar={avatar.image}
                         {...getRadioProps({ value: avatar.name })}
                       />
-                    )
+                    );
                   })}
                 </Stack>
-                <Stack direction='row' spacing={"7"} wrap={"wrap"} align={"center"}>
-                  {avatarsTop.slice(4, avatarsTop.length).map((avatar) => {
+                <Stack direction='row' spacing={'7'} wrap={'wrap'} align={'center'}>
+                  {avatarsTop.slice(4, avatarsTop.length).map(avatar => {
                     return (
                       <AvatarRadio
                         key={avatar.name}
                         avatar={avatar.image}
                         {...getRadioProps({ value: avatar.name })}
                       />
-                    )
+                    );
                   })}
                 </Stack>
               </Stack>
@@ -162,5 +168,5 @@ export default function RegisterUserScreen({ }: RegisterUserScreenProps) {
         </form>
       </ModalContent>
     </Modal>
-  )
-};
+  );
+}

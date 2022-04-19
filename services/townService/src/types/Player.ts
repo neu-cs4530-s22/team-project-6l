@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
 import Avatar from './Avatar';
+import InvitationMessage from './InvitationMessage';
 
 /**
  * Each user who is connected to a town is represented by a Player object
@@ -17,12 +18,24 @@ export default class Player {
   private readonly _userName: string;
 
   /** The player's avatar */
-  private readonly _avatar: Avatar;
+  private _avatar: Avatar;
+
+  private _friends: Player[];
+
+  private readonly _email: string;
+
+  private _invitations: InvitationMessage[];
 
   /** The current ConversationArea that the player is in, or undefined if they are not located within one */
   private _activeConversationArea?: ServerConversationArea;
 
-  constructor(userName: string, avatar: Avatar) {
+  constructor(
+    userName: string,
+    email: string,
+    avatar: Avatar,
+    friends?: Player[],
+    invitations?: InvitationMessage[],
+  ) {
     this.location = {
       x: 0,
       y: 0,
@@ -31,7 +44,10 @@ export default class Player {
     };
     this._userName = userName;
     this._id = nanoid();
+    this._friends = friends || [];
     this._avatar = avatar;
+    this._email = email;
+    this._invitations = invitations || [];
   }
 
   get userName(): string {
@@ -44,6 +60,18 @@ export default class Player {
 
   get avatar(): Avatar {
     return this._avatar;
+  }
+
+  get email(): string {
+    return this._email;
+  }
+
+  get friends(): Player[] {
+    return this._friends;
+  }
+
+  get invitations(): InvitationMessage[] {
+    return this._invitations;
   }
 
   get activeConversationArea(): ServerConversationArea | undefined {
