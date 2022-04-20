@@ -1,7 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import {signInWithEmailAndPassword} from 'firebase/auth';
+import auth from 'firebase/auth';
 import LoginForm from '../LoginForm';
 
 jest.mock('react-router-dom', () => ({
@@ -36,19 +36,19 @@ describe('LoginForm', () => {
     expect(password).toBeInTheDocument();
     expect(forgotPassBtn).toBeInTheDocument();
     expect(signInBtn).toBeInTheDocument();
-    expect(alertErr).toBeNull(); // Alert UI comp should be rendered. 
+    expect(alertErr).toBeNull(); // Alert UI comp should be rendered.
   });
-  it('should render Alert error with \'Enter your email\' error mess', async () => {
+  it("should render Alert error with 'Enter your email' error mess", async () => {
     render(<LoginForm />);
     // check to make sure the 'Enter your email' text is yet rendered
-    expect(screen.queryByText('Enter your email')).toBeNull()
+    expect(screen.queryByText('Enter your email')).toBeNull();
     const signInBtn = screen.getByTestId('sign-in-btn');
     fireEvent.click(signInBtn);
 
     // this time 'Enter your email' text is rendered
     await waitFor(() => {
       expect(screen.queryByText('Enter your email')).toBeDefined();
-    })
+    });
   });
   it('should update new email new email ', () => {
     render(<LoginForm />);
@@ -58,8 +58,9 @@ describe('LoginForm', () => {
     fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
     expect(screen.getByTestId('login-email')).toHaveValue('testing@gmail.com');
   });
-  it('should render Alert error with \'Enter your password\' error mess', async () => {
+  it("should render Alert error with 'Enter your password' error mess", async () => {
     render(<LoginForm />);
+    (auth.signInWithEmailAndPassword as jest.Mocked<any>).mockReturnValueOnce({});
     const emailEl = screen.getByTestId('login-email');
     fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
     fireEvent.click(screen.getByTestId('sign-in-btn'));
@@ -67,21 +68,20 @@ describe('LoginForm', () => {
     await waitFor(() => {
       expect(screen.queryByText('Enter your email')).toBeNull();
       expect(screen.queryByText('Enter your password')).toBeDefined();
-      expect(signInWithEmailAndPassword).not.toHaveBeenCalled();
+      expect(auth.signInWithEmailAndPassword as jest.Mocked<any>).not.toHaveBeenCalled();
     });
-  })
+  });
   it('should call signInWithEmailAndPassword method', async () => {
     render(<LoginForm />);
+    (auth.signInWithEmailAndPassword as jest.Mocked<any>).mockReturnValueOnce({});
     const emailEl = screen.getByTestId('login-email');
     fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
     const passEl = screen.getByTestId('login-password');
     fireEvent.change(passEl, { target: { value: '123456' } });
     fireEvent.click(screen.getByTestId('sign-in-btn'));
 
-    expect(signInWithEmailAndPassword).toHaveBeenCalled();
-  })
-})
-
-
-
-
+    await waitFor(() => {
+      expect(auth.signInWithEmailAndPassword as jest.Mocked<any>).toHaveBeenCalled();
+    });
+  });
+});
