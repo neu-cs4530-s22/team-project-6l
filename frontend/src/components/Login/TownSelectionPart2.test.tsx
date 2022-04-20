@@ -5,7 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { fireEvent, render, RenderResult, waitFor, within } from '@testing-library/react';
 import userEvent, { TargetElement } from '@testing-library/user-event';
 import { nanoid } from 'nanoid';
-import { Avatar } from 'generated/graphql';
+import { Avatar } from '../../generated/graphql';
 import TownsServiceClient, { TownListResponse } from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
@@ -170,7 +170,9 @@ describe('Town Selection - depends on Part 1 passing', () => {
         });
 
         // Check for call sequence
-        await waitFor(() => expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID));
+        await waitFor(() =>
+          expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID, Avatar.Dog, ''),
+        );
         await waitFor(() => expect(doLoginMock).toBeCalledWith({ providerVideoToken: videoToken }));
         await waitFor(() => expect(mockConnect).toBeCalledWith(videoToken));
       });
@@ -213,6 +215,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
         // Configure mocks
         mockVideoSetup.mockReset();
         const videoToken = nanoid();
+
         mockVideoSetup.mockRejectedValue(new Error(errorMessage));
         doLoginMock.mockReset();
         doLoginMock.mockReturnValue(Promise.resolve(true));
@@ -223,10 +226,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
         });
 
         // Check for call sequence
-        await waitFor(() => expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID));
+        await waitFor(() => {
+          expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID, Avatar.Dog, '');
+        });
         await waitFor(() =>
           expect(doLoginMock).not.toBeCalledWith({ providerVideoToken: videoToken }),
         );
+
         await waitFor(() => expect(mockConnect).not.toBeCalledWith(videoToken));
         await waitFor(() =>
           expect(mockToast).toBeCalledWith({
@@ -251,7 +257,9 @@ describe('Town Selection - depends on Part 1 passing', () => {
         });
 
         // Check for call sequence
-        await waitFor(() => expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID));
+        await waitFor(() =>
+          expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID, Avatar.Dog, ''),
+        );
         await waitFor(() => expect(doLoginMock).toBeCalledWith({ providerVideoToken: videoToken }));
         await waitFor(() => expect(mockConnect).not.toBeCalledWith(videoToken));
         await waitFor(() =>
@@ -278,7 +286,9 @@ describe('Town Selection - depends on Part 1 passing', () => {
         });
 
         // Check for call sequence
-        await waitFor(() => expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID));
+        await waitFor(() =>
+          expect(mockVideoSetup).toBeCalledWith(userName, coveyTownID, Avatar.Dog, ''),
+        );
         await waitFor(() => expect(doLoginMock).toBeCalledWith({ providerVideoToken: videoToken }));
         await waitFor(() => expect(mockConnect).toBeCalledWith(videoToken));
         await waitFor(() =>
@@ -310,7 +320,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() =>
-                expect(mockVideoSetup).toBeCalledWith(username, town.coveyTownID),
+                expect(mockVideoSetup).toBeCalledWith(username, town.coveyTownID, Avatar.Dog, ''),
               );
               await waitFor(() =>
                 expect(doLoginMock).toBeCalledWith({ providerVideoToken: videoToken }),
@@ -411,7 +421,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() =>
-                expect(mockVideoSetup).toBeCalledWith(username, town.coveyTownID),
+                expect(mockVideoSetup).toBeCalledWith(username, town.coveyTownID, Avatar.Dog, ''),
               );
               await waitFor(() =>
                 expect(doLoginMock).toBeCalledWith({ providerVideoToken: videoToken }),
@@ -438,7 +448,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() =>
-                expect(mockVideoSetup).toBeCalledWith(username, town.coveyTownID),
+                expect(mockVideoSetup).toBeCalledWith(username, town.coveyTownID, Avatar.Dog, ''),
               );
               await waitFor(() =>
                 expect(doLoginMock).toBeCalledWith({ providerVideoToken: videoToken }),

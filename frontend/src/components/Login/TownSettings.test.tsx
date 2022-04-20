@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, RenderResult, waitFor } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 import { TargetElement } from '@testing-library/user-event';
-import { Avatar } from 'generated/graphql';
+import { Avatar } from '../../generated/graphql';
 import TownSettings from './TownSettings';
 import TownsServiceClient from '../../classes/TownsServiceClient';
 import CoveyAppContext from '../../contexts/CoveyAppContext';

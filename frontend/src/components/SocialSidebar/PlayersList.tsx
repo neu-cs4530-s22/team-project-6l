@@ -22,7 +22,6 @@ export default function PlayersInTownList(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
   const friendList = players.filter(p => currentPlayer.friends.find(f => f.email === p.email));
   const friendUsernames = friendList.map(f => f.userName);
-  // const friendUsernames = players.filter(p => currentPlayer.friends.find(f => f.email === p.email));
   const otherPlayers = players.filter(
     p => p.userName !== currentPlayer.userName && friendUsernames.indexOf(p.userName) === -1,
   );

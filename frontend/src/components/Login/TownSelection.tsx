@@ -20,7 +20,7 @@ import {
   Tr,
   useToast,
 } from '@chakra-ui/react';
-import useUserAccount from 'hooks/useUserAccount';
+import useUserAccount from '../../hooks/useUserAccount';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import Video from '../../classes/Video/Video';
 import { CoveyTownInfo, TownJoinResponse } from '../../classes/TownsServiceClient';
@@ -61,28 +61,41 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
 
   const handleJoin = useCallback(
     async (coveyRoomID: string) => {
-      if (!userName || userName.length === 0) {
-        toast({
-          title: 'Unable to join town',
-          description: 'Please select a username',
-          status: 'error',
-        });
-        return;
-      }
-      if (!coveyRoomID || coveyRoomID.length === 0) {
-        toast({
-          title: 'Unable to join town',
-          description: 'Please enter a town ID',
-          status: 'error',
-        });
-        return;
-      }
-      const initData = await Video.setup(userName, coveyRoomID, userState.avatar, userState.email);
-      const loggedIn = await doLogin(initData);
+      try {
+        if (!userName || userName.length === 0) {
+          toast({
+            title: 'Unable to join town',
+            description: 'Please select a username',
+            status: 'error',
+          });
+          return;
+        }
+        if (!coveyRoomID || coveyRoomID.length === 0) {
+          toast({
+            title: 'Unable to join town',
+            description: 'Please enter a town ID',
+            status: 'error',
+          });
+          return;
+        }
+        const initData = await Video.setup(
+          userName,
+          coveyRoomID,
+          userState.avatar,
+          userState.email,
+        );
+        const loggedIn = await doLogin(initData);
 
-      if (loggedIn) {
-        assert(initData.providerVideoToken);
-        await videoConnect(initData.providerVideoToken);
+        if (loggedIn) {
+          assert(initData.providerVideoToken);
+          await videoConnect(initData.providerVideoToken);
+        }
+      } catch (err) {
+        toast({
+          title: 'Unable to connect to Towns Service',
+          description: (err instanceof Error ? err : '').toString(),
+          status: 'error',
+        });
       }
     },
     [doLogin, userName, videoConnect, toast, userState],
@@ -154,7 +167,13 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             </Heading>
             <FormControl>
               <FormLabel htmlFor='name'>Name</FormLabel>
-              <Input name='name' value={userName} isReadOnly />
+              <Input
+                name='name'
+                placeholder='Your name'
+                value={userName}
+                isReadOnly={!!userState.displayName}
+                onChange={e => setUserName(e.target.value)}
+              />
               <FormLabel marginTop='10px' htmlFor='avatar'>
                 Avatar
               </FormLabel>
