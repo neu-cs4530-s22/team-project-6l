@@ -25,6 +25,7 @@ import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/us
 import Video from '../../classes/Video/Video';
 import { CoveyTownInfo, TownJoinResponse, } from '../../classes/TownsServiceClient';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+import UserInfo from './UserInfo';
 
 
 interface TownSelectionProps {
@@ -138,24 +139,11 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     }
   };
 
-
-
   return (
     <>
       <form>
         <Stack>
-          <Box p="4" borderWidth="1px" borderRadius="lg">
-            <Heading as="h2" size="lg">User Info</Heading>
-            <FormControl>
-              <FormLabel htmlFor="name">Name</FormLabel>
-              <Input name="name"
-                value={userName}
-                isReadOnly
-              />
-              <FormLabel marginTop="10px" htmlFor="avatar">Avatar</FormLabel>
-              <Avatar borderRadius='none' marginTop="5px" size='2xl' src={`/avatars/${userState.avatar}.jpg`} />
-            </FormControl>
-          </Box>
+          <UserInfo userName={userName} email='' avatar={userState.avatar}/>
           <Box borderWidth="1px" borderRadius="lg">
             <Heading p="4" as="h2" size="lg">Create a New Town</Heading>
             <Flex p="4">

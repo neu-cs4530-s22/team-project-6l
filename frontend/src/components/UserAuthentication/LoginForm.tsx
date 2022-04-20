@@ -15,7 +15,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import authCheck from './authCheck';
 import auth from '../../firebaseAuth/firebase-config';
 
-export default function LoginForm() {
+export default function LoginForm(): JSX.Element {
   const history = useHistory();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
