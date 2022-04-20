@@ -5,7 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { fireEvent, render, RenderResult, waitFor } from '@testing-library/react';
 import userEvent, { TargetElement } from '@testing-library/user-event';
 import { nanoid } from 'nanoid';
-import { Avatar } from 'generated/graphql';
+import { Avatar } from '../../generated/graphql';
 import TownsServiceClient from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
@@ -287,7 +287,9 @@ describe('Town Selection - depends on Part 1 passing', () => {
           });
 
           // Check for call sequence
-          await waitFor(() => expect(mockVideoSetup).toBeCalledWith(userName, townID));
+          await waitFor(() =>
+            expect(mockVideoSetup).toBeCalledWith(userName, townID, Avatar.Dog, ''),
+          );
           await waitFor(() =>
             expect(doLoginMock).toBeCalledWith({ providerVideoToken: videoToken }),
           );

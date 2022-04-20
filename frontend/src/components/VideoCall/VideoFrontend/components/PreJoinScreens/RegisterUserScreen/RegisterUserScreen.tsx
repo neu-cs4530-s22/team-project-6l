@@ -111,7 +111,12 @@ export default function RegisterUserScreen({}: RegisterUserScreenProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='xl' closeOnOverlayClick={false}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size='xl'
+      closeOnOverlayClick={false}
+      closeOnEsc={false}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Create your account</ModalHeader>

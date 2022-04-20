@@ -4,6 +4,7 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
+import InvitationMessage from '../types/InvitationMessage';
 
 const mockCoveyListenerTownDestroyed = jest.fn();
 const mockCoveyListenerOtherFns = jest.fn();
@@ -21,13 +22,16 @@ function mockCoveyListener(): CoveyTownListener {
     },
     onPlayerJoined(newPlayer: Player) {
       mockCoveyListenerOtherFns(newPlayer);
-    }, onConversationAreaDestroyed(_conversationArea : ServerConversationArea){
+    }, onConversationAreaDestroyed(_conversationArea: ServerConversationArea) {
       mockCoveyListenerOtherFns(_conversationArea);
-    }, onConversationAreaUpdated(_conversationArea: ServerConversationArea){
+    }, onConversationAreaUpdated(_conversationArea: ServerConversationArea) {
       mockCoveyListenerOtherFns(_conversationArea);
     },
-    onChatMessage(message: ChatMessage){
+    onChatMessage(message: ChatMessage) {
       mockCoveyListenerOtherFns(message);
+    },
+    onInvitationSent(invitation: InvitationMessage) {
+      mockCoveyListenerOtherFns(invitation);
     },
   };
 }

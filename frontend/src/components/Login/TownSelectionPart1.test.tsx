@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import { render, waitFor, within } from '@testing-library/react';
 import { nanoid } from 'nanoid';
-import { Avatar } from 'generated/graphql';
+import { Avatar } from '../../generated/graphql';
 import TownsServiceClient from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';

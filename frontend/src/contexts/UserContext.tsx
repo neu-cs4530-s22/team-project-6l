@@ -1,5 +1,5 @@
-import { Avatar, InvitationMessage, User } from 'generated/graphql';
 import React from 'react';
+import { Avatar, InvitationMessage, User } from '../generated/graphql';
 
 function defaultUserState(): User {
   return {
@@ -30,26 +30,6 @@ export type UserUpdate =
       };
     }
   | { action: 'deleteUser' };
-
-// export function createCtx<StateType, ActionType>(
-//   reducer: React.Reducer<StateType, ActionType>,
-//   initialState: StateType,
-// ) {
-//   const defaultDispatch: React.Dispatch<ActionType> = () => initialState // we never actually use this
-//   const userCtx = React.createContext({
-//     userState: initialState,
-//     userDispatch: defaultDispatch, // just to mock out the dispatch type and make it not optioanl
-//   })
-//   function UserProvider(props: React.PropsWithChildren<unknown>) {
-//     const [userState, userDispatch] = React.useReducer<React.Reducer<StateType, ActionType>>(reducer, initialState)
-//     return <userCtx.Provider value={{ userState, userDispatch }} {...props} />
-//   }
-//   return [userCtx, UserProvider] as const
-// }
-
-// const [UserCtx, UserProvider] = createCtx(UserStateReducer, defaultUserState());
-
-// export { UserCtx, UserProvider };
 
 const defaultDispatch: React.Dispatch<UserUpdate> = () => defaultUserState(); // we never actually use this
 
