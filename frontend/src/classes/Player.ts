@@ -1,5 +1,4 @@
 import { Avatar, InvitationMessage } from 'generated/graphql';
-import { nanoid } from 'nanoid';
 
 export type PlayerListener = {
   onInvitationsChange?: (newInvitations: InvitationMessage[]) => void;
@@ -77,33 +76,17 @@ export default class Player {
     this._listeners = this._listeners.filter(eachListener => eachListener !== listener);
   }
 
-  acceptFriendInvitationFrom(from: string): void {
-    const mockDirection: Direction = 'front';
-    const mockLocation = {
-      x: 100,
-      y: 100,
-      rotation: mockDirection,
-      moving: false,
-      conversationLabel: undefined,
-    };
-
-    this._invitations = this._invitations.filter(invitation => invitation.from !== from);
-    this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
-
-    // TODO: call backend to accept and delete friend invitation,
-    // pass updated list of friends received from backend to listeners
-
-    this._friends.push(new Player(nanoid(), from, mockLocation, Avatar.Dog, [this], [], nanoid()));
+  addFriend(friend: Player): void {
+    this._friends.push(friend);
     this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
   }
 
   acceptTownJoinInvitationFrom(from: string): void {
-    // TODO: call backend to accept and delete town join invitation,
     this._invitations = this._invitations.filter(invitation => invitation.from !== from);
     this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
   }
 
-  rejectInvitationFrom(from: string): void {
+  deleteInvitationFrom(from: string): void {
     this._invitations = this._invitations.filter(invitation => invitation.from !== from);
     this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
   }

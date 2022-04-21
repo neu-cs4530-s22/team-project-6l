@@ -39,6 +39,8 @@ export type FieldError = {
 
 export type InvitationMessage = {
   __typename?: 'InvitationMessage';
+  /** Unique identifier for user */
+  _id: Scalars['ID'];
   /** Friendly display name of invitation sender */
   from: Scalars['String'];
   /** Email of the invitation sender */
@@ -160,7 +162,11 @@ export type AddFriendMutation = {
   __typename?: 'Mutation';
   update?: {
     __typename?: 'UserResponse';
-    user?: { __typename?: 'User'; username: string; lastOnline: string } | null;
+    user?: {
+      __typename?: 'User';
+      username: string;
+      friends: Array<{ __typename?: 'User'; username: string }>;
+    } | null;
   } | null;
 };
 
@@ -262,7 +268,9 @@ export const AddFriendDocument = gql`
     update(username: $username, friend: $friend) {
       user {
         username
-        lastOnline
+        friends {
+          username
+        }
       }
     }
   }

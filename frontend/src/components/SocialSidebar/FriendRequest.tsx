@@ -58,7 +58,7 @@ export default function FriendRequest({ username, email }: FriendRequestProps): 
     });
 
     toast({
-      title: `Sent friend request to ${username} with message: ${requestMessage}`,
+      title: `Successfully sent friend request to ${username}`,
       status: 'success',
     });
     closeFriendRequest();

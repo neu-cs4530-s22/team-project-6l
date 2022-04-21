@@ -52,11 +52,11 @@ export default function TownJoinInvite(): JSX.Element {
   const sendTownJoinInvite = useCallback(() => {
     // TODO: call backend to send town join invite
     toast({
-      title: `Sent town join invite to ${friendID} with message: ${inviteMessage}`,
+      title: `Successfully sent town join invite to ${friendID}`,
       status: 'success',
     });
     closeTownJoinInvite();
-  }, [toast, closeTownJoinInvite, friendID, inviteMessage]);
+  }, [toast, closeTownJoinInvite, friendID]);
 
   return (
     <Box>

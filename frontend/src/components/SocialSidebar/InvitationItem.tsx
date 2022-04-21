@@ -16,12 +16,13 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import {
-  useAddFriendMutation,
-  useDeleteFriendInvitationMutation,
   InvitationMessage,
   InvitationType,
+  useAddFriendMutation,
+  useDeleteFriendInvitationMutation,
 } from 'generated/graphql';
 import useCurrentPlayer from 'hooks/useCurrentPlayer';
+import usePlayersInTown from 'hooks/usePlayersInTown';
 import React, { useCallback } from 'react';
 import { BsTrashFill } from 'react-icons/bs';
 
@@ -30,32 +31,39 @@ type InvitationItemProps = {
 };
 export default function InvitationItem({ invitation }: InvitationItemProps): JSX.Element {
   const currentPlayer = useCurrentPlayer();
+  const playersInTown = usePlayersInTown();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [, addFriend] = useAddFriendMutation();
   const [, deleteFriendInvitation] = useDeleteFriendInvitationMutation();
 
-  const acceptInvitation = useCallback(() => {
+  const acceptInvitation = useCallback(async () => {
     onClose();
     if (InvitationType[invitation.invitationType] === 'Friend') {
-      currentPlayer.acceptFriendInvitationFrom(invitation.from);
-
-      addFriend({
+      const response = await addFriend({
         username: invitation.from,
         friend: currentPlayer.userName,
       });
 
-      deleteFriendInvitation({
-        to: invitation.to.username,
-        from: invitation.fromEmail,
-      });
+      console.log(response.data?.update?.user?.friends);
+
+      const fromIndex = playersInTown.findIndex(p => p.userName === invitation.from);
+      if (fromIndex !== -1) {
+        const newFriend = playersInTown[fromIndex];
+        currentPlayer.addFriend(newFriend);
+        newFriend.addFriend(currentPlayer);
+
+        deleteFriendInvitation({
+          to: invitation.to.username,
+          from: invitation.fromEmail,
+        });
+        currentPlayer.deleteInvitationFrom(invitation.from);
+      }
     }
-    currentPlayer.acceptTownJoinInvitationFrom(invitation.from);
-  }, [addFriend, currentPlayer, invitation, onClose, deleteFriendInvitation]);
+  }, [onClose, invitation, currentPlayer, addFriend, playersInTown, deleteFriendInvitation]);
 
   const rejectInvitation = useCallback(() => {
     onClose();
-    currentPlayer.rejectInvitationFrom(invitation.from);
-    // const userId = `${invitation.to}`;
+    currentPlayer.deleteInvitationFrom(invitation.from);
     deleteFriendInvitation({
       to: invitation.to.username,
       from: invitation.fromEmail,
@@ -63,7 +71,7 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
   }, [currentPlayer, invitation, onClose, deleteFriendInvitation]);
 
   const deleteInvitation = useCallback(() => {
-    currentPlayer.rejectInvitationFrom(invitation.from);
+    currentPlayer.deleteInvitationFrom(invitation.from);
 
     deleteFriendInvitation({
       to: invitation.to.username,

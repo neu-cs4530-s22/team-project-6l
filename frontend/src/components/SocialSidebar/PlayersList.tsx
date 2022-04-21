@@ -1,6 +1,7 @@
 import { Box, Heading, List, Text } from '@chakra-ui/react';
 import useCurrentPlayer from 'hooks/useCurrentPlayer';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import Player, { PlayerListener } from '../../classes/Player';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import FriendItem from './FriendItem';
 import PlayerItem from './PlayerItem';
@@ -20,14 +21,27 @@ import PlayerItem from './PlayerItem';
 export default function PlayersInTownList(): JSX.Element {
   const players = usePlayersInTown();
   const currentPlayer = useCurrentPlayer();
-  const friendList = players.filter(p => currentPlayer.friends.find(f => f.email === p.email));
-  const friendUsernames = friendList.map(f => f.userName);
+  const [friends, setFriends] = useState(currentPlayer.friends);
+  // const friendList = players.filter(p => currentPlayer.friends.find(f => f.email === p.email));
+  const friendUsernames = friends.map(f => f.userName);
   const otherPlayers = players.filter(
     p => p.userName !== currentPlayer.userName && friendUsernames.indexOf(p.userName) === -1,
   );
   otherPlayers.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
+
+  useEffect(() => {
+    const updateListener: PlayerListener = {
+      onFriendsChange: (newFriends: Player[]) => {
+        setFriends(newFriends);
+      },
+    };
+    currentPlayer.addListener(updateListener);
+    return () => {
+      currentPlayer.removeListener(updateListener);
+    };
+  }, [setFriends, currentPlayer]);
 
   return (
     <Box>
@@ -39,11 +53,11 @@ export default function PlayersInTownList(): JSX.Element {
       <Heading as='h2' fontSize='l' mt={4}>
         Friends in this town:
       </Heading>
-      {friendUsernames.length === 0 ? (
+      {friends.length === 0 ? (
         <Text my={1}>No friends in town</Text>
       ) : (
         <List>
-          {currentPlayer.friends.map(friend => (
+          {friends.map(friend => (
             <FriendItem key={friend.id} player={friend} />
           ))}
         </List>
