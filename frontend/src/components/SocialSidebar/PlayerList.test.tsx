@@ -178,15 +178,33 @@ describe('PlayersInTownList', () => {
       );
     }
   });
-  // it('Removes players from the list when they are removed from the town', async () => {
-  //   const renderData = renderPlayersList();
-  //   await expectProperlyRenderedPlayersList(renderData, friends, otherPlayers);
-  //   for (let i = 2; i < players.length; i += 1) {
-  //     const newPlayers = players.splice(i, 1);
-  //     usePlayersInTownSpy.mockReturnValue(newPlayers);
-  //     renderData.rerender(wrappedPlayersListComponent());
-  //     /* eslint-disable-next-line no-await-in-loop */
-  //     await expectProperlyRenderedPlayersList(renderData, friends, newPlayers);
-  //   }
-  // });
+  it('Adds players to the list when they are added to the town', async () => {
+    const renderData = renderPlayersList();
+    await expectProperlyRenderedPlayersList(renderData, friends, otherPlayers);
+
+    const newPlayer = new Player(
+      `testingPlayerID-0.new`,
+      `testingPlayerUser0.new`,
+      TestUtils.randomLocation(),
+      TestUtils.randomAvatar(),
+      [],
+      [],
+      `testingPlayerEmail0.new`,
+    );
+    const newPlayers = players.concat([newPlayer]);
+    usePlayersInTownSpy.mockReturnValue(newPlayers);
+    renderData.rerender(wrappedPlayersListComponent());
+    await expectProperlyRenderedPlayersList(renderData, friends, otherPlayers.concat([newPlayer]));
+  });
+  it('Removes other player from the list when they are removed from the town', async () => {
+    const renderData = renderPlayersList();
+    await expectProperlyRenderedPlayersList(renderData, friends, otherPlayers);
+
+    // remove first other player
+    const newPlayers = players.splice(2, 1);
+    const newOtherPlayers = otherPlayers.splice(0, 1);
+    usePlayersInTownSpy.mockReturnValue(newPlayers);
+    renderData.rerender(wrappedPlayersListComponent());
+    await expectProperlyRenderedPlayersList(renderData, friends, newOtherPlayers);
+  });
 });
