@@ -1,6 +1,6 @@
-import { Box, Heading, List, Text } from '@chakra-ui/react';
-import useCurrentPlayer from 'hooks/useCurrentPlayer';
+import { Box, Heading, List, ListItem, Text } from '@chakra-ui/react';
 import React from 'react';
+import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import FriendItem from './FriendItem';
 import PlayerItem from './PlayerItem';
@@ -42,9 +42,11 @@ export default function PlayersInTownList(): JSX.Element {
       {friendUsernames.length === 0 ? (
         <Text my={1}>No friends in town</Text>
       ) : (
-        <List>
+        <List data-testid='friend-list'>
           {currentPlayer.friends.map(friend => (
-            <FriendItem key={friend.id} player={friend} />
+            <ListItem data-testid='friend-list-item' key={friend.id}>
+              <FriendItem player={friend} />
+            </ListItem>
           ))}
         </List>
       )}
@@ -55,9 +57,11 @@ export default function PlayersInTownList(): JSX.Element {
       {otherPlayers.length === 0 ? (
         <Text my={1}>No other players in town</Text>
       ) : (
-        <List>
+        <List data-testid='player-list'>
           {otherPlayers.map(player => (
-            <PlayerItem key={player.id} player={player} />
+            <ListItem data-testid='player-list-item' key={player.id}>
+              <PlayerItem player={player} />
+            </ListItem>
           ))}
         </List>
       )}

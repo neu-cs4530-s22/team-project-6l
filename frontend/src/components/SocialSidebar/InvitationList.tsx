@@ -13,9 +13,9 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { PlayerListener } from 'classes/Player';
-import { InvitationMessage, useGetFriendInvitationsQuery } from 'generated/graphql';
 import React, { useEffect, useState } from 'react';
 import { IoMdMail } from 'react-icons/io';
+import { InvitationMessage, useGetFriendInvitationsQuery } from '../../generated/graphql';
 import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import InvitationItem from './InvitationItem';
 

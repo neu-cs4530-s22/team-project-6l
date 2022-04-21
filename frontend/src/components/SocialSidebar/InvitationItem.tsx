@@ -15,15 +15,15 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import {
-  useAddFriendMutation,
-  useDeleteFriendInvitationMutation,
-  InvitationMessage,
-  InvitationType,
-} from 'generated/graphql';
-import useCurrentPlayer from 'hooks/useCurrentPlayer';
 import React, { useCallback } from 'react';
 import { BsTrashFill } from 'react-icons/bs';
+import {
+  InvitationMessage,
+  InvitationType,
+  useAddFriendMutation,
+  useDeleteFriendInvitationMutation,
+} from '../../generated/graphql';
+import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 
 type InvitationItemProps = {
   invitation: InvitationMessage;
