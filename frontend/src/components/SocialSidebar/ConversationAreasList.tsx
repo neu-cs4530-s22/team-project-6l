@@ -42,7 +42,7 @@ function ConversationAreaView({ area }: ConversationAreaViewProps): JSX.Element 
           if (!player) return <span key={occupant} />;
           return (
             <ListItem key={occupant}>
-              <PlayerName player={player} />
+              <PlayerName userName={player.userName} />
             </ListItem>
           );
         })}

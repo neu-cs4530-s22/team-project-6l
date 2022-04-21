@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
 import { BsTrashFill } from 'react-icons/bs';
+import Player from '../../classes/Player';
 import {
   InvitationMessage,
   InvitationType,
@@ -39,18 +40,16 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
   const acceptInvitation = useCallback(async () => {
     onClose();
     if (InvitationType[invitation.invitationType] === 'Friend') {
-      const response = await addFriend({
+      addFriend({
         username: invitation.fromEmail,
         friend: currentPlayer.email,
       });
 
-      console.log(response.data?.update?.user?.friends);
-
       const fromIndex = playersInTown.findIndex(p => p.userName === invitation.from);
       if (fromIndex !== -1) {
         const newFriend = playersInTown[fromIndex];
-        currentPlayer.addFriend(newFriend);
-        newFriend.addFriend(currentPlayer);
+        const newFriendProfile = Player.toFriendProfile(newFriend);
+        currentPlayer.addFriend(newFriendProfile);
 
         deleteFriendInvitation({
           to: invitation.to.username,

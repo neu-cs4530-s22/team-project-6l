@@ -80,8 +80,8 @@ export default function TownJoinInvite(): JSX.Element {
                   placeholder='Select friend to invite'
                   onChange={event => setFriendID(event.target.value)}>
                   {currentPlayer.friends.map((friend, i) => (
-                    <option selected={i === 0} key={friend?.id} value={friend?.id}>
-                      {friend?.userName}
+                    <option selected={i === 0} key={friend?._email} value={friend?._email}>
+                      {friend?._userName}
                     </option>
                   ))}
                 </Select>

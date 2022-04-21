@@ -1,6 +1,6 @@
 import { Box, Heading, List, ListItem, Text } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import Player, { PlayerListener } from '../../classes/Player';
+import Player, { FriendProfile, PlayerListener } from '../../classes/Player';
 import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import FriendItem from './FriendItem';
@@ -21,14 +21,18 @@ import PlayerItem from './PlayerItem';
 export default function PlayersInTownList(): JSX.Element {
   const players = usePlayersInTown();
   const currentPlayer = useCurrentPlayer();
-  const friendList = players.filter(p => currentPlayer.friends.find(f => f.email === p.email));
-  const [friends, setFriends] = useState(currentPlayer.friends);
-  const friendUsernames = friends.map(f => f.userName);
+  const currentPlayerProfile = Player.toFriendProfile(currentPlayer);
+  const friendList: FriendProfile[] = currentPlayer.friends.filter(f =>
+    players.find(p => p.email === f._email),
+  );
+  // players.filter(p => currentPlayer.friends.find(f => f._email === p.email));
+  const [friends, setFriends] = useState(friendList);
+  const friendUsernames = friends.map(f => f._userName);
   const otherPlayers = players.filter(
     p => p.userName !== currentPlayer.userName && friendUsernames.indexOf(p.userName) === -1,
   );
   friendList.sort((p1, p2) =>
-    p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
+    p1._userName.localeCompare(p2._userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
   otherPlayers.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
@@ -36,9 +40,8 @@ export default function PlayersInTownList(): JSX.Element {
 
   useEffect(() => {
     const updateListener: PlayerListener = {
-      onFriendsChange: (newFriends: Player[]) => {
-        const newFriendList = players.filter(p => newFriends.find(f => f.email === p.email));
-        setFriends(newFriendList);
+      onFriendsChange: (newFriends: FriendProfile[]) => {
+        setFriends(newFriends);
       },
     };
     currentPlayer.addListener(updateListener);
@@ -52,7 +55,7 @@ export default function PlayersInTownList(): JSX.Element {
       <Heading as='h2' fontSize='l'>
         Your profile:
       </Heading>
-      <FriendItem player={currentPlayer} />
+      <FriendItem friend={currentPlayerProfile} />
 
       <Heading as='h2' fontSize='l' mt={4}>
         Friends in this town:
@@ -62,8 +65,8 @@ export default function PlayersInTownList(): JSX.Element {
       ) : (
         <List data-testid='friend-list'>
           {friendList.map(friend => (
-            <ListItem data-testid='friend-list-item' key={friend.id}>
-              <FriendItem player={friend} />
+            <ListItem data-testid='friend-list-item' key={friend._email}>
+              <FriendItem friend={friend} />
             </ListItem>
           ))}
         </List>

@@ -1,10 +1,9 @@
 import { Text } from '@chakra-ui/react';
 import React from 'react';
-import Player from '../../classes/Player';
 
 type PlayerNameProps = {
-  player: Player;
+  userName: string;
 };
-export default function PlayerItem({ player }: PlayerNameProps): JSX.Element {
-  return <Text>{player.userName}</Text>;
+export default function PlayerName({ userName }: PlayerNameProps): JSX.Element {
+  return <Text>{userName}</Text>;
 }

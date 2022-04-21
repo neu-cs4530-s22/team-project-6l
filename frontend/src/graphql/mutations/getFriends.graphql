@@ -1,0 +1,9 @@
+query GetFriends($username: String!) {
+  user(username: $username) {
+    friends {
+      displayName
+      avatar
+      username
+    }
+  }
+}

@@ -199,6 +199,18 @@ export type GetFriendInvitationsQuery = {
   } | null;
 };
 
+export type GetFriendsQueryVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+export type GetFriendsQuery = {
+  __typename?: 'Query';
+  user?: {
+    __typename?: 'User';
+    friends: Array<{ __typename?: 'User'; displayName: string; avatar: Avatar; username: string }>;
+  } | null;
+};
+
 export type RegisterUserMutationVariables = Exact<{
   options: UserCreationInput;
 }>;
@@ -314,6 +326,23 @@ export function useGetFriendInvitationsQuery(
     query: GetFriendInvitationsDocument,
     ...options,
   });
+}
+export const GetFriendsDocument = gql`
+  query GetFriends($username: String!) {
+    user(username: $username) {
+      friends {
+        displayName
+        avatar
+        username
+      }
+    }
+  }
+`;
+
+export function useGetFriendsQuery(
+  options: Omit<Urql.UseQueryArgs<GetFriendsQueryVariables>, 'query'>,
+) {
+  return Urql.useQuery<GetFriendsQuery>({ query: GetFriendsDocument, ...options });
 }
 export const RegisterUserDocument = gql`
   mutation RegisterUser($options: UserCreationInput!) {

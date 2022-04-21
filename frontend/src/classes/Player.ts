@@ -2,7 +2,7 @@ import { Avatar, InvitationMessage } from '../generated/graphql';
 
 export type PlayerListener = {
   onInvitationsChange?: (newInvitations: InvitationMessage[]) => void;
-  onFriendsChange?: (newFriends: Player[]) => void;
+  onFriendsChange?: (newFriends: FriendProfile[]) => void;
 };
 
 export default class Player {
@@ -12,7 +12,9 @@ export default class Player {
 
   private readonly _userName: string;
 
-  private _friends: Player[];
+  // private _friends: Player[];
+
+  private _friends: FriendProfile[];
 
   private _invitations: InvitationMessage[];
 
@@ -31,7 +33,7 @@ export default class Player {
     userName: string,
     location: UserLocation,
     avatar: Avatar,
-    friends: Player[],
+    friends: FriendProfile[],
     invitations: InvitationMessage[],
     email: string,
   ) {
@@ -56,7 +58,11 @@ export default class Player {
     return this._avatar;
   }
 
-  get friends(): Player[] {
+  // get friends(): Player[] {
+  //   return this._friends;
+  // }
+
+  get friends(): FriendProfile[] {
     return this._friends;
   }
 
@@ -76,8 +82,13 @@ export default class Player {
     this._listeners = this._listeners.filter(eachListener => eachListener !== listener);
   }
 
-  addFriend(friend: Player): void {
+  addFriend(friend: FriendProfile): void {
     this._friends.push(friend);
+    this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
+  }
+
+  updateFriends(friends: FriendProfile[]): void {
+    this._friends = friends;
     this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
   }
 
@@ -91,15 +102,25 @@ export default class Player {
     this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
   }
 
+  static toFriendProfile(player: Player): FriendProfile {
+    return {
+      _userName: player._userName,
+      _avatar: player._avatar,
+      _email: player._email,
+    };
+  }
+
   static fromServerPlayer(playerFromServer: ServerPlayer): Player {
     return new Player(
       playerFromServer._id,
       playerFromServer._userName,
       playerFromServer.location,
       playerFromServer._avatar,
-      playerFromServer._friends.map(
-        sp => new Player(sp._id, sp._userName, sp.location, sp._avatar, [], [], sp._email),
-      ),
+      playerFromServer._friends.map(sp => ({
+        _userName: sp._userName,
+        _avatar: sp._avatar,
+        _email: sp._email,
+      })),
       playerFromServer._invitations,
       playerFromServer._email,
     );
@@ -113,6 +134,12 @@ export type ServerPlayer = {
   _email: string;
   _friends: ServerPlayer[];
   _invitations: InvitationMessage[];
+};
+
+export type FriendProfile = {
+  _userName: string;
+  _avatar: Avatar;
+  _email: string;
 };
 
 export type Direction = 'front' | 'back' | 'left' | 'right';
