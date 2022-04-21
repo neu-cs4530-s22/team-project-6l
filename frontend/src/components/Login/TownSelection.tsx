@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import assert from "assert";
 import {
-  Avatar,
   Box,
   Button,
   Checkbox,
@@ -29,7 +28,7 @@ import UserInfo from './UserInfo';
 
 
 interface TownSelectionProps {
-  doLogin: (initData: TownJoinResponse) => Promise<boolean>
+  doLogin: (initData: TownJoinResponse) => Promise<boolean>,
 }
 
 export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Element {
@@ -143,7 +142,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     <>
       <form>
         <Stack>
-          <UserInfo userName={userName} email='' avatar={userState.avatar}/>
+          <UserInfo userName={userName} email={userState.email} avatar={userState.avatar} friends={userState.friends}/>
           <Box borderWidth="1px" borderRadius="lg">
             <Heading p="4" as="h2" size="lg">Create a New Town</Heading>
             <Flex p="4">
