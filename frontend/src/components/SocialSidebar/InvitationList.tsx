@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Icon,
+  List,
   ListItem,
   Popover,
   PopoverArrow,
@@ -10,7 +11,6 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-  UnorderedList,
   useDisclosure,
 } from '@chakra-ui/react';
 import { PlayerListener } from 'classes/Player';
@@ -74,13 +74,13 @@ export default function InvitationList(): JSX.Element {
           <PopoverCloseButton />
           <PopoverHeader fontWeight='bold'>Mailbox:</PopoverHeader>
           <PopoverBody>
-            <UnorderedList ms={0}>
+            <List ms={0}>
               {invitations.map(invitation => (
                 <ListItem key={invitation.fromEmail}>
                   <InvitationItem invitation={invitation} />
                 </ListItem>
               ))}
-            </UnorderedList>
+            </List>
           </PopoverBody>
         </PopoverContent>
       </Popover>
