@@ -20,11 +20,13 @@ import PlayerItem from './PlayerItem';
 export default function PlayersInTownList(): JSX.Element {
   const players = usePlayersInTown();
   const currentPlayer = useCurrentPlayer();
-  // const friendList = players.filter(p => currentPlayer.friends.find(f => f.email === p.email));
-  // const friendUsernames = friendList.map(f => f.userName);
-  const friendUsernames = currentPlayer.friends.map(f => f.userName);
+  const friendList = players.filter(p => currentPlayer.friends.find(f => f.email === p.email));
+  const friendUsernames = friendList.map(f => f.userName);
   const otherPlayers = players.filter(
     p => p.userName !== currentPlayer.userName && friendUsernames.indexOf(p.userName) === -1,
+  );
+  friendList.sort((p1, p2) =>
+    p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
   );
   otherPlayers.sort((p1, p2) =>
     p1.userName.localeCompare(p2.userName, undefined, { numeric: true, sensitivity: 'base' }),
@@ -40,11 +42,11 @@ export default function PlayersInTownList(): JSX.Element {
       <Heading as='h2' fontSize='l' mt={4}>
         Friends in this town:
       </Heading>
-      {friendUsernames.length === 0 ? (
+      {friendList.length === 0 ? (
         <Text my={1}>No friends in town</Text>
       ) : (
         <List data-testid='friend-list'>
-          {currentPlayer.friends.map(friend => (
+          {friendList.map(friend => (
             <ListItem data-testid='friend-list-item' key={friend.id}>
               <FriendItem player={friend} />
             </ListItem>

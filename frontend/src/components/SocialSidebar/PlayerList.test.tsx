@@ -75,7 +75,7 @@ describe('PlayersInTownList', () => {
           TestUtils.randomAvatar(),
           [],
           [],
-          `testingPlayerEmail0-${nanoid()}`,
+          `testingPlayerEmail${i}-${nanoid()}`,
         ),
       );
     }
@@ -187,10 +187,25 @@ describe('PlayersInTownList', () => {
     await expectProperlyRenderedPlayersList(renderData, friends, otherPlayers);
 
     // remove first other player
-    const newPlayers = players.splice(2, 1);
-    const newOtherPlayers = otherPlayers.splice(0, 1);
+    const newPlayers = players.concat([]);
+    const newOtherPlayers = otherPlayers.concat([]);
+    newPlayers.splice(2, 1);
+    newOtherPlayers.splice(0, 1);
     usePlayersInTownSpy.mockReturnValue(newPlayers);
     renderData.rerender(wrappedPlayersListComponent());
     await expectProperlyRenderedPlayersList(renderData, friends, newOtherPlayers);
+  });
+  it('Removes friend from the list when they are removed from the town', async () => {
+    const renderData = renderPlayersList();
+    await expectProperlyRenderedPlayersList(renderData, friends, otherPlayers);
+
+    // remove first other player
+    const newPlayers = players.concat([]);
+    const newFriends = friends.concat([]);
+    newPlayers.splice(0, 1);
+    newFriends.splice(0, 1);
+    usePlayersInTownSpy.mockReturnValue(newPlayers);
+    renderData.rerender(wrappedPlayersListComponent());
+    await expectProperlyRenderedPlayersList(renderData, newFriends, otherPlayers);
   });
 });
