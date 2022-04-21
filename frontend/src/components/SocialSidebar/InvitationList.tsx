@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Icon,
+  ListItem,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -64,7 +65,7 @@ export default function InvitationList(): JSX.Element {
     <Box>
       <Popover offset={[-70, 10]} isOpen={isOpen} onClose={onClose} onOpen={onOpen}>
         <PopoverTrigger>
-          <Button size='sm' ms={2}>
+          <Button data-testid='invitation-button' size='sm' ms={2}>
             <Icon w={5} h={5} as={IoMdMail} />
           </Button>
         </PopoverTrigger>
@@ -75,7 +76,9 @@ export default function InvitationList(): JSX.Element {
           <PopoverBody>
             <UnorderedList ms={0}>
               {invitations.map(invitation => (
-                <InvitationItem key={invitation.fromEmail} invitation={invitation} />
+                <ListItem key={invitation.fromEmail}>
+                  <InvitationItem invitation={invitation} />
+                </ListItem>
               ))}
             </UnorderedList>
           </PopoverBody>

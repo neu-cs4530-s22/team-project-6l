@@ -21,7 +21,6 @@ describe('PlayersInTownList', () => {
     </ChakraProvider>
   );
   const renderPlayersList = () => render(wrappedPlayersListComponent());
-  let consoleErrorSpy: jest.SpyInstance<void, [message?: any, ...optionalParms: any[]]>;
   let useCurrentPlayerSpy: jest.SpyInstance<Player, []>;
   let usePlayersInTownSpy: jest.SpyInstance<Player[], []>;
   let currentPlayer: Player;
@@ -61,18 +60,6 @@ describe('PlayersInTownList', () => {
     }
   };
   beforeAll(() => {
-    // Spy on console.error and intercept react key warnings to fail test
-    consoleErrorSpy = jest.spyOn(global.console, 'error');
-    consoleErrorSpy.mockImplementation((message?, ...optionalParams) => {
-      const stringMessage = message as string;
-      if (stringMessage.includes('children with the same key,')) {
-        throw new Error(stringMessage.replace('%s', optionalParams[0]));
-      } else if (stringMessage.includes('warning-keys')) {
-        throw new Error(stringMessage.replace('%s', optionalParams[0]));
-      }
-      // eslint-disable-next-line no-console -- we are wrapping the console with a spy to find react warnings
-      console.warn(message, ...optionalParams);
-    });
     useCurrentPlayerSpy = jest.spyOn(useCurrentPlayer, 'default');
     usePlayersInTownSpy = jest.spyOn(usePlayersInTown, 'default');
   });
@@ -111,7 +98,6 @@ describe('PlayersInTownList', () => {
     useCurrentPlayerSpy.mockReturnValue(currentPlayer);
   });
   afterAll(() => {
-    consoleErrorSpy.mockRestore();
     usePlayersInTownSpy.mockRestore();
     useCurrentPlayerSpy.mockRestore();
   });
