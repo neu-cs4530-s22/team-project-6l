@@ -8,9 +8,10 @@ type PlayerItemProps = {
 };
 export default function PlayerItem({ player }: PlayerItemProps): JSX.Element {
   return (
-    <Flex m={2}>
+    <Flex data-testid='player-item' my={2}>
       <Center>
         <Avatar
+          data-testid='avatar'
           borderRadius='none'
           marginTop='5px'
           size='md'

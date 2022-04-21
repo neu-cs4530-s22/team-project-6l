@@ -14,10 +14,10 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { useSendFriendInvitationMutation } from 'generated/graphql';
-import useUserAccount from 'hooks/useUserAccount';
 import React, { useCallback, useState } from 'react';
+import { useSendFriendInvitationMutation } from '../../generated/graphql';
 import useMaybeVideo from '../../hooks/useMaybeVideo';
+import useUserAccount from '../../hooks/useUserAccount';
 
 type FriendRequestProps = {
   username: string;

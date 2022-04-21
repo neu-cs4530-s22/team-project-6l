@@ -7,9 +7,10 @@ type FriendItemProps = {
 };
 export default function FriendItem({ player }: FriendItemProps): JSX.Element {
   return (
-    <Flex my={2}>
+    <Flex data-testid='friend-item' my={2}>
       <Center>
         <Avatar
+          data-testid='avatar'
           borderRadius='none'
           marginTop='5px'
           size='md'

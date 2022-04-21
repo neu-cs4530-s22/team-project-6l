@@ -1,5 +1,5 @@
-import { Avatar, InvitationMessage } from 'generated/graphql';
 import { nanoid } from 'nanoid';
+import { Avatar, InvitationMessage } from '../generated/graphql';
 
 export type PlayerListener = {
   onInvitationsChange?: (newInvitations: InvitationMessage[]) => void;
