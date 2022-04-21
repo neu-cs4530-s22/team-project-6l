@@ -1,4 +1,4 @@
-import { Avatar, InvitationMessage } from 'generated/graphql';
+import { Avatar, InvitationMessage } from '../generated/graphql';
 
 export type PlayerListener = {
   onInvitationsChange?: (newInvitations: InvitationMessage[]) => void;

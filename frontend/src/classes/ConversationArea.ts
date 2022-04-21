@@ -34,8 +34,10 @@ export default class ConversationArea {
   }
 
   set occupants(newOccupants: string[]) {
-    if(newOccupants.length !== this._occupants.length || 
-      !this._occupants.every(oldOccupant => newOccupants.includes(oldOccupant))){
+    if (
+      newOccupants.length !== this._occupants.length ||
+      !this._occupants.every(oldOccupant => newOccupants.includes(oldOccupant))
+    ) {
       this._listeners.forEach(listener => listener.onOccupantsChange?.(newOccupants));
       this._occupants = newOccupants;
     }
@@ -46,7 +48,7 @@ export default class ConversationArea {
   }
 
   set topic(newTopic: string | undefined) {
-    if(this._topic !== newTopic){
+    if (this._topic !== newTopic) {
       this._listeners.forEach(listener => listener.onTopicChange?.(newTopic));
     }
     this._topic = newTopic;
@@ -79,6 +81,13 @@ export default class ConversationArea {
 
   removeListener(listener: ConversationAreaListener) {
     this._listeners = this._listeners.filter(eachListener => eachListener !== listener);
+  }
+
+  copy(): ConversationArea {
+    const ret = new ConversationArea(this.label, this._boundingBox, this.topic);
+    ret.occupants = this.occupants.concat([]);
+    this._listeners.forEach(listener => ret.addListener(listener));
+    return ret;
   }
 
   static fromServerConversationArea(serverArea: ServerConversationArea): ConversationArea {

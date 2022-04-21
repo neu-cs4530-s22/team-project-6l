@@ -2,6 +2,8 @@ import {
   Box,
   Button,
   Icon,
+  List,
+  ListItem,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -9,7 +11,6 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-  UnorderedList,
   useDisclosure,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
@@ -39,7 +40,7 @@ export default function FriendList(): JSX.Element {
     <Box>
       <Popover offset={[-15, 10]} isOpen={isOpen} onClose={onClose}>
         <PopoverTrigger>
-          <Button onClick={onOpen} size='sm' mx={1}>
+          <Button data-testid='friend-button' onClick={onOpen} size='sm' mx={1}>
             <Icon w={5} h={5} as={IoMdContact} />
           </Button>
         </PopoverTrigger>
@@ -48,11 +49,13 @@ export default function FriendList(): JSX.Element {
           <PopoverCloseButton />
           <PopoverHeader fontWeight='bold'>Friends:</PopoverHeader>
           <PopoverBody>
-            <UnorderedList ms={0}>
+            <List ms={0}>
               {friends.map(friend => (
-                <PlayerName key={friend.id} player={friend} />
+                <ListItem key={friend.id}>
+                  <PlayerName player={friend} />
+                </ListItem>
               ))}
-            </UnorderedList>
+            </List>
           </PopoverBody>
         </PopoverContent>
       </Popover>
