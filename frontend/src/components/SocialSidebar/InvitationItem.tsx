@@ -40,8 +40,8 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
     onClose();
     if (InvitationType[invitation.invitationType] === 'Friend') {
       const response = await addFriend({
-        username: invitation.from,
-        friend: currentPlayer.userName,
+        username: invitation.fromEmail,
+        friend: currentPlayer.email,
       });
 
       console.log(response.data?.update?.user?.friends);
