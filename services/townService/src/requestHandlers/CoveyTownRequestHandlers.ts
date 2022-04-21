@@ -4,9 +4,12 @@ import Player from '../types/Player';
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
-import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
+import {
+  ConversationAreaCreateRequest,
+  ServerConversationArea,
+} from '../client/TownsServiceClient';
 import Avatar from '../types/Avatar';
-import User from '../types/User';
+import InvitationMessage from '../types/InvitationMessage';
 
 export interface UserEmailOfUser {
   userName: string;
@@ -36,8 +39,10 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
-
-  avatar: Avatar
+  /** avatar of the player that would  like to join * */
+  avatar: Avatar;
+  /** Unique email ID to distinguish player */
+  email: string;
 }
 
 /**
@@ -47,8 +52,6 @@ export interface TownJoinRequest {
 export interface TownJoinResponse {
   /** Unique ID that represents this player * */
   coveyUserID: string;
-
-  avatar: Avatar;
   /** Secret token that this player should use to authenticate
    * in future requests to this service * */
   coveySessionToken: string;
@@ -125,8 +128,11 @@ export interface ResponseEnvelope<T> {
  *
  * @param requestData an object representing the player's request
  */
-export async function townJoinHandler(requestData: TownJoinRequest): Promise<ResponseEnvelope<TownJoinResponse>> {
+export async function townJoinHandler(
+  requestData: TownJoinRequest,
+): Promise<ResponseEnvelope<TownJoinResponse>> {
   const townsStore = CoveyTownsStore.getInstance();
+  const database = CoveyTownsStore.getDatabase();
 
   const coveyTownController = townsStore.getControllerForTown(requestData.coveyTownID);
   if (!coveyTownController) {
@@ -135,14 +141,30 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       message: 'Error: No such town',
     };
   }
-  const newPlayer = new Player(requestData.userName, requestData.avatar);
+
+  const existingPlayer = await database.getUser(requestData.email);
+  let newPlayer;
+
+  if (!existingPlayer) {
+    newPlayer = new Player(requestData.userName, requestData.email, requestData.avatar);
+  } else {
+    newPlayer = new Player(
+      requestData.userName,
+      requestData.email,
+      existingPlayer.avatar,
+      existingPlayer.friends.isInitialized()
+        ? existingPlayer.friends.getItems().map(u => new Player(u.displayName, u.email, u.avatar))
+        : [],
+      existingPlayer.invitations.isInitialized() ? existingPlayer.invitations.getItems() : [],
+    );
+  }
+
   const newSession = await coveyTownController.addPlayer(newPlayer);
   assert(newSession.videoToken);
   return {
     isOK: true,
     response: {
       coveyUserID: newPlayer.id,
-      avatar: newPlayer.avatar,
       coveySessionToken: newSession.sessionToken,
       providerVideoToken: newSession.videoToken,
       currentPlayers: coveyTownController.players,
@@ -161,7 +183,9 @@ export function townListHandler(): ResponseEnvelope<TownListResponse> {
   };
 }
 
-export function townCreateHandler(requestData: TownCreateRequest): ResponseEnvelope<TownCreateResponse> {
+export function townCreateHandler(
+  requestData: TownCreateRequest,
+): ResponseEnvelope<TownCreateResponse> {
   const townsStore = CoveyTownsStore.getInstance();
   if (requestData.friendlyName.length === 0) {
     return {
@@ -179,25 +203,37 @@ export function townCreateHandler(requestData: TownCreateRequest): ResponseEnvel
   };
 }
 
-export function townDeleteHandler(requestData: TownDeleteRequest): ResponseEnvelope<Record<string, null>> {
+export function townDeleteHandler(
+  requestData: TownDeleteRequest,
+): ResponseEnvelope<Record<string, null>> {
   const townsStore = CoveyTownsStore.getInstance();
   const success = townsStore.deleteTown(requestData.coveyTownID, requestData.coveyTownPassword);
   return {
     isOK: success,
     response: {},
-    message: !success ? 'Invalid password. Please double check your town update password.' : undefined,
+    message: !success
+      ? 'Invalid password. Please double check your town update password.'
+      : undefined,
   };
 }
 
-export function townUpdateHandler(requestData: TownUpdateRequest): ResponseEnvelope<Record<string, null>> {
+export function townUpdateHandler(
+  requestData: TownUpdateRequest,
+): ResponseEnvelope<Record<string, null>> {
   const townsStore = CoveyTownsStore.getInstance();
-  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed);
+  const success = townsStore.updateTown(
+    requestData.coveyTownID,
+    requestData.coveyTownPassword,
+    requestData.friendlyName,
+    requestData.isPubliclyListed,
+  );
   return {
     isOK: success,
     response: {},
-    message: !success ? 'Invalid password or update values specified. Please double check your town update password.' : undefined,
+    message: !success
+      ? 'Invalid password or update values specified. Please double check your town update password.'
+      : undefined,
   };
-
 }
 
 /**
@@ -208,12 +244,16 @@ export function townUpdateHandler(requestData: TownUpdateRequest): ResponseEnvel
  * * Ask the TownController to create the conversation area
  * @param _requestData Conversation area create request
  */
-export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest): ResponseEnvelope<Record<string, null>> {
+export function conversationAreaCreateHandler(
+  _requestData: ConversationAreaCreateRequest,
+): ResponseEnvelope<Record<string, null>> {
   const townsStore = CoveyTownsStore.getInstance();
   const townController = townsStore.getControllerForTown(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
     return {
-      isOK: false, response: {}, message: `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
+      isOK: false,
+      response: {},
+      message: `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
     };
   }
   const success = townController.addConversationArea(_requestData.conversationArea);
@@ -221,7 +261,9 @@ export function conversationAreaCreateHandler(_requestData: ConversationAreaCrea
   return {
     isOK: success,
     response: {},
-    message: !success ? `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
+    message: !success
+      ? `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`
+      : undefined,
   };
 }
 
@@ -255,25 +297,27 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
     },
+    onInvitationSent(invitation: InvitationMessage) {
+      socket.emit('invitationSent', invitation);
+    },
   };
 }
 
 /**
  * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
  * therefore updating the list of the friends based on the user choice
- * @param requestData 
- * @returns 
+ * @param requestData
+ * @returns
  */
 export async function FriendListHandler(
   requestData: UserEmailOfUser,
 ): Promise<ResponseEnvelope<UserEmailOfUser>> {
-
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
   // Represents connecting to the database to extract the information to use
-  const currentPlayer = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
+  const currentPlayer = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
 
   if (currentPlayer?.email) {
     return {
@@ -293,28 +337,25 @@ export async function FriendListHandler(
   };
 }
 
-
 /**
  * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
  * therefore updating the list of the friends based on the user choice
- * @param requestData 
- * @returns 
+ * @param requestData
+ * @returns
  */
 export async function friendIsAddedHandler(
   requestData: FriendAdd,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
-
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
   // Represents connecting to the database to extract the information to use
   // Represents fetching yourself through your own email
-  const playerUser = await CoveyTownsStore.getDatabase().em.findOne(User, { email: requestData.userName });
+  const playerUser = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
   // check if the person with this email-id exists in the database
   // Represents checking if the given friend exists with the user email given
-  const friendUser = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.friendUserName }, { populate: ['friends'] });
-
+  const friendUser = await CoveyTownsStore.getDatabase().getUser(requestData.friendUserName);
 
   // Represents if the friend is already a friend
   if (friendUser) {
@@ -334,55 +375,57 @@ export async function friendIsAddedHandler(
 
 /**
  * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and 
+ * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
  * therefore updating the list of the friends based on the user choice
- * @param requestData 
- * @returns 
+ * @param requestData
+ * @returns
  */
 export async function friendIsRemovedHandler(
   requestData: FriendRemove,
 ): Promise<ResponseEnvelope<Record<string, null>>> {
-
   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
   // Represents connecting to the database to extract the information to use
-  const player = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
-  const friend = await CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.friendUserName });
+  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
+  const friend = await CoveyTownsStore.getDatabase().getUser(requestData.friendUserName);
 
   return {
     isOK: true,
-    message: 'Friend is succesfully removed.',
+    message: `Friend with username ${friend?.displayName} succesfully removed from ${player?.displayName}'list of friends.`,
   };
 }
 
 // Represents the function that takes in the player into consideration and simply deletes a player based on if they are in the data base
 // in the case of which, this function will be used for testing purposes
-export async function deletesPlayer(requestData: UserEmailOfUser): Promise<ResponseEnvelope<Record<string, null>>> {
+export async function deletesPlayer(
+  requestData: UserEmailOfUser,
+): Promise<ResponseEnvelope<Record<string, null>>> {
   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and deletes
   // them from the list of players in the database
   // await friendMigration.em.delete the user from the database
   // friendMigration.close();
-  const player = CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
+  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
   return {
     isOK: true,
-    message: 'Player from the user database is deleted',
+    message: `Player ${player?.displayName} from the user database is deleted`,
   };
-
 }
 
 // Represents the function that takes in the player into consideration and simply adds a player based on if they are in the data base
 // in the case of which, this function will be used for testing purposes
-export async function addsPlayer(requestData: UserEmailOfUser): Promise<ResponseEnvelope<Record<string, null>>> {
+export async function addsPlayer(
+  requestData: UserEmailOfUser,
+): Promise<ResponseEnvelope<Record<string, null>>> {
   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and adds
   // them from the list of players in the database
   // Represents getting the player out and checking if they are already in the list
   // Represents checking whether the player is already in the list and if not, add it into the database and close the friendMigration client
-  const player = CoveyTownsStore.getDatabase().em.findOne(User, { username: requestData.userName });
+  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
 
   return {
     isOK: true,
-    message: 'Player has been added',
+    message: `Player ${player?.displayName} has been added`,
   };
 }
 
@@ -396,8 +439,7 @@ export function townSubscriptionHandler(socket: Socket): void {
   // For each player, the session token should be the same string returned by joinTownHandler
   const { token, coveyTownID } = socket.handshake.auth as { token: string; coveyTownID: string };
 
-  const townController = CoveyTownsStore.getInstance()
-    .getControllerForTown(coveyTownID);
+  const townController = CoveyTownsStore.getInstance().getControllerForTown(coveyTownID);
 
   // Retrieve our metadata about this player from the TownController
   const s = townController?.getSessionByToken(token);
@@ -420,7 +462,9 @@ export function townSubscriptionHandler(socket: Socket): void {
     townController.destroySession(s);
   });
 
-  socket.on('chatMessage', (message: ChatMessage) => { townController.onChatMessage(message); });
+  socket.on('chatMessage', (message: ChatMessage) => {
+    townController.onChatMessage(message);
+  });
 
   // Register an event listener for the client socket: if the client updates their
   // location, inform the CoveyTownController

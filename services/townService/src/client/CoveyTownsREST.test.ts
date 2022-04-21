@@ -1,11 +1,19 @@
+import { Collection } from '@mikro-orm/core';
 import assert from 'assert';
 import CORS from 'cors';
 import Express from 'express';
 import http from 'http';
 import { nanoid } from 'nanoid';
 import { AddressInfo } from 'net';
+import { mock } from 'jest-mock-extended';
 import addTownRoutes from '../router/towns';
+import Avatar from '../types/Avatar';
 import TownsServiceClient, { TownListResponse } from './TownsServiceClient';
+import CoveyTownsStore from '../lib/CoveyTownsStore';
+import DatabaseContext from '../lib/DatabaseContext';
+import InvitationMessage from '../types/InvitationMessage';
+import User from '../types/User';
+
 
 type TestTownData = {
   friendlyName: string;
@@ -48,7 +56,6 @@ describe('TownsServiceAPIREST', () => {
       townUpdatePassword: ret.coveyTownPassword,
     };
   }
-
   beforeAll(async () => {
     const app = Express();
     app.use(CORS());
@@ -141,6 +148,8 @@ describe('TownsServiceAPIREST', () => {
         await apiClient.joinTown({
           userName: nanoid(),
           coveyTownID,
+          email: nanoid(),
+          avatar: Avatar.Dog,
         });
         fail('Expected joinTown to throw an error');
       } catch (e) {
@@ -206,6 +215,8 @@ describe('TownsServiceAPIREST', () => {
         await apiClient.joinTown({
           userName: nanoid(),
           coveyTownID: nanoid(),
+          email: nanoid(),
+          avatar: Avatar.Dog,
         });
         fail('Expected an error to be thrown by joinTown but none thrown');
       } catch (err) {
@@ -215,11 +226,30 @@ describe('TownsServiceAPIREST', () => {
       }
     });
     it('Admits a user to a valid public or private town', async () => {
+      const mockCoveyTownDatabase = mock<DatabaseContext>();
+      // Set up a spy for CoveyTownsStore that will always return our mockCoveyTownsStore as the singleton instance
+      jest.spyOn(CoveyTownsStore, 'getDatabase').mockReturnValue(mockCoveyTownDatabase);
+
       const pubTown1 = await createTownForTesting(undefined, true);
       const privTown1 = await createTownForTesting(undefined, false);
+
+      mockCoveyTownDatabase.getUser.mockReturnValue(Promise.resolve({
+        _id: 999,
+        username: nanoid(),
+        email: nanoid(),
+        displayName: nanoid(),
+        avatar: Avatar.Dog,
+        createdAt: new Date(Date.now()),
+        lastOnline: new Date(Date.now()),
+        friends: new Collection<User>(this),
+        invitations: new Collection<InvitationMessage>(this),
+      }));
+
       const res = await apiClient.joinTown({
         userName: nanoid(),
         coveyTownID: pubTown1.coveyTownID,
+        email: nanoid(),
+        avatar: Avatar.Dog,
       });
       expect(res.coveySessionToken).toBeDefined();
       expect(res.coveyUserID).toBeDefined();
@@ -227,6 +257,8 @@ describe('TownsServiceAPIREST', () => {
       const res2 = await apiClient.joinTown({
         userName: nanoid(),
         coveyTownID: privTown1.coveyTownID,
+        email: nanoid(),
+        avatar: Avatar.Dog,
       });
       expect(res2.coveySessionToken).toBeDefined();
       expect(res2.coveyUserID).toBeDefined();

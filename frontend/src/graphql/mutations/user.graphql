@@ -10,5 +10,11 @@ query GetUser($username: String!) {
     friends {
       username
     }
+    invitations {
+      from
+      fromEmail
+      message
+      invitationType
+    }
   }
 }

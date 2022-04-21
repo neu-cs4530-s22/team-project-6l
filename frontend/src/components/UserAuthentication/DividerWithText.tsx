@@ -1,6 +1,9 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core";
 
+/**
+ * The style of the DividerWithText component
+ */
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
@@ -22,16 +25,20 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-interface IDividerWithText {
+/**
+ * The interface of the DividerWithText component which takes one prop
+ * children is the prop which is ReactNode
+ */
+interface IDividerWithTextProps {
   children: React.ReactNode,
 }
 
-const DividerWithText = ({ children }: IDividerWithText) => {
+const DividerWithText = ({ children }: IDividerWithTextProps) => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
       <div className={classes.border} />
-      <span className={classes.content}>{children}</span>
+      <span data-testid='children' className={classes.content}>{children}</span>
       <div className={classes.border} />
     </div>
   );

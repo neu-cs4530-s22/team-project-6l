@@ -2,9 +2,18 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
 import Avatar from '../types/Avatar';
+import InvitationMessage from '../types/InvitationMessage';
 
 
-export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
+export type ServerPlayer = {
+  _id: string;
+  _userName: string;
+  location: UserLocation;
+  _avatar: Avatar;
+  _email: string;
+  _friends: ServerPlayer[];
+  _invitations: InvitationMessage[];
+};
 
 /**
  * A bounding box, with a coordinate system that matches the frontend game engine's coordinates
@@ -31,9 +40,10 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
-
-  avatar: Avatar
-
+  /** avatar of the player that would  like to join * */
+  avatar: Avatar;
+  /** Unique email ID to distinguish player */
+  email: string;
 }
 
 /**
@@ -43,9 +53,6 @@ export interface TownJoinRequest {
 export interface TownJoinResponse {
   /** Unique ID that represents this player * */
   coveyUserID: string;
-  
-  avatar: Avatar;
-
   /** Secret token that this player should use to authenticate
    * in future requests to this service * */
   coveySessionToken: string;
@@ -58,7 +65,7 @@ export interface TownJoinResponse {
   friendlyName: string;
   /** Is this a private town? * */
   isPubliclyListed: boolean;
-  /** Conversation areas */
+  /** Names and occupants of any existing ConversationAreas */
   conversationAreas: ServerConversationArea[];
 }
 
@@ -180,7 +187,7 @@ export default class TownsServiceClient {
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 
-  async createConversationArea(requestData: ConversationAreaCreateRequest) : Promise<void>{
+  async createConversationArea(requestData: ConversationAreaCreateRequest): Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/conversationAreas`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
