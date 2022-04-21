@@ -1,5 +1,6 @@
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
+import InvitationMessage from './InvitationMessage';
 import Player from './Player';
 
 /**
@@ -33,7 +34,7 @@ export default interface CoveyTownListener {
    * Called when a conversation area is created or updated
    * @param conversationArea the conversation area that is updated or created
    */
-  onConversationAreaUpdated(conversationArea: ServerConversationArea) : void;
+  onConversationAreaUpdated(conversationArea: ServerConversationArea): void;
 
   /**
    * Called when a conversation area is destroyed
@@ -46,4 +47,10 @@ export default interface CoveyTownListener {
    * @param message the new chat message
    */
   onChatMessage(message: ChatMessage): void;
+
+  /**
+   * Called when a invitation in sent
+   * @param invitation the invitation information
+   */
+  onInvitationSent(invitation: InvitationMessage): void;
 }

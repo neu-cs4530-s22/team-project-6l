@@ -11,14 +11,16 @@ import auth from '../../../../../firebaseAuth/firebase-config';
 import RegisterUserScreen from './RegisterUserScreen/RegisterUserScreen';
 import useUserAccount from 'hooks/useUserAccount';
 import { signOut } from 'firebase/auth';
-import { Avatar, useGetUserQuery, User } from 'generated/graphql';
+import { Avatar, InvitationMessage, useGetUserQuery, User } from 'generated/graphql';
 
 export enum Steps {
   roomNameStep,
   deviceSelectionStep,
 }
 
-export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean> }) {
+export default function PreJoinScreens(props: {
+  doLogin: (initData: TownJoinResponse) => Promise<boolean>;
+}) {
   const history = useHistory();
   const { getAudioAndVideoTracks } = useVideoContext();
   const [mediaError, setMediaError] = useState<Error>();
@@ -27,12 +29,12 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
   const [email, setEmail] = useState(auth.currentUser?.email);
   const [result, reexecuteQuery] = useGetUserQuery({
     variables: {
-      username: email!
-    }
+      username: email!,
+    },
   });
 
   useEffect(() => {
-    console.log(`Component mounted: ${email}`)
+    console.log(`Component mounted: ${email}`);
     setEmail(auth.currentUser?.email);
   }, []);
 
@@ -62,15 +64,18 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
         displayName: '',
         username: '',
         friends: new Array<User>(),
-      }
+        invitations: new Array<InvitationMessage>(),
+      },
     });
 
-    signOut(auth).then(() => {
-      history.push("/");
-    }).catch((error) => {
-      alert(error.message);
-    });
-  }
+    signOut(auth)
+      .then(() => {
+        history.push('/');
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+  };
 
   useEffect(() => {
     if (result.fetching || userState.displayName) return;
@@ -78,12 +83,11 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
     const timerId = setTimeout(() => {
       reexecuteQuery({
         variables: {
-          username: email
+          username: email,
         },
-        requestPolicy: 'network-only'
+        requestPolicy: 'network-only',
       });
     }, 1000);
-
 
     if (result.data?.user) {
       userDispatch({
@@ -97,22 +101,24 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
           displayName: result.data.user.displayName,
           username: result.data.user?.username,
           friends: new Array<User>(),
-        }
+          invitations: new Array<InvitationMessage>(),
+        },
       });
     }
     setDisplayName(userState.displayName);
     return () => clearTimeout(timerId);
   }, [email, result.fetching, reexecuteQuery]);
 
-
   return (
     <IntroContainer>
       <RegisterUserScreen />
       <MediaErrorSnackbar error={mediaError} />
-      <Heading as="h2" size="xl">Welcome to Covey.Town, {userState.displayName.toUpperCase()}!</Heading>
-      <Text p="4">
-        Covey.Town is a social platform that integrates a 2D game-like metaphor with video chat.
-        To get started, setup your camera and microphone, choose a username, and then create a new town
+      <Heading as='h2' size='xl'>
+        Welcome to Covey.Town, {userState.displayName.toUpperCase()}!
+      </Heading>
+      <Text p='4'>
+        Covey.Town is a social platform that integrates a 2D game-like metaphor with video chat. To
+        get started, setup your camera and microphone, choose a username, and then create a new town
         to hang out in, or join an existing one.
       </Text>
       <RegisterUserScreen />
@@ -120,9 +126,11 @@ export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResp
       <TownSelection doLogin={props.doLogin}/>
       <div style={{ marginTop: 20 }}>
         <Center>
-          <Button colorScheme='black' variant='outline' onClick={handleSignOut}>Sign out</Button>
+          <Button colorScheme='black' variant='outline' onClick={handleSignOut}>
+            Sign out
+          </Button>
         </Center>
       </div>
-    </IntroContainer >
+    </IntroContainer>
   );
 }

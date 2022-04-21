@@ -1,0 +1,14 @@
+query GetFriendInvitations($username: String!) {
+  user(username: $username) {
+    invitations {
+      from
+      fromEmail
+      message
+      invitationType
+      to {
+        username
+        displayName
+      }
+    }
+  }
+}

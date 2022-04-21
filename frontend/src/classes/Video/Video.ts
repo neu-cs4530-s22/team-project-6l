@@ -2,7 +2,6 @@ import { Avatar } from 'generated/graphql';
 import DebugLogger from '../DebugLogger';
 import TownsServiceClient, { TownJoinResponse } from '../TownsServiceClient';
 
-
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["pauseGame", "unPauseGame"] }] */
 export default class Video {
   private static video: Video | null = null;
@@ -19,6 +18,8 @@ export default class Video {
 
   private _userName: string;
 
+  private _email: string;
+
   private _avatar: Avatar;
 
   private townsServiceClient: TownsServiceClient = new TownsServiceClient();
@@ -29,14 +30,15 @@ export default class Video {
 
   private _isPubliclyListed: boolean | undefined;
 
-  pauseGame: () => void = () => { };
+  pauseGame: () => void = () => {};
 
-  unPauseGame: () => void = () => { };
+  unPauseGame: () => void = () => {};
 
-  constructor(userName: string, coveyTownID: string, avatar: Avatar) {
+  constructor(userName: string, coveyTownID: string, avatar: Avatar, email: string) {
     this._userName = userName;
     this._coveyTownID = coveyTownID;
     this._avatar = avatar;
+    this._email = email;
   }
 
   get isPubliclyListed(): boolean {
@@ -58,23 +60,33 @@ export default class Video {
     return this._coveyTownID;
   }
 
+  get email(): string {
+    return this._email;
+  }
+
+  get avatar(): Avatar {
+    return this._avatar;
+  }
+
   private async setup(): Promise<TownJoinResponse> {
     if (!this.initialisePromise) {
       this.initialisePromise = new Promise((resolve, reject) => {
         // Request our token to join the town
-        this.townsServiceClient.joinTown({
-          coveyTownID: this._coveyTownID,
-          userName: this._userName,
-          avatar: this._avatar,
-        })
-          .then((result) => {
+        this.townsServiceClient
+          .joinTown({
+            coveyTownID: this._coveyTownID,
+            userName: this._userName,
+            avatar: this._avatar,
+            email: this._email,
+          })
+          .then(result => {
             this.sessionToken = result.coveySessionToken;
             this.videoToken = result.providerVideoToken;
             this._townFriendlyName = result.friendlyName;
             this._isPubliclyListed = result.isPubliclyListed;
             resolve(result);
           })
-          .catch((err) => {
+          .catch(err => {
             reject(err);
           });
       });
@@ -91,12 +103,17 @@ export default class Video {
           this.initialisePromise = null;
         };
 
-        this.teardownPromise = this.initialisePromise.then(async () => {
-          await doTeardown();
-        }).catch(async (err) => {
-          this.logger.warn("Ignoring video initialisation error as we're teraing down anyway.", err);
-          await doTeardown();
-        });
+        this.teardownPromise = this.initialisePromise
+          .then(async () => {
+            await doTeardown();
+          })
+          .catch(async err => {
+            this.logger.warn(
+              "Ignoring video initialisation error as we're teraing down anyway.",
+              err,
+            );
+            await doTeardown();
+          });
       } else {
         return Promise.resolve();
       }
@@ -105,12 +122,16 @@ export default class Video {
     return this.teardownPromise ?? Promise.resolve();
   }
 
-  public static async setup(username: string, coveyTownID: string, avatar: Avatar): Promise<TownJoinResponse> {
+  public static async setup(
+    username: string,
+    coveyTownID: string,
+    avatar: Avatar,
+    email: string,
+  ): Promise<TownJoinResponse> {
     let result = null;
 
-
     if (!Video.video) {
-      Video.video = new Video(username, coveyTownID, avatar);
+      Video.video = new Video(username, coveyTownID, avatar, email);
     }
 
     try {
@@ -123,7 +144,6 @@ export default class Video {
       throw err;
     }
 
-
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - JB TODO
     if (!window.clowdr) {
@@ -135,8 +155,6 @@ export default class Video {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - JB TODO
     window.clowdr.video = Video.video;
-
-    console.log(result);
 
     return result;
   }

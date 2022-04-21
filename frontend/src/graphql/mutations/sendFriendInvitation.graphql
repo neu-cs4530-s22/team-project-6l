@@ -1,0 +1,11 @@
+mutation sendFriendInvitation($message: String!, $to: String!, $from: String!) {
+  sendFriendInvitation(message: $message, to: $to, from: $from) {
+    user {
+      displayName
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

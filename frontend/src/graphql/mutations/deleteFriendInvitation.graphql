@@ -1,0 +1,3 @@
+mutation DeleteFriendInvitation($to: String!, $from: String!) {
+  deleteFriendInvitation(to: $to, from: $from)
+}

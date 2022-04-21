@@ -3,11 +3,18 @@ import CORS from 'cors';
 import http from 'http';
 import { nanoid } from 'nanoid';
 import { AddressInfo } from 'net';
+import { mock, mockReset } from 'jest-mock-extended';
+import { Collection } from '@mikro-orm/core';
 import * as TestUtils from './TestUtils';
 
 import { UserLocation } from '../CoveyTypes';
 import TownsServiceClient from './TownsServiceClient';
 import addTownRoutes from '../router/towns';
+import Avatar from '../types/Avatar';
+import DatabaseContext from '../lib/DatabaseContext';
+import CoveyTownsStore from '../lib/CoveyTownsStore';
+import InvitationMessage from '../types/InvitationMessage';
+import User from '../types/User';
 
 type TestTownData = {
   friendlyName: string, coveyTownID: string,
@@ -17,6 +24,7 @@ type TestTownData = {
 describe('TownServiceApiSocket', () => {
   let server: http.Server;
   let apiClient: TownsServiceClient;
+  const mockCoveyTownDatabase = mock<DatabaseContext>();
 
   async function createTownForTesting(friendlyNameToUse?: string, isPublic = false): Promise<TestTownData> {
     const friendlyName = friendlyNameToUse !== undefined ? friendlyNameToUse :
@@ -34,6 +42,21 @@ describe('TownServiceApiSocket', () => {
   }
 
   beforeAll(async () => {
+    // Set up a spy for CoveyTownsStore that will always return our mockCoveyTownsStore as the singleton instance
+    jest.spyOn(CoveyTownsStore, 'getDatabase').mockReturnValue(mockCoveyTownDatabase);
+
+    mockCoveyTownDatabase.getUser.mockReturnValue(Promise.resolve({
+      _id: 999,
+      username: nanoid(),
+      email: nanoid(),
+      displayName: nanoid(),
+      avatar: Avatar.Dog,
+      createdAt: new Date(Date.now()),
+      lastOnline: new Date(Date.now()),
+      friends: new Collection<User>(this),
+      invitations: new Collection<InvitationMessage>(this),
+    }));
+
     const app = Express();
     app.use(CORS());
     server = http.createServer(app);
@@ -44,6 +67,9 @@ describe('TownServiceApiSocket', () => {
 
     apiClient = new TownsServiceClient(`http://127.0.0.1:${address.port}`);
   });
+  beforeEach(() => {
+    mockReset(mockCoveyTownDatabase);
+  });
   afterAll(async () => {
     server.close();
     TestUtils.cleanupSockets();
@@ -53,21 +79,36 @@ describe('TownServiceApiSocket', () => {
   });
   it('Rejects invalid CoveyTownIDs, even if otherwise valid session token', async () => {
     const town = await createTownForTesting();
-    const joinData = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
+    const joinData = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const { socketDisconnected } = TestUtils.createSocketClient(server, joinData.coveySessionToken, nanoid());
     await socketDisconnected;
   });
   it('Rejects invalid session tokens, even if otherwise valid town id', async () => {
     const town = await createTownForTesting();
-    await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
+    await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const { socketDisconnected } = TestUtils.createSocketClient(server, nanoid(), town.coveyTownID);
     await socketDisconnected;
   });
   it('Dispatches movement updates to all clients in the same town', async () => {
     const town = await createTownForTesting();
-    const joinData = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData3 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
+    const joinData = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
+    const joinData2 = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
+    const joinData3 = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const socketSender = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID).socket;
     const { playerMoved } = TestUtils.createSocketClient(server, joinData2.coveySessionToken, town.coveyTownID);
     const { playerMoved: playerMoved2 } = TestUtils.createSocketClient(server, joinData3.coveySessionToken, town.coveyTownID);
@@ -80,7 +121,10 @@ describe('TownServiceApiSocket', () => {
   it('Invalidates the user session after disconnection', async () => {
     // This test will timeout if it fails - it will never reach the expectation
     const town = await createTownForTesting();
-    const joinData = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
+    const joinData = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const { socket, socketConnected } = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     await socketConnected;
     socket.close();
@@ -90,8 +134,14 @@ describe('TownServiceApiSocket', () => {
   });
   it('Informs all new players when a player joins', async () => {
     const town = await createTownForTesting();
-    const joinData = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
+    const joinData = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
+    const joinData2 = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const { socketConnected, newPlayerJoined } = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     const {
       socketConnected: connectPromise2,
@@ -100,17 +150,29 @@ describe('TownServiceApiSocket', () => {
     await Promise.all([socketConnected, connectPromise2]);
     const newJoinerName = nanoid();
 
-    await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: newJoinerName });
+    await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: newJoinerName, email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     expect((await newPlayerJoined)._userName).toBe(newJoinerName);
     expect((await newPlayerPromise2)._userName).toBe(newJoinerName);
 
   });
   it('Informs all players when a player disconnects', async () => {
     const town = await createTownForTesting();
-    const joinData = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
+    const joinData = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
+    const joinData2 = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const userWhoLeaves = nanoid();
-    const joinDataWhoLeaves = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: userWhoLeaves });
+    const joinDataWhoLeaves = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: userWhoLeaves, email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const { socketConnected, playerDisconnected } = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     const { socketConnected: connectPromise2, playerDisconnected: playerDisconnectPromise2 } = TestUtils.createSocketClient(server, joinData2.coveySessionToken, town.coveyTownID);
     const { socket: socketWhoLeaves, socketConnected: connectPromise3 } = TestUtils.createSocketClient(server, joinDataWhoLeaves.coveySessionToken, town.coveyTownID);
@@ -122,8 +184,14 @@ describe('TownServiceApiSocket', () => {
   });
   it('Informs all players when the town is destroyed', async () => {
     const town = await createTownForTesting();
-    const joinData = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid() });
+    const joinData = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
+    const joinData2 = await apiClient.joinTown({
+      coveyTownID: town.coveyTownID, userName: nanoid(), email: nanoid(),
+      avatar: Avatar.Dog,
+    });
     const { socketDisconnected, socketConnected } = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     const { socketDisconnected: disconnectPromise2, socketConnected: connectPromise2 } = TestUtils.createSocketClient(server, joinData2.coveySessionToken, town.coveyTownID);
     await Promise.all([socketConnected, connectPromise2]);
