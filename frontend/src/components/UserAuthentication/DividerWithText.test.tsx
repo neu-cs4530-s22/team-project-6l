@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 
 import { fireEvent, render } from '@testing-library/react';
 
-import DividerWithText from '../DividerWithText';
+import DividerWithText from './DividerWithText';
 
 describe('DividerWithText', () => {
 

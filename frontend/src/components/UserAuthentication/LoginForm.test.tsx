@@ -2,7 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import auth from 'firebase/auth';
-import LoginForm from '../LoginForm';
+import LoginForm from './LoginForm';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-jest.mock('../../../firebaseAuth/firebase-config', () => ({
+jest.mock('../../firebaseAuth/firebase-config', () => ({
   auth: jest.fn().mockReturnThis(),
 }));
 
@@ -50,7 +50,7 @@ describe('LoginForm', () => {
       expect(screen.queryByText('Enter your email')).toBeDefined();
     });
   });
-  it('should update new email new email ', () => {
+  it('should update new email', () => {
     render(<LoginForm />);
     const emailEl = screen.getByTestId('login-email');
     expect(emailEl).toHaveValue('');

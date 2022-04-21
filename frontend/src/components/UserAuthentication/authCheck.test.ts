@@ -1,4 +1,4 @@
-import authCheck from "../authCheck"
+import authCheck from './authCheck';
 
 describe('authCheck', () => {
   const expected = {

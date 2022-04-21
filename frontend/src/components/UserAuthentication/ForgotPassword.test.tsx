@@ -2,7 +2,7 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import ForgotPassword from '../ForgotPassword';
+import ForgotPassword from './ForgotPassword';
 
 const mockHistory = jest.fn();
 
@@ -13,7 +13,7 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-jest.mock('../../../firebaseAuth/firebase-config', () => ({
+jest.mock('../../firebaseAuth/firebase-config', () => ({
   auth: jest.fn().mockReturnThis(),
 }));
 
