@@ -180,7 +180,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                   placeholder='Your name'
                   value={userName}
                   onChange={e => setUserName(e.target.value)}
-                  isDisabled
+                  isReadOnly
                   fontWeight='bold'
                   variant='filled'
                 />
@@ -189,7 +189,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                   name='email'
                   placeholder='Your email'
                   value={userState.email}
-                  isDisabled
+                  isReadOnly
                   fontWeight='bold'
                   variant='filled'
                 />
