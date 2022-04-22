@@ -7,6 +7,10 @@ import InvitationList from './InvitationList';
 import PlayersList from './PlayersList';
 import TownJoinInvite from './TownJoinInvite';
 
+/**
+ * A sidebar that displays all the social information and activites of a user, including other players in town,
+ * active conversation areas, friends, and pending invitations.
+ */
 export default function SocialSidebar(): JSX.Element {
   const { currentTownFriendlyName, currentTownID } = useCoveyAppState();
   return (

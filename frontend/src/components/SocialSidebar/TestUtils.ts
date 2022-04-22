@@ -35,6 +35,7 @@ export function createFriendInvitationMessage(id: number): InvitationMessage {
     lastOnline: 'an hour ago',
   };
   return {
+    _id: nanoid(),
     from: `testingPlayerFrom${id}-${nanoid()}`,
     fromEmail: `testingPlayerFromEmail${id}-${nanoid()}`,
     invitationType: InvitationType.Friend,
