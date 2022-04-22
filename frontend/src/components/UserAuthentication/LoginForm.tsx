@@ -35,6 +35,7 @@ export default function LoginForm(): JSX.Element {
       setAlertMess(authCheck(code));
     }
   };
+  
   const onLoginClick = (event: React.MouseEvent) => {
     event.preventDefault();
     if (!email || !password) {

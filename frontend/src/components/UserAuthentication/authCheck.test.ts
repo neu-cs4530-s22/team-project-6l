@@ -5,7 +5,7 @@ describe('authCheck', () => {
     invalidEmai : 'Invalid email',
     emailAlreadyInUse: 'Email is already in use',
     weakPassword: 'Weak password! Password length must be at least 6',
-    userNotFound: 'This email has not yet been used in Covey Town',
+    userNotFound: 'This email has not yet been registered in Covey Town',
     userDisabled: 'This account has been disabled',
     wrongPassword: 'Wrong password',
     accountExistsWithDifferentCredential: 'Account exists with different credential',

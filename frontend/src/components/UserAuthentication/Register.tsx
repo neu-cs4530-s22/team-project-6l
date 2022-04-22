@@ -41,10 +41,7 @@ export default function Register() {
       event.preventDefault();
       createUserWithEmailAndPassword(auth, email, password)
         .then(() => {
-          // call signOut here so user wont be automatically redirected to PreJoinScreen 
-          // instead the user will be directed back to SignIn Screen
-          auth.signOut();
-          history.push("/")
+          history.push("/pre-join-screen");
         })
         .catch(error => {
           const { code } = error;
