@@ -227,8 +227,8 @@ export default class UsersResolver {
       @Ctx() { em }: MyContext,
   ): Promise<UserResponse | null> {
     this.request = 'update';
-    const user = await em.findOne(User, { username }, { populate: ['friends'] });
-    const friendObject = await em.findOne(User, { username: friend }, { populate: ['friends'] });
+    const user = await em.findOne(User, { username }, { populate: ['friends', 'friends.friends'] });
+    const friendObject = await em.findOne(User, { username: friend }, { populate: ['friends', 'friends.friends'] });
 
     if (!user) {
       return {

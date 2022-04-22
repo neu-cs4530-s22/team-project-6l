@@ -82,13 +82,17 @@ export default function FriendList(): JSX.Element {
           <PopoverCloseButton />
           <PopoverHeader fontWeight='bold'>Friends:</PopoverHeader>
           <PopoverBody>
-            <List ms={0}>
-              {friends.map(friend => (
-                <ListItem key={friend._email}>
-                  <PlayerName userName={friend._userName} />
-                </ListItem>
-              ))}
-            </List>
+            {friends.length > 0 ? (
+              <List ms={0}>
+                {friends.map(friend => (
+                  <ListItem key={friend._email}>
+                    <PlayerName userName={friend._userName} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              'No friends :('
+            )}
           </PopoverBody>
         </PopoverContent>
       </Popover>
