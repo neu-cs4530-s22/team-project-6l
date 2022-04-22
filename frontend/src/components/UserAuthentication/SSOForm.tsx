@@ -55,7 +55,8 @@ export default function SSOForm() {
   return (
     <Flex width='full' flexDirection='column' marginTop='2'>
       <Button
-        variantColor='teal'
+        data-testid='google-btn'
+        variantcolor='teal'
         type='submit'
         backgroundColor='white'
         borderColor='lightgray'
@@ -66,7 +67,8 @@ export default function SSOForm() {
         <Text marginLeft='2'>Sign in with Google</Text>
       </Button>
       <Button
-        variantColor='teal'
+        data-testid='facebook-btn'
+        variantcolor='teal'
         type='submit'
         backgroundColor='white'
         borderColor='lightgray'
@@ -81,7 +83,7 @@ export default function SSOForm() {
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
-          <ModalHeader>{errorMess}</ModalHeader>
+          <ModalHeader data-testid='error'>{errorMess}</ModalHeader>
         </ModalContent>
       </Modal>
     </Flex>

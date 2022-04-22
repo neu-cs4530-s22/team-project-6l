@@ -68,9 +68,9 @@ export default function ForgotPassword() {
             </Box>
             {isAlert ?
             <Box marginTop="2">
-              <Alert data-testid="error-message" status='error'>
+              <Alert data-testid="error" status='error'>
                 <AlertIcon />
-                <AlertTitle mr={2}>{alertMess}</AlertTitle>
+                <AlertTitle data-testid="error-message" mr={2}>{alertMess}</AlertTitle>
                 <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
               </Alert>
             </Box> : <></>}

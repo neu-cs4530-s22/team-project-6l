@@ -1,7 +1,7 @@
 import React from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom'
-import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Register from './Register';
 
 const mockHistoryPush = jest.fn();
