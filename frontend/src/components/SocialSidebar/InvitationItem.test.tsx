@@ -4,6 +4,8 @@ import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { nanoid } from 'nanoid';
 import React from 'react';
+import { Provider, Client } from 'urql';
+import { never } from 'wonka';
 import Player from '../../classes/Player';
 import { InvitationMessage } from '../../generated/graphql';
 import * as useCurrentPlayer from '../../hooks/useCurrentPlayer';
@@ -12,11 +14,20 @@ import * as TestUtils from './TestUtils';
 
 describe('InvitationItem', () => {
   const wrappedInvitationItemComponent = (invitation: InvitationMessage) => (
-    <ChakraProvider>
-      <React.StrictMode>
-        <InvitationItem invitation={invitation} />
-      </React.StrictMode>
-    </ChakraProvider>
+    <Provider
+      value={
+        {
+          executeQuery: jest.fn(() => never),
+          executeMutation: jest.fn(() => never),
+          executeSubscription: jest.fn(() => never),
+        } as unknown as Client
+      }>
+      <ChakraProvider>
+        <React.StrictMode>
+          <InvitationItem invitation={invitation} />
+        </React.StrictMode>
+      </ChakraProvider>
+    </Provider>
   );
   const renderInvitationItem = (invitation: InvitationMessage) =>
     render(wrappedInvitationItemComponent(invitation));

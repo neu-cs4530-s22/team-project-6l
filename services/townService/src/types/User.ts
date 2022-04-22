@@ -64,6 +64,7 @@ export default class User {
   @ManyToMany(() => User)
   friends = new Collection<User>(this);
 
+  /** list of {@link InvitationMessage}s representing friend/town invites */
   @Field(() => [InvitationMessage], { description: 'List of pending invitations' })
   @OneToMany(() => InvitationMessage, invitation => invitation.to, {
     cascade: [Cascade.ALL],

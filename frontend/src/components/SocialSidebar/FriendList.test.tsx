@@ -5,6 +5,8 @@ import { render, RenderResult, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { nanoid } from 'nanoid';
 import React from 'react';
+import { Provider, Client } from 'urql';
+import { never } from 'wonka';
 import Player from '../../classes/Player';
 import * as useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import FriendList from './FriendList';
@@ -13,11 +15,20 @@ import * as TestUtils from './TestUtils';
 
 describe('FriendList', () => {
   const wrappedFriendListComponent = () => (
-    <ChakraProvider>
-      <React.StrictMode>
-        <FriendList />
-      </React.StrictMode>
-    </ChakraProvider>
+    <Provider
+      value={
+        {
+          executeQuery: jest.fn(() => never),
+          executeMutation: jest.fn(() => never),
+          executeSubscription: jest.fn(() => never),
+        } as unknown as Client
+      }>
+      <ChakraProvider>
+        <React.StrictMode>
+          <FriendList />
+        </React.StrictMode>
+      </ChakraProvider>
+    </Provider>
   );
   const renderFriendList = () => render(wrappedFriendListComponent());
   let useCurrentPlayerSpy: jest.SpyInstance<Player, []>;

@@ -60,7 +60,6 @@ describe('LoginForm', () => {
   });
   it("should render Alert error with 'Enter your password' error mess", async () => {
     render(<LoginForm />);
-    (auth.signInWithEmailAndPassword as jest.Mocked<any>).mockReturnValueOnce({});
     const emailEl = screen.getByTestId('login-email');
     fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
     fireEvent.click(screen.getByTestId('sign-in-btn'));
@@ -68,12 +67,11 @@ describe('LoginForm', () => {
     await waitFor(() => {
       expect(screen.queryByText('Enter your email')).toBeNull();
       expect(screen.queryByText('Enter your password')).toBeDefined();
-      expect(auth.signInWithEmailAndPassword as jest.Mocked<any>).not.toHaveBeenCalled();
+      expect(auth.signInWithEmailAndPassword as jest.Mocked<unknown>).not.toHaveBeenCalled();
     });
   });
   it('should call signInWithEmailAndPassword method', async () => {
     render(<LoginForm />);
-    (auth.signInWithEmailAndPassword as jest.Mocked<any>).mockReturnValueOnce({});
     const emailEl = screen.getByTestId('login-email');
     fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
     const passEl = screen.getByTestId('login-password');
@@ -81,7 +79,7 @@ describe('LoginForm', () => {
     fireEvent.click(screen.getByTestId('sign-in-btn'));
 
     await waitFor(() => {
-      expect(auth.signInWithEmailAndPassword as jest.Mocked<any>).toHaveBeenCalled();
+      expect(auth.signInWithEmailAndPassword as jest.Mocked<unknown>).toHaveBeenCalled();
     });
   });
 });

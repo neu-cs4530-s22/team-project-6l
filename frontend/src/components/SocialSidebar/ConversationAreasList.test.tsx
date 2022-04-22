@@ -4,6 +4,8 @@ import { queryAllByRole, render, RenderResult, waitFor } from '@testing-library/
 import { nanoid } from 'nanoid';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
+import { Provider, Client } from 'urql';
+import { never } from 'wonka';
 import BoundingBox from '../../classes/BoundingBox';
 import ConversationArea, { ConversationAreaListener } from '../../classes/ConversationArea';
 import Player from '../../classes/Player';
@@ -33,11 +35,20 @@ function createConversationForTesting(params?: {
 describe('ConversationAreasList', () => {
   const renderConversationAreaList = () =>
     render(
-      <ChakraProvider>
-        <React.StrictMode>
-          <ConversationAreasList />
-        </React.StrictMode>
-      </ChakraProvider>,
+      <Provider
+        value={
+          {
+            executeQuery: jest.fn(() => never),
+            executeMutation: jest.fn(() => never),
+            executeSubscription: jest.fn(() => never),
+          } as unknown as Client
+        }>
+        <ChakraProvider>
+          <React.StrictMode>
+            <ConversationAreasList />
+          </React.StrictMode>
+        </ChakraProvider>
+      </Provider>,
     );
   const expectProperlyRenderedConversationAreas = async (
     renderData: RenderResult,
