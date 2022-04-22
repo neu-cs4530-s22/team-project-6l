@@ -3,11 +3,10 @@ import * as http from 'http';
 import CORS from 'cors';
 import { AddressInfo } from 'net';
 import { ApolloServer } from 'apollo-server-express';
-import { buildSchema } from 'type-graphql';
 import addTownRoutes from './router/towns';
 import CoveyTownsStore from './lib/CoveyTownsStore';
 import initDatabase from './database';
-import UsersResolver from './resolvers/User';
+import createSchema from './utils/createSchema';
 
 const main = async () => {
   const orm = await initDatabase();
@@ -18,10 +17,7 @@ const main = async () => {
   addTownRoutes(server, app);
 
   const apollo = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [UsersResolver],
-      validate: false,
-    }),
+    schema: await createSchema(),
     context: () => ({ em: orm.em }),
   });
 

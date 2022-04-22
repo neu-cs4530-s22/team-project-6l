@@ -78,13 +78,17 @@ export default function InvitationList(): JSX.Element {
           <PopoverCloseButton />
           <PopoverHeader fontWeight='bold'>Mailbox:</PopoverHeader>
           <PopoverBody>
-            <List ms={0}>
-              {invitations.map(invitation => (
-                <ListItem key={invitation.fromEmail}>
-                  <InvitationItem invitation={invitation} />
-                </ListItem>
-              ))}
-            </List>
+            {invitations.length > 0 ? (
+              <List ms={0}>
+                {invitations.map(invitation => (
+                  <ListItem key={invitation.fromEmail}>
+                    <InvitationItem invitation={invitation} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              'No invitations :('
+            )}
           </PopoverBody>
         </PopoverContent>
       </Popover>

@@ -3,8 +3,11 @@ import { Seeder } from '@mikro-orm/seeder';
 import InvitaitonFactory from '../factories/InvitationFactory';
 
 export default class InvitationSeeder extends Seeder {
-  // eslint-disable-next-line class-methods-use-this
+  private _seeder = '';
+
   async run(_em: EntityManager): Promise<void> {
+    this._seeder = 'InvitationMessage';
+
     new InvitaitonFactory(_em).make(5);
   }
 

@@ -3,9 +3,11 @@ import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/extend-expect';
 import { render, RenderResult, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { InvitationMessage } from 'generated/graphql';
+import { never } from 'wonka';
 import { nanoid } from 'nanoid';
 import React from 'react';
+import { Client, Provider } from 'urql';
+import { InvitationMessage } from '../../generated/graphql';
 import Player from '../../classes/Player';
 import * as useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import * as InvitationItem from './InvitationItem';
@@ -14,11 +16,20 @@ import * as TestUtils from './TestUtils';
 
 describe('InvitationList', () => {
   const wrappedInvitationListComponent = () => (
-    <ChakraProvider>
-      <React.StrictMode>
-        <InvitationList />
-      </React.StrictMode>
-    </ChakraProvider>
+    <Provider
+      value={
+        {
+          executeQuery: jest.fn(() => never),
+          executeMutation: jest.fn(() => never),
+          executeSubscription: jest.fn(() => never),
+        } as unknown as Client
+      }>
+      <ChakraProvider>
+        <React.StrictMode>
+          <InvitationList />
+        </React.StrictMode>
+      </ChakraProvider>
+    </Provider>
   );
   const renderInvitationList = () => render(wrappedInvitationListComponent());
   let useCurrentPlayerSpy: jest.SpyInstance<Player, []>;
