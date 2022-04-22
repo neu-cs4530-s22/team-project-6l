@@ -5,6 +5,9 @@ import { FriendProfile } from '../../classes/Player';
 type FriendItemProps = {
   friend: FriendProfile;
 };
+/**
+ * Displays a user's friend with their display name and avatar.
+ */
 export default function FriendItem({ friend }: FriendItemProps): JSX.Element {
   return (
     <Flex data-testid='friend-item' my={2}>

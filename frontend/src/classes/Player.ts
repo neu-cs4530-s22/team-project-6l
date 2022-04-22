@@ -12,8 +12,6 @@ export default class Player {
 
   private readonly _userName: string;
 
-  // private _friends: Player[];
-
   private _friends: FriendProfile[];
 
   private _invitations: InvitationMessage[];
@@ -58,10 +56,6 @@ export default class Player {
     return this._avatar;
   }
 
-  // get friends(): Player[] {
-  //   return this._friends;
-  // }
-
   get friends(): FriendProfile[] {
     return this._friends;
   }
@@ -74,34 +68,54 @@ export default class Player {
     return this._email;
   }
 
+  /**
+   * Add player listener
+   * @param listener listener to add
+   */
   addListener(listener: PlayerListener) {
     this._listeners.push(listener);
   }
 
+  /**
+   * Remove player listener
+   * @param listener listener to remove
+   */
   removeListener(listener: PlayerListener) {
     this._listeners = this._listeners.filter(eachListener => eachListener !== listener);
   }
 
+  /**
+   * Adds a new friend to the player
+   * @param friend the new friend's profile
+   */
   addFriend(friend: FriendProfile): void {
     this._friends.push(friend);
     this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
   }
 
+  /**
+   * Update the player's friends
+   * @param friends udpated list of friends
+   */
   updateFriends(friends: FriendProfile[]): void {
     this._friends = friends;
     this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
   }
 
-  acceptTownJoinInvitationFrom(from: string): void {
-    this._invitations = this._invitations.filter(invitation => invitation.from !== from);
-    this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
-  }
-
+  /**
+   * Delete pending invitation from user with given username
+   * @param from username of sender of pending invitation
+   */
   deleteInvitationFrom(from: string): void {
     this._invitations = this._invitations.filter(invitation => invitation.from !== from);
     this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
   }
 
+  /**
+   * Get the friend profile of a player
+   * @param player player
+   * @returns friend profile of given player
+   */
   static toFriendProfile(player: Player): FriendProfile {
     return {
       _userName: player._userName,

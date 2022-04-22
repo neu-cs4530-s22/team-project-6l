@@ -30,6 +30,10 @@ import usePlayersInTown from '../../hooks/usePlayersInTown';
 type InvitationItemProps = {
   invitation: InvitationMessage;
 };
+/**
+ * Displays a pending invitation, along with who the invitation is from and a button to delete it. When clicked on,
+ * a modal pops up displaying a message included with the invitation and allows user to accept/reject the invitation.
+ */
 export default function InvitationItem({ invitation }: InvitationItemProps): JSX.Element {
   const currentPlayer = useCurrentPlayer();
   const playersInTown = usePlayersInTown();

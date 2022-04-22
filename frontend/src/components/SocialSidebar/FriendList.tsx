@@ -20,6 +20,10 @@ import { useGetFriendsQuery } from '../../generated/graphql';
 import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import PlayerName from './PlayerName';
 
+/**
+ * Lists the user's friends in a popover when friend button is clicked on. Subscribes to friend updates and
+ * updates the rendered list of friends when it receives updates
+ */
 export default function FriendList(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
   const [friends, setFriends] = useState(currentPlayer.friends);

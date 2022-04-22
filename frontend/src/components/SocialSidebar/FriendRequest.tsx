@@ -23,6 +23,9 @@ type FriendRequestProps = {
   username: string;
   email: string;
 };
+/**
+ * Displays the form a user can fill out to send a freind request.
+ */
 export default function FriendRequest({ username, email }: FriendRequestProps): JSX.Element {
   const [requestMessage, setRequestMessage] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
