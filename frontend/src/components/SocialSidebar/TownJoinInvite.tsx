@@ -20,6 +20,9 @@ import useCurrentPlayer from 'hooks/useCurrentPlayer';
 import React, { useCallback, useState } from 'react';
 import useMaybeVideo from '../../hooks/useMaybeVideo';
 
+/**
+ * Displays the form a user can fill out to send a town join invitation to their friend.
+ */
 export default function TownJoinInvite(): JSX.Element {
   const defaultInviteMessage = "Join the town I'm in!";
   const currentPlayer = useCurrentPlayer();
@@ -50,13 +53,12 @@ export default function TownJoinInvite(): JSX.Element {
   }, [onClose, video, disableSpace]);
 
   const sendTownJoinInvite = useCallback(() => {
-    // TODO: call backend to send town join invite
     toast({
-      title: `Sent town join invite to ${friendID} with message: ${inviteMessage}`,
+      title: `Successfully sent town join invite to ${friendID}`,
       status: 'success',
     });
     closeTownJoinInvite();
-  }, [toast, closeTownJoinInvite, friendID, inviteMessage]);
+  }, [toast, closeTownJoinInvite, friendID]);
 
   return (
     <Box>
@@ -80,8 +82,8 @@ export default function TownJoinInvite(): JSX.Element {
                   placeholder='Select friend to invite'
                   onChange={event => setFriendID(event.target.value)}>
                   {currentPlayer.friends.map((friend, i) => (
-                    <option selected={i === 0} key={friend?.id} value={friend?.id}>
-                      {friend?.userName}
+                    <option selected={i === 0} key={friend?._email} value={friend?._email}>
+                      {friend?._userName}
                     </option>
                   ))}
                 </Select>

@@ -5,12 +5,12 @@ import { nanoid } from 'nanoid';
 import React from 'react';
 import { Provider, Client } from 'urql';
 import { never } from 'wonka';
-import Player from '../../classes/Player';
+import { FriendProfile } from '../../classes/Player';
 import FriendItem from './FriendItem';
 import * as TestUtils from './TestUtils';
 
 describe('FriendItem', () => {
-  const wrappedFriendItemComponent = (friend: Player) => (
+  const wrappedFriendItemComponent = (friend: FriendProfile) => (
     <Provider
       value={
         {
@@ -21,27 +21,24 @@ describe('FriendItem', () => {
       }>
       <ChakraProvider>
         <React.StrictMode>
-          <FriendItem player={friend} />
+          <FriendItem friend={friend} />
         </React.StrictMode>
       </ChakraProvider>
     </Provider>
   );
-  const renderFriendItem = (friend: Player) => render(wrappedFriendItemComponent(friend));
+  const renderFriendItem = (friend: FriendProfile) => render(wrappedFriendItemComponent(friend));
 
   it('Renders a friend item with with avatar and user name', async () => {
-    const player = new Player(
-      `testingPlayerID0-${nanoid()}`,
-      `testingPlayerUser0-${nanoid()}}`,
-      TestUtils.randomLocation(),
-      TestUtils.randomAvatar(),
-      [],
-      [],
-      `testingPlayerEmail0-${nanoid()}`,
-    );
-    const renderData = renderFriendItem(player);
+    const friend: FriendProfile = {
+      _userName: `testingPlayerID0-${nanoid()}`,
+      _avatar: TestUtils.randomAvatar(),
+      _email: `testingPlayerEmail0-${nanoid()}`,
+    };
+
+    const renderData = renderFriendItem(friend);
     const friendItem = renderData.queryByTestId('friend-item');
     const avatar = renderData.queryByTestId('avatar');
     expect(friendItem).toContainElement(avatar);
-    expect(friendItem).toHaveTextContent(`${player.userName}`);
+    expect(friendItem).toHaveTextContent(`${friend._userName}`);
   });
 });

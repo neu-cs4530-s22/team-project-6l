@@ -2,7 +2,9 @@ mutation AddFriend($username: String!, $friend: String) {
   update(username: $username, friend: $friend) {
     user {
       username
-      lastOnline
+      friends {
+        username
+      }
     }
   }
 }

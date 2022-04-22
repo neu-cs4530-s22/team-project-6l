@@ -97,7 +97,7 @@ describe('PlayersInTownList', () => {
       `testingPlayerUser0-${nanoid()}}`,
       TestUtils.randomLocation(),
       TestUtils.randomAvatar(),
-      friends,
+      friends.map(f => Player.toFriendProfile(f)),
       [],
       `testingPlayerEmail0-${nanoid()}`,
     );

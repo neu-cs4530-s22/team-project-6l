@@ -20,6 +20,10 @@ import { InvitationMessage, useGetFriendInvitationsQuery } from '../../generated
 import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import InvitationItem from './InvitationItem';
 
+/**
+ * Lists the user's current pending invitations in a popover when invitation button is clicked on. Subscribes to
+ * invitation updates and updates the rendered list of invitations when it receives updates
+ */
 export default function InvitationList(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
   const [invitations, setInvitations] = useState(currentPlayer.invitations);

@@ -1,11 +1,14 @@
 import { Avatar, Center, Flex, Text } from '@chakra-ui/react';
 import React from 'react';
-import Player from '../../classes/Player';
+import { FriendProfile } from '../../classes/Player';
 
 type FriendItemProps = {
-  player: Player;
+  friend: FriendProfile;
 };
-export default function FriendItem({ player }: FriendItemProps): JSX.Element {
+/**
+ * Displays a user's friend with their display name and avatar.
+ */
+export default function FriendItem({ friend }: FriendItemProps): JSX.Element {
   return (
     <Flex data-testid='friend-item' my={2}>
       <Center>
@@ -14,9 +17,9 @@ export default function FriendItem({ player }: FriendItemProps): JSX.Element {
           borderRadius='none'
           marginTop='5px'
           size='md'
-          src={`/avatars/${player.avatar}.jpg`}
+          src={`/avatars/${friend._avatar}.jpg`}
         />
-        <Text ms={2}>{player.userName}</Text>
+        <Text ms={2}>{friend._userName}</Text>
       </Center>
     </Flex>
   );
