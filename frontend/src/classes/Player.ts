@@ -1,9 +1,8 @@
-import { Avatar, InvitationMessage } from 'generated/graphql';
-import { nanoid } from 'nanoid';
+import { Avatar, InvitationMessage } from '../generated/graphql';
 
 export type PlayerListener = {
   onInvitationsChange?: (newInvitations: InvitationMessage[]) => void;
-  onFriendsChange?: (newFriends: Player[]) => void;
+  onFriendsChange?: (newFriends: FriendProfile[]) => void;
 };
 
 export default class Player {
@@ -13,7 +12,7 @@ export default class Player {
 
   private readonly _userName: string;
 
-  private _friends: Player[];
+  private _friends: FriendProfile[];
 
   private _invitations: InvitationMessage[];
 
@@ -32,7 +31,7 @@ export default class Player {
     userName: string,
     location: UserLocation,
     avatar: Avatar,
-    friends: Player[],
+    friends: FriendProfile[],
     invitations: InvitationMessage[],
     email: string,
   ) {
@@ -57,7 +56,7 @@ export default class Player {
     return this._avatar;
   }
 
-  get friends(): Player[] {
+  get friends(): FriendProfile[] {
     return this._friends;
   }
 
@@ -69,43 +68,60 @@ export default class Player {
     return this._email;
   }
 
+  /**
+   * Add player listener
+   * @param listener listener to add
+   */
   addListener(listener: PlayerListener) {
     this._listeners.push(listener);
   }
 
+  /**
+   * Remove player listener
+   * @param listener listener to remove
+   */
   removeListener(listener: PlayerListener) {
     this._listeners = this._listeners.filter(eachListener => eachListener !== listener);
   }
 
-  acceptFriendInvitationFrom(from: string): void {
-    const mockDirection: Direction = 'front';
-    const mockLocation = {
-      x: 100,
-      y: 100,
-      rotation: mockDirection,
-      moving: false,
-      conversationLabel: undefined,
-    };
-
-    this._invitations = this._invitations.filter(invitation => invitation.from !== from);
-    this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
-
-    // TODO: call backend to accept and delete friend invitation,
-    // pass updated list of friends received from backend to listeners
-
-    this._friends.push(new Player(nanoid(), from, mockLocation, Avatar.Dog, [this], [], nanoid()));
+  /**
+   * Adds a new friend to the player
+   * @param friend the new friend's profile
+   */
+  addFriend(friend: FriendProfile): void {
+    this._friends.push(friend);
     this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
   }
 
-  acceptTownJoinInvitationFrom(from: string): void {
-    // TODO: call backend to accept and delete town join invitation,
+  /**
+   * Update the player's friends
+   * @param friends udpated list of friends
+   */
+  updateFriends(friends: FriendProfile[]): void {
+    this._friends = friends;
+    this._listeners.forEach(listener => listener.onFriendsChange?.(this._friends));
+  }
+
+  /**
+   * Delete pending invitation from user with given username
+   * @param from username of sender of pending invitation
+   */
+  deleteInvitationFrom(from: string): void {
     this._invitations = this._invitations.filter(invitation => invitation.from !== from);
     this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
   }
 
-  rejectInvitationFrom(from: string): void {
-    this._invitations = this._invitations.filter(invitation => invitation.from !== from);
-    this._listeners.forEach(listener => listener.onInvitationsChange?.(this._invitations));
+  /**
+   * Get the friend profile of a player
+   * @param player player
+   * @returns friend profile of given player
+   */
+  static toFriendProfile(player: Player): FriendProfile {
+    return {
+      _userName: player._userName,
+      _avatar: player._avatar,
+      _email: player._email,
+    };
   }
 
   static fromServerPlayer(playerFromServer: ServerPlayer): Player {
@@ -114,9 +130,11 @@ export default class Player {
       playerFromServer._userName,
       playerFromServer.location,
       playerFromServer._avatar,
-      playerFromServer._friends.map(
-        sp => new Player(sp._id, sp._userName, sp.location, sp._avatar, [], [], sp._email),
-      ),
+      playerFromServer._friends.map(sp => ({
+        _userName: sp._userName,
+        _avatar: sp._avatar,
+        _email: sp._email,
+      })),
       playerFromServer._invitations,
       playerFromServer._email,
     );
@@ -130,6 +148,12 @@ export type ServerPlayer = {
   _email: string;
   _friends: ServerPlayer[];
   _invitations: InvitationMessage[];
+};
+
+export type FriendProfile = {
+  _userName: string;
+  _avatar: Avatar;
+  _email: string;
 };
 
 export type Direction = 'front' | 'back' | 'left' | 'right';

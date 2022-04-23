@@ -15,47 +15,58 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import {
-  useAddFriendMutation,
-  useDeleteFriendInvitationMutation,
-  InvitationMessage,
-  InvitationType,
-} from 'generated/graphql';
-import useCurrentPlayer from 'hooks/useCurrentPlayer';
 import React, { useCallback } from 'react';
 import { BsTrashFill } from 'react-icons/bs';
+import Player from '../../classes/Player';
+import {
+  InvitationMessage,
+  InvitationType,
+  useAddFriendMutation,
+  useDeleteFriendInvitationMutation,
+} from '../../generated/graphql';
+import useCurrentPlayer from '../../hooks/useCurrentPlayer';
+import usePlayersInTown from '../../hooks/usePlayersInTown';
 
 type InvitationItemProps = {
   invitation: InvitationMessage;
 };
+/**
+ * Displays a pending invitation, along with who the invitation is from and a button to delete it. When clicked on,
+ * a modal pops up displaying a message included with the invitation and allows user to accept/reject the invitation.
+ */
 export default function InvitationItem({ invitation }: InvitationItemProps): JSX.Element {
   const currentPlayer = useCurrentPlayer();
+  const playersInTown = usePlayersInTown();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [, addFriend] = useAddFriendMutation();
   const [, deleteFriendInvitation] = useDeleteFriendInvitationMutation();
 
-  const acceptInvitation = useCallback(() => {
+  const acceptInvitation = useCallback(async () => {
     onClose();
     if (InvitationType[invitation.invitationType] === 'Friend') {
-      currentPlayer.acceptFriendInvitationFrom(invitation.from);
-
       addFriend({
-        username: invitation.from,
-        friend: currentPlayer.userName,
+        username: invitation.fromEmail,
+        friend: currentPlayer.email,
       });
 
-      deleteFriendInvitation({
-        to: invitation.to.username,
-        from: invitation.fromEmail,
-      });
+      const fromIndex = playersInTown.findIndex(p => p.userName === invitation.from);
+      if (fromIndex !== -1) {
+        const newFriend = playersInTown[fromIndex];
+        const newFriendProfile = Player.toFriendProfile(newFriend);
+        currentPlayer.addFriend(newFriendProfile);
+
+        deleteFriendInvitation({
+          to: invitation.to.username,
+          from: invitation.fromEmail,
+        });
+        currentPlayer.deleteInvitationFrom(invitation.from);
+      }
     }
-    currentPlayer.acceptTownJoinInvitationFrom(invitation.from);
-  }, [addFriend, currentPlayer, invitation, onClose, deleteFriendInvitation]);
+  }, [onClose, invitation, currentPlayer, addFriend, playersInTown, deleteFriendInvitation]);
 
   const rejectInvitation = useCallback(() => {
     onClose();
-    currentPlayer.rejectInvitationFrom(invitation.from);
-    // const userId = `${invitation.to}`;
+    currentPlayer.deleteInvitationFrom(invitation.from);
     deleteFriendInvitation({
       to: invitation.to.username,
       from: invitation.fromEmail,
@@ -63,7 +74,7 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
   }, [currentPlayer, invitation, onClose, deleteFriendInvitation]);
 
   const deleteInvitation = useCallback(() => {
-    currentPlayer.rejectInvitationFrom(invitation.from);
+    currentPlayer.deleteInvitationFrom(invitation.from);
 
     deleteFriendInvitation({
       to: invitation.to.username,
@@ -73,19 +84,19 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
 
   return (
     <Box>
-      <Flex onClick={onOpen} py={2}>
+      <Flex data-testid='invitation-item' onClick={onOpen} py={2}>
         <Center>
           <Text>{invitation.from}</Text>
         </Center>
         <Spacer />
-        <Button onClick={deleteInvitation} size='sm' ms={2}>
+        <Button data-testid='delete-invitation-button' onClick={deleteInvitation} size='sm' ms={2}>
           <Icon as={BsTrashFill} />
         </Button>
       </Flex>
       <Modal isOpen={isOpen} onClose={onClose} blockScrollOnMount={false}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader pb={0}>
+          <ModalHeader data-testid='invitation-modal-header' pb={0}>
             {invitation.invitationType === InvitationType.Friend
               ? 'Friend Request'
               : 'Town Join Invitation'}
@@ -105,10 +116,16 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={acceptInvitation}>
+            <Button
+              data-testid='accept-invitation-button'
+              colorScheme='blue'
+              mr={3}
+              onClick={acceptInvitation}>
               Accept
             </Button>
-            <Button onClick={rejectInvitation}>Reject</Button>
+            <Button data-testid='reject-invitation-button' onClick={rejectInvitation}>
+              Reject
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

@@ -2,6 +2,8 @@ import {
   Box,
   Button,
   Icon,
+  List,
+  ListItem,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -9,23 +11,55 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-  UnorderedList,
   useDisclosure,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { IoMdContact } from 'react-icons/io';
-import Player, { PlayerListener } from '../../classes/Player';
+import { FriendProfile, PlayerListener } from '../../classes/Player';
+import { useGetFriendsQuery } from '../../generated/graphql';
 import useCurrentPlayer from '../../hooks/useCurrentPlayer';
 import PlayerName from './PlayerName';
 
+/**
+ * Lists the user's friends in a popover when friend button is clicked on. Subscribes to friend updates and
+ * updates the rendered list of friends when it receives updates
+ */
 export default function FriendList(): JSX.Element {
   const currentPlayer = useCurrentPlayer();
   const [friends, setFriends] = useState(currentPlayer.friends);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [result, reexecuteQuery] = useGetFriendsQuery({
+    variables: {
+      username: currentPlayer.email,
+    },
+    pause: true,
+  });
+
+  useEffect(() => {
+    if (!isOpen || result.fetching) return undefined;
+
+    const timerId = setTimeout(() => {
+      reexecuteQuery({
+        requestPolicy: 'cache-and-network',
+      });
+    }, 1000);
+
+    if (result.data?.user) {
+      const updatedFriends: FriendProfile[] = result.data?.user?.friends.map(f => ({
+        _userName: f.displayName,
+        _avatar: f.avatar,
+        _email: f.username,
+      }));
+      setFriends(updatedFriends);
+      currentPlayer.updateFriends(updatedFriends);
+    }
+
+    return () => clearTimeout(timerId);
+  }, [isOpen, result.fetching, reexecuteQuery, result.data?.user, currentPlayer]);
 
   useEffect(() => {
     const updateListener: PlayerListener = {
-      onFriendsChange: (newFriends: Player[]) => {
+      onFriendsChange: (newFriends: FriendProfile[]) => {
         setFriends(newFriends);
       },
     };
@@ -39,7 +73,7 @@ export default function FriendList(): JSX.Element {
     <Box>
       <Popover offset={[-15, 10]} isOpen={isOpen} onClose={onClose}>
         <PopoverTrigger>
-          <Button onClick={onOpen} size='sm' mx={1}>
+          <Button data-testid='friend-button' onClick={onOpen} size='sm' mx={1}>
             <Icon w={5} h={5} as={IoMdContact} />
           </Button>
         </PopoverTrigger>
@@ -48,11 +82,17 @@ export default function FriendList(): JSX.Element {
           <PopoverCloseButton />
           <PopoverHeader fontWeight='bold'>Friends:</PopoverHeader>
           <PopoverBody>
-            <UnorderedList ms={0}>
-              {friends.map(friend => (
-                <PlayerName key={friend.id} player={friend} />
-              ))}
-            </UnorderedList>
+            {friends.length > 0 ? (
+              <List ms={0}>
+                {friends.map(friend => (
+                  <ListItem key={friend._email}>
+                    <PlayerName userName={friend._userName} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              'No friends :('
+            )}
           </PopoverBody>
         </PopoverContent>
       </Popover>

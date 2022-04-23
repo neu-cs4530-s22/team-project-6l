@@ -39,6 +39,8 @@ export type FieldError = {
 
 export type InvitationMessage = {
   __typename?: 'InvitationMessage';
+  /** Unique identifier for user */
+  _id: Scalars['ID'];
   /** Friendly display name of invitation sender */
   from: Scalars['String'];
   /** Email of the invitation sender */
@@ -160,7 +162,11 @@ export type AddFriendMutation = {
   __typename?: 'Mutation';
   update?: {
     __typename?: 'UserResponse';
-    user?: { __typename?: 'User'; username: string; lastOnline: string } | null;
+    user?: {
+      __typename?: 'User';
+      username: string;
+      friends: Array<{ __typename?: 'User'; username: string }>;
+    } | null;
   } | null;
 };
 
@@ -190,6 +196,18 @@ export type GetFriendInvitationsQuery = {
       invitationType: InvitationType;
       to: { __typename?: 'User'; username: string; displayName: string };
     }>;
+  } | null;
+};
+
+export type GetFriendsQueryVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+export type GetFriendsQuery = {
+  __typename?: 'Query';
+  user?: {
+    __typename?: 'User';
+    friends: Array<{ __typename?: 'User'; displayName: string; avatar: Avatar; username: string }>;
   } | null;
 };
 
@@ -262,7 +280,9 @@ export const AddFriendDocument = gql`
     update(username: $username, friend: $friend) {
       user {
         username
-        lastOnline
+        friends {
+          username
+        }
       }
     }
   }
@@ -306,6 +326,23 @@ export function useGetFriendInvitationsQuery(
     query: GetFriendInvitationsDocument,
     ...options,
   });
+}
+export const GetFriendsDocument = gql`
+  query GetFriends($username: String!) {
+    user(username: $username) {
+      friends {
+        displayName
+        avatar
+        username
+      }
+    }
+  }
+`;
+
+export function useGetFriendsQuery(
+  options: Omit<Urql.UseQueryArgs<GetFriendsQueryVariables>, 'query'>,
+) {
+  return Urql.useQuery<GetFriendsQuery>({ query: GetFriendsDocument, ...options });
 }
 export const RegisterUserDocument = gql`
   mutation RegisterUser($options: UserCreationInput!) {

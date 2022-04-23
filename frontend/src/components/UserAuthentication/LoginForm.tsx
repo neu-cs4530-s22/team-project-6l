@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useHistory } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import authCheck from './authCheck';
 import auth from '../../firebaseAuth/firebase-config';
 
@@ -34,7 +35,7 @@ export default function LoginForm(): JSX.Element {
         history.push('/pre-join-screen');
       }
     } catch (err) {
-      const error = err as any;
+      const error = err as FirebaseError;
       const { code } = error;
       setAlert(true);
       setAlertMess(authCheck(code));

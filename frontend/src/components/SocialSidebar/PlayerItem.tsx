@@ -6,11 +6,15 @@ import FriendRequest from './FriendRequest';
 type PlayerItemProps = {
   player: Player;
 };
+/**
+ * Displays a player with their display name, avatar, and a button for sending friend request.
+ */
 export default function PlayerItem({ player }: PlayerItemProps): JSX.Element {
   return (
-    <Flex m={2}>
+    <Flex data-testid='player-item' my={2}>
       <Center>
         <Avatar
+          data-testid='avatar'
           borderRadius='none'
           marginTop='5px'
           size='md'

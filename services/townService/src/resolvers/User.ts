@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import User from '../types/User';
 import Avatar from '../types/Avatar';
@@ -31,7 +30,7 @@ export default class UsersResolver {
   @Query(() => User, { description: 'Get a user with a given username', nullable: true })
   async user(
     @Arg('username', () => String) username: string,
-    @Ctx() { em }: MyContext,
+      @Ctx() { em }: MyContext,
   ): Promise<User | null> {
     this.request = 'user';
     const user = await em.findOne(User, { username }, { populate: ['friends', 'invitations'] });
@@ -47,7 +46,7 @@ export default class UsersResolver {
   @Mutation(() => UserResponse, { description: 'Create a new user' })
   async register(
     @Arg('options', () => UserCreationInput) new_user: UserCreationInput,
-    @Ctx() { em }: MyContext,
+      @Ctx() { em }: MyContext,
   ): Promise<UserResponse> {
     this.request = 'register';
     const { username, email, displayName, avatar } = new_user;
@@ -125,9 +124,9 @@ export default class UsersResolver {
   })
   async sendFriendInvitation(
     @Arg('from', () => String) from: string,
-    @Arg('to', () => String) to: string,
-    @Arg('message', () => String) message: string,
-    @Ctx() { em }: MyContext,
+      @Arg('to', () => String) to: string,
+      @Arg('message', () => String) message: string,
+      @Ctx() { em }: MyContext,
   ): Promise<UserResponse | null> {
     this.request = 'friendInvitation';
 
@@ -183,8 +182,8 @@ export default class UsersResolver {
   @Mutation(() => Boolean, { description: 'Delete pending invitation' })
   async deleteFriendInvitation(
     @Arg('from', () => String) from: string,
-    @Arg('to', () => String) to: string,
-    @Ctx() { em }: MyContext,
+      @Arg('to', () => String) to: string,
+      @Ctx() { em }: MyContext,
   ): Promise<boolean> {
     this.request = 'delete';
 
@@ -223,13 +222,13 @@ export default class UsersResolver {
   })
   async update(
     @Arg('username', () => String) username: string,
-    @Arg('avatar', () => Avatar, { nullable: true }) avatar: Avatar,
-    @Arg('friend', () => String, { nullable: true }) friend: string,
-    @Ctx() { em }: MyContext,
+      @Arg('avatar', () => Avatar, { nullable: true }) avatar: Avatar,
+      @Arg('friend', () => String, { nullable: true }) friend: string,
+      @Ctx() { em }: MyContext,
   ): Promise<UserResponse | null> {
     this.request = 'update';
-    const user = await em.findOne(User, { username }, { populate: ['friends'] });
-    const friendObject = await em.findOne(User, { username: friend }, { populate: ['friends'] });
+    const user = await em.findOne(User, { username }, { populate: ['friends', 'friends.friends'] });
+    const friendObject = await em.findOne(User, { username: friend }, { populate: ['friends', 'friends.friends'] });
 
     if (!user) {
       return {
@@ -266,7 +265,7 @@ export default class UsersResolver {
   @Mutation(() => Boolean, { description: 'Delete a user' })
   async delete(
     @Arg('username', () => String) username: string,
-    @Ctx() { em }: MyContext,
+      @Ctx() { em }: MyContext,
   ): Promise<boolean> {
     this.request = 'delete';
     try {
