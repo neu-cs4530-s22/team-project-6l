@@ -15,6 +15,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import authCheck from './authCheck';
 import auth from '../../firebaseAuth/firebase-config';
 
+/**
+ * Displays a form which handles user's sign in 
+ * navigate to prejoinscreen if user succesfully sign up 
+ * otherwise it will appear alert error which indicates what user can't log in
+ */
 export default function LoginForm(): JSX.Element {
   const history = useHistory();
   const [email, setEmail] = React.useState('');

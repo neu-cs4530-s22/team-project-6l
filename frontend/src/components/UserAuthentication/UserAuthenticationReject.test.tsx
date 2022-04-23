@@ -1,3 +1,4 @@
+// tests for handling the catch method when calling Firebase. 
 import React from 'react';
 import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';

@@ -22,7 +22,11 @@ import { FcGoogle } from 'react-icons/fc';
 import authCheck from './authCheck';
 import auth from '../../firebaseAuth/firebase-config';
 
-export default function SSOForm() {
+/**
+ * a form which will handles google and facebook sign in 
+ * also handles errors that may happen.
+ */
+export default function SSOForm():JSX.Element {
   const history = useHistory();
   const [errorMess, setErrorMess] = React.useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();

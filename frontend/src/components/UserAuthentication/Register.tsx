@@ -17,7 +17,12 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import authCheck from './authCheck';
 import auth from '../../firebaseAuth/firebase-config';
 
-export default function Register() {
+/**
+ * Displays register form where user can sign up using their email and password.
+ * The users will be directed to prejoinscreen if they successfully register
+ * otherwise it will show error message indicating the error
+ */
+export default function Register():JSX.Element {
   const history = useHistory();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
