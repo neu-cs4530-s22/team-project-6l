@@ -52,3 +52,8 @@
   flex-direction: "column";
   height: "100vh";
 }
+
+.font {
+  font-weight: 600;
+  margin-right: 10;
+}

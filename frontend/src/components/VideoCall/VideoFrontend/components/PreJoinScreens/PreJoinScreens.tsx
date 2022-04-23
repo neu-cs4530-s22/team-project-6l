@@ -123,7 +123,7 @@ export default function PreJoinScreens(props: {
       </Text>
       <RegisterUserScreen />
       <DeviceSelectionScreen />
-      <TownSelection doLogin={props.doLogin} />
+      <TownSelection doLogin={props.doLogin}/>
       <div style={{ marginTop: 20 }}>
         <Center>
           <Button colorScheme='black' variant='outline' onClick={handleSignOut}>

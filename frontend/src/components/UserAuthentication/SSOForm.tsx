@@ -22,7 +22,11 @@ import { FcGoogle } from 'react-icons/fc';
 import authCheck from './authCheck';
 import auth from '../../firebaseAuth/firebase-config';
 
-export default function SSOForm() {
+/**
+ * a form which will handles google and facebook sign in 
+ * also handles errors that may happen.
+ */
+export default function SSOForm():JSX.Element {
   const history = useHistory();
   const [errorMess, setErrorMess] = React.useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -55,7 +59,8 @@ export default function SSOForm() {
   return (
     <Flex width='full' flexDirection='column' marginTop='2'>
       <Button
-        variantColor='teal'
+        data-testid='google-btn'
+        variantcolor='teal'
         type='submit'
         backgroundColor='white'
         borderColor='lightgray'
@@ -66,7 +71,8 @@ export default function SSOForm() {
         <Text marginLeft='2'>Sign in with Google</Text>
       </Button>
       <Button
-        variantColor='teal'
+        data-testid='facebook-btn'
+        variantcolor='teal'
         type='submit'
         backgroundColor='white'
         borderColor='lightgray'
@@ -81,7 +87,7 @@ export default function SSOForm() {
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
-          <ModalHeader>{errorMess}</ModalHeader>
+          <ModalHeader data-testid='error'>{errorMess}</ModalHeader>
         </ModalContent>
       </Modal>
     </Flex>

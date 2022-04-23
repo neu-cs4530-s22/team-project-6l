@@ -6,7 +6,11 @@ import SSOForm from './SSOForm';
 import DividerWithText from './DividerWithText';
 import LoginForm from './LoginForm';
 
-// TODO: handle when one email is used to login with multiple providers (Google, Facebook, Email)
+/**
+ * Main Page which contains all the forms needed for user authentication
+ * 
+ * @returns JSX.Element
+ */
 export default function MainScreen(): JSX.Element {
   const history = useHistory();
 

@@ -153,6 +153,10 @@ describe('Town Selection - depends on Part 1 passing', () => {
         userEvent.click(joinTownByIDButton);
       };
 
+      it('should displays email and username', () => {
+      
+      })
+
       it('includes a connect button, which calls Video.setup, doLogin, and connect with the entered username and coveyTownID (public town)', async () => {
         const coveyTownID = nanoid();
         const userName = nanoid();

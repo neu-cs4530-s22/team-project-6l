@@ -17,7 +17,12 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import authCheck from './authCheck';
 import auth from '../../firebaseAuth/firebase-config';
 
-export default function Register() {
+/**
+ * Displays register form where user can sign up using their email and password.
+ * The users will be directed to prejoinscreen if they successfully register
+ * otherwise it will show error message indicating the error
+ */
+export default function Register():JSX.Element {
   const history = useHistory();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -41,11 +46,7 @@ export default function Register() {
       event.preventDefault();
       createUserWithEmailAndPassword(auth, email, password)
         .then(() => {
-          // call signOut here so user wont be automatically redirected to PreJoinScreen 
-          // instead the user will be directed back to SignIn Screen
-          // may be removed if we allow guests join with signing in.
-          auth.signOut();
-          history.push("/")
+          history.push("/pre-join-screen");
         })
         .catch(error => {
           const { code } = error;
@@ -72,36 +73,34 @@ export default function Register() {
         <Box textAlign="left" marginTop="2">
           <FormControl>
             <FormLabel>Email</FormLabel>
-            <Input id="reg-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
+            <Input data-testid="reg-email" type="email" placeholder='Email' onChange={(event) => setEmail(event.target.value)} />
           </FormControl>
 
           <FormControl>
             <FormLabel>Password</FormLabel>
-            <Input id="reg-password" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
+            <Input data-testid="reg-password" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)} />
           </FormControl>
 
           <FormControl>
             <FormLabel>Confirm Password</FormLabel>
-            <Input id="reg-confirmpassword" type="password" placeholder="Confirm Password" onChange={(event) => setConfirmPassword(event.target.value)} />
+            <Input data-testid="reg-confirmpassword" type="password" placeholder="Confirm Password" onChange={(event) => setConfirmPassword(event.target.value)} />
           </FormControl>
 
           {isAlert ?
             <Box marginTop="2">
-              <Alert status='error'>
+              <Alert data-testid='error' status='error'>
                 <AlertIcon />
-                <AlertTitle mr={2}>{alertMess}</AlertTitle>
-                <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
+                <AlertTitle data-testid='alert-mess' mr={2}>{alertMess}</AlertTitle>
+                <CloseButton data-testid='alert-close' marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
               </Alert>
             </Box> : <></>}
 
-          <Button width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onRegisterClick(e)}>
-            Sign up
-          </Button>
+          <Button data-testid='sign-up' width="full" mt={4} type="submit" backgroundColor="blue.500" color="white" onClick={e => onRegisterClick(e)}>Sign up</Button>
         </Box>
       </Box>
       <Flex width="full" justifyContent="center" align="center" paddingTop="6">
         <Text fontSize='sm' fontWeight="semibold">Already have an account?</Text>
-        <Button fontSize='sm' marginLeft='1' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onSignInClick(e)}>Sign in</Button>
+        <Button data-testid='sign-in' fontSize='sm' marginLeft='1' color="blue.500" fontWeight="semibold" variant="link" onClick={e => onSignInClick(e)}>Sign in</Button>
       </Flex>
     </Flex>
   );

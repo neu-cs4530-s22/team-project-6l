@@ -2,16 +2,17 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import auth from 'firebase/auth';
-import LoginForm from '../LoginForm';
+import LoginForm from './LoginForm';
 
+const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useHistory: () => ({
-    push: jest.fn(),
+    push: mockHistoryPush,
   }),
 }));
 
-jest.mock('../../../firebaseAuth/firebase-config', () => ({
+jest.mock('../../firebaseAuth/firebase-config', () => ({
   auth: jest.fn().mockReturnThis(),
 }));
 
@@ -36,9 +37,9 @@ describe('LoginForm', () => {
     expect(password).toBeInTheDocument();
     expect(forgotPassBtn).toBeInTheDocument();
     expect(signInBtn).toBeInTheDocument();
-    expect(alertErr).toBeNull(); // Alert UI comp should be rendered.
+    expect(alertErr).toBeNull(); // Alert UI comp should not be rendered.
   });
-  it("should render Alert error with 'Enter your email' error mess", async () => {
+  it("should render Alert error with 'Enter your email' error message", async () => {
     render(<LoginForm />);
     // check to make sure the 'Enter your email' text is yet rendered
     expect(screen.queryByText('Enter your email')).toBeNull();
@@ -50,7 +51,7 @@ describe('LoginForm', () => {
       expect(screen.queryByText('Enter your email')).toBeDefined();
     });
   });
-  it('should update new email new email ', () => {
+  it('should update new email', () => {
     render(<LoginForm />);
     const emailEl = screen.getByTestId('login-email');
     expect(emailEl).toHaveValue('');
@@ -58,7 +59,7 @@ describe('LoginForm', () => {
     fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });
     expect(screen.getByTestId('login-email')).toHaveValue('testing@gmail.com');
   });
-  it("should render Alert error with 'Enter your password' error mess", async () => {
+  it("should render Alert error with 'Enter your password' error message", async () => {
     render(<LoginForm />);
     const emailEl = screen.getByTestId('login-email');
     fireEvent.change(emailEl, { target: { value: 'testing@gmail.com' } });

@@ -17,7 +17,12 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 import auth from '../../firebaseAuth/firebase-config';
 import authCheck from './authCheck';
 
-export default function ForgotPassword() {
+/**
+ * Display forgot password form, 
+ * which will send a reset link to email if the users forget their password
+ * and return error message if email is yet registered or invalid.
+ */
+export default function ForgotPassword():JSX.Element {
   const history = useHistory();
   const [email, setEmail] = React.useState('');
   const [isSent, setSent] = React.useState(false);
@@ -68,9 +73,9 @@ export default function ForgotPassword() {
             </Box>
             {isAlert ?
             <Box marginTop="2">
-              <Alert data-testid="error-message" status='error'>
+              <Alert data-testid="error" status='error'>
                 <AlertIcon />
-                <AlertTitle mr={2}>{alertMess}</AlertTitle>
+                <AlertTitle data-testid="error-message" mr={2}>{alertMess}</AlertTitle>
                 <CloseButton marginLeft="1" position='absolute' right='8px' top='8px' onClick={() => setAlert(false)} />
               </Alert>
             </Box> : <></>}

@@ -8,6 +8,8 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
   Heading,
   Input,
   Stack,
@@ -161,30 +163,41 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     <>
       <form>
         <Stack>
-          <Box p='4' borderWidth='1px' borderRadius='lg'>
-            <Heading as='h2' size='lg'>
-              User Info
-            </Heading>
-            <FormControl>
-              <FormLabel htmlFor='name'>Name</FormLabel>
-              <Input
-                name='name'
-                placeholder='Your name'
-                value={userName}
-                isReadOnly={!!userState.displayName}
-                onChange={e => setUserName(e.target.value)}
-              />
-              <FormLabel marginTop='10px' htmlFor='avatar'>
-                Avatar
-              </FormLabel>
-              <Avatar
-                borderRadius='none'
-                marginTop='5px'
-                size='2xl'
-                src={`/avatars/${userState.avatar}.jpg`}
-              />
-            </FormControl>
-          </Box>
+        <Box p='4' borderWidth='1px' borderRadius='lg'>
+        <Heading as='h2' size='lg'>
+          Profile
+        </Heading>
+        <Box marginTop={2} marginLeft={2}>
+          <Grid templateRows='repeat(1, 0fr)' templateColumns='repeat(5, 1fr)'>
+            <GridItem marginRight='10'>
+              <Avatar borderRadius='20' marginTop="12px" size='2xl' src={`/avatars/${userState.avatar}.jpg`} />
+            </GridItem >
+            <GridItem colSpan={4}>
+              <FormControl>
+                <FormLabel htmlFor='name'>Username: </FormLabel>
+                <Input
+                  name='name'
+                  placeholder='Your name'
+                  value={userName}
+                  onChange={e => setUserName(e.target.value)}
+                  isReadOnly
+                  fontWeight='bold'
+                  variant='filled'
+                />
+                <FormLabel htmlFor='name'>Email: </FormLabel>
+                <Input
+                  name='email'
+                  placeholder='Your email'
+                  value={userState.email}
+                  isReadOnly
+                  fontWeight='bold'
+                  variant='filled'
+                />
+              </FormControl>
+            </GridItem>
+          </Grid>
+        </Box>
+      </Box>
           <Box borderWidth='1px' borderRadius='lg'>
             <Heading p='4' as='h2' size='lg'>
               Create a New Town
