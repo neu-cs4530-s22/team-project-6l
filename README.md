@@ -46,7 +46,7 @@ Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWN
 To be able to log in using either Email/Password, Google or Facebook as well as manage user account, you need to set up Firebase.
 1. Create a Firebase account if you don't have.
 2. Go to [Firebase console](https://console.firebase.google.com/u/0/), then `+ Add project` and follow the instructions to create a new project
-3. Once it's done, you will be redirected to Dashboard, go to the `Project settings` to create Firebase API for your app (It's the `Settings` next to `Project Overview` on the top left)
+3. Once it's done, you will be directed to Dashboard, go to the `Project settings` to create Firebase API for your app (It's the `Settings` next to `Project Overview` on the top left)
 4. In your apps, choose `</>` then follow the instruction to install the Firebase into your apps (Note: you actually don't have to install anything at this step, just continuing clicking next until you're redirected back into `Project Settings`)
 5. At that point, under `Your apps` in `Project Settings` you will see your Firebase API in `firebaseConfig` for Web App.
 6. Add the following lines in the same `.env` file in front-end and replace `....` with the respective config value from the Firebase API config.
