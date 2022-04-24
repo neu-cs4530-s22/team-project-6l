@@ -68,7 +68,7 @@ describe('InvitationItem', () => {
     userEvent.click(invitationItem);
     await waitFor(async () => {
       expect(renderData.queryByTestId('invitation-modal-header')).toHaveTextContent(
-        'Friend Request',
+        'Friend Invitation',
       );
     });
   });
