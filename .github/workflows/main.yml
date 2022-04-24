@@ -42,7 +42,7 @@ jobs:
         run: cd services/townService; npm install && npm run lint && npm test
 
       - name: Build and test frontend components
-        if: steps.filter.outputs.frontend = 'true'
+        if: steps.filter.outputs.frontend == 'true'
         run: cd frontend; npm install && npm run lint && npm test
   deploy:
      if: github.ref == 'refs/heads/main'
