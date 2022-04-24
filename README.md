@@ -47,7 +47,7 @@ To be able to log in using either Email/Password, Google or Facebook as well as 
 1. Create a Firebase account if you don't have.
 2. Go to [Firebase console](https://console.firebase.google.com/u/0/), then `+ Add project` and follow the instructions to create a new project
 3. Once it's done, you will be directed to Dashboard, go to the `Project settings` to create Firebase API for your app (It's in `Settings` next to `Project Overview` on the top left)
-4. In your apps, choose `</>` then follow the instructions to install the Firebase(Note: you actually don't have to install anything at this step, just continuing clicking Next until you're redirected back into `Project Settings`)
+4. In your apps, choose `</>` then follow the instructions to install the Firebase(Note: you actually don't have to install anything at this step, just continue clicking Next until you're redirected back to `Project Settings`)
 5. At that point, under `Your apps` tab you will see your Firebase API in `firebaseConfig` for Web App.
 6. Add the following lines in the same `.env` file in front-end and replace `....` with the respective config value from the Firebase API config.
 ```
