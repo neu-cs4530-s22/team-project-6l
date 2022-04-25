@@ -1,4 +1,4 @@
-// IGNORE FILE: These tests were originally written to test the initial 
+// IGNORE FILE: These tests were originally written to test the initial
 // implementation of the friend/invitation handlers. However, that implementation
 // was scratched and wrote tests for the newer system.
 
@@ -10,7 +10,6 @@
 //   email: string,
 //   // Represents the list of the friends of the player
 //   friends: [],
-
 
 //   // Represents the boolean instance 'onlineActivity' to check whether the given player is online or not
 //   // from the database
@@ -32,7 +31,6 @@
 // describe('Postgre Database Test', () => {
 
 //   // Represents initializing the friend data base client to be used for testing purposes
-
 
 //   afterAll(async () => {
 //   });
@@ -81,7 +79,7 @@
 //         friends: [],
 //         onlineActivity: true,
 //       };
-//       // Represents the case of adding the player that is us to the data base and then adding the users to the 
+//       // Represents the case of adding the player that is us to the data base and then adding the users to the
 //       // player as its friends
 //       // await friendClient.addgsPlayer({ user: player1 });
 //       // Now that we have the player in the data base, we can add the other players to this player as their friends
@@ -124,8 +122,8 @@
 //       });
 
 //       // --------------- X ------------------- X ------------------- X --------------------- X -------------
-//       // Represents the test to remove these friends and then check if the size of the 
-//       // friend list remains the same and that the list contains the friends or not, and in this case, 
+//       // Represents the test to remove these friends and then check if the size of the
+//       // friend list remains the same and that the list contains the friends or not, and in this case,
 //       // it should not contain the friends added before since they are removed
 //       // --------------- X ------------------- X ------------------- X --------------------- X -------------
 
@@ -154,9 +152,9 @@
 //         onlineActivity: true,
 //       });
 
-//       // --------------- X ------------------- X ------------------- X --------------------- X ------------- 
-//       // Represents now that the friends are not there, to check if the data base still contains the users 
-//       // after they are added or deleted --> In the case of which when the users are added, return the database 
+//       // --------------- X ------------------- X ------------------- X --------------------- X -------------
+//       // Represents now that the friends are not there, to check if the data base still contains the users
+//       // after they are added or deleted --> In the case of which when the users are added, return the database
 //       // containing those users, else, tnhe database will not contain the users if they are removed
 //       // --------------- X ------------------- X ------------------- X --------------------- X -------------
 
@@ -183,18 +181,15 @@
 //         onlineActivity: true,
 //       };
 
-
-//       // Represents adding the player to the list of the player without them being in the database 
+//       // Represents adding the player to the list of the player without them being in the database
 //       // itself
 
 //       // await friendClient.friendIsAddedHandler({ username: friend2 });
-//       // Represents the list of friends to be returned as an empty list since the friend2 is not 
+//       // Represents the list of friends to be returned as an empty list since the friend2 is not
 //       // added to the dataase before being added to the list of the friends of the player
 //       expect(player1.friends).toStrictEqual([]);
 
-
-
-//       // These are all of the tests for now - will be adding more (need to work on correcting/filling out some of the 
+//       // These are all of the tests for now - will be adding more (need to work on correcting/filling out some of the
 //       // logic of the backend friend connection and then using that to get the tests working)
 //     });
 //   });

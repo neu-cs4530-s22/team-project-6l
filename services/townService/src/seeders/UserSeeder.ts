@@ -9,5 +9,4 @@ export default class UserSeeder extends Seeder {
     this._seeder = 'User';
     new UserFactory(_em).make(5);
   }
-
 }

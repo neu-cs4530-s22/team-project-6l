@@ -1,8 +1,7 @@
 import { MikroORM } from '@mikro-orm/core';
-import CoveyTownController from './CoveyTownController';
 import { CoveyTownList } from '../CoveyTypes';
+import CoveyTownController from './CoveyTownController';
 import DatabaseContext from './DatabaseContext';
-
 
 function passwordMatches(provided: string, expected: string): boolean {
   if (provided === expected) {

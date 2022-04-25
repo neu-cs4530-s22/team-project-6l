@@ -1,11 +1,11 @@
+import { ApolloServer } from 'apollo-server-express';
+import CORS from 'cors';
 import Express from 'express';
 import * as http from 'http';
-import CORS from 'cors';
 import { AddressInfo } from 'net';
-import { ApolloServer } from 'apollo-server-express';
-import addTownRoutes from './router/towns';
-import CoveyTownsStore from './lib/CoveyTownsStore';
 import initDatabase from './database';
+import CoveyTownsStore from './lib/CoveyTownsStore';
+import addTownRoutes from './router/towns';
 import createSchema from './utils/createSchema';
 
 const main = async () => {

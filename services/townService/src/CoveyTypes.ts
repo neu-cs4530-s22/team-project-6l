@@ -6,7 +6,12 @@ export type UserLocation = {
   moving: boolean;
   conversationLabel?: string;
 };
-export type CoveyTownList = { friendlyName: string; coveyTownID: string; currentOccupancy: number; maximumOccupancy: number }[];
+export type CoveyTownList = {
+  friendlyName: string;
+  coveyTownID: string;
+  currentOccupancy: number;
+  maximumOccupancy: number;
+}[];
 
 export type ChatMessage = {
   author: string;
@@ -15,4 +20,4 @@ export type ChatMessage = {
   dateCreated: Date;
 };
 
-export type FriendList = { username: string; email: string; }[];
+export type FriendList = { username: string; email: string }[];

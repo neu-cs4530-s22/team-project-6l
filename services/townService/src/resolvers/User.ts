@@ -1,11 +1,11 @@
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
-import User from '../types/User';
 import Avatar from '../types/Avatar';
-import { MyContext } from '../types/MyContext';
-import UserCreationInput from '../types/UserValidation/UserCreationInput';
-import UserResponse from '../types/UserValidation/UserResponse';
 import InvitationMessage from '../types/InvitationMessage';
 import InvitationType from '../types/InvitationType';
+import { MyContext } from '../types/MyContext';
+import User from '../types/User';
+import UserCreationInput from '../types/UserValidation/UserCreationInput';
+import UserResponse from '../types/UserValidation/UserResponse';
 
 @Resolver()
 export default class UsersResolver {
@@ -228,7 +228,11 @@ export default class UsersResolver {
   ): Promise<UserResponse | null> {
     this.request = 'update';
     const user = await em.findOne(User, { username }, { populate: ['friends', 'friends.friends'] });
-    const friendObject = await em.findOne(User, { username: friend }, { populate: ['friends', 'friends.friends'] });
+    const friendObject = await em.findOne(
+      User,
+      { username: friend },
+      { populate: ['friends', 'friends.friends'] },
+    );
 
     if (!user) {
       return {

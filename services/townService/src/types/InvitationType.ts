@@ -5,7 +5,6 @@ enum InvitationType {
   TownJoin,
 }
 
-
 registerEnumType(InvitationType, {
   name: 'InvitationType',
   description: 'Type of invitation (friend, town join)',

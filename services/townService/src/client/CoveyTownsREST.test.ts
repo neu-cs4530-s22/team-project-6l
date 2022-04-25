@@ -3,17 +3,16 @@ import assert from 'assert';
 import CORS from 'cors';
 import Express from 'express';
 import http from 'http';
+import { mock } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { AddressInfo } from 'net';
-import { mock } from 'jest-mock-extended';
-import addTownRoutes from '../router/towns';
-import Avatar from '../types/Avatar';
-import TownsServiceClient, { TownListResponse } from './TownsServiceClient';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import DatabaseContext from '../lib/DatabaseContext';
+import addTownRoutes from '../router/towns';
+import Avatar from '../types/Avatar';
 import InvitationMessage from '../types/InvitationMessage';
 import User from '../types/User';
-
+import TownsServiceClient, { TownListResponse } from './TownsServiceClient';
 
 type TestTownData = {
   friendlyName: string;
@@ -233,17 +232,19 @@ describe('TownsServiceAPIREST', () => {
       const pubTown1 = await createTownForTesting(undefined, true);
       const privTown1 = await createTownForTesting(undefined, false);
 
-      mockCoveyTownDatabase.getUser.mockReturnValue(Promise.resolve({
-        _id: 999,
-        username: nanoid(),
-        email: nanoid(),
-        displayName: nanoid(),
-        avatar: Avatar.Dog,
-        createdAt: new Date(Date.now()),
-        lastOnline: new Date(Date.now()),
-        friends: new Collection<User>(this),
-        invitations: new Collection<InvitationMessage>(this),
-      }));
+      mockCoveyTownDatabase.getUser.mockReturnValue(
+        Promise.resolve({
+          _id: 999,
+          username: nanoid(),
+          email: nanoid(),
+          displayName: nanoid(),
+          avatar: Avatar.Dog,
+          createdAt: new Date(Date.now()),
+          lastOnline: new Date(Date.now()),
+          friends: new Collection<User>(this),
+          invitations: new Collection<InvitationMessage>(this),
+        }),
+      );
 
       const res = await apiClient.joinTown({
         userName: nanoid(),

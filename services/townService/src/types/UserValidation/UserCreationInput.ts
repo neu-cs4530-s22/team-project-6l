@@ -1,4 +1,4 @@
-import { InputType, Field } from 'type-graphql';
+import { Field, InputType } from 'type-graphql';
 import Avatar from '../Avatar';
 
 /** Contains the necessary data to create a user */

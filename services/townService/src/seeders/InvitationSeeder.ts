@@ -10,5 +10,4 @@ export default class InvitationSeeder extends Seeder {
 
     new InvitaitonFactory(_em).make(5);
   }
-
 }
