@@ -98,7 +98,7 @@ export default function InvitationItem({ invitation }: InvitationItemProps): JSX
         <ModalContent>
           <ModalHeader data-testid='invitation-modal-header' pb={0}>
             {invitation.invitationType === InvitationType.Friend
-              ? 'Friend Request'
+              ? 'Friend Invitation'
               : 'Town Join Invitation'}
           </ModalHeader>
           <ModalCloseButton />
