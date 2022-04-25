@@ -1,5 +1,3 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import assert from 'assert';
 import {
   Avatar,
   Box,
@@ -22,11 +20,13 @@ import {
   Tr,
   useToast,
 } from '@chakra-ui/react';
+import assert from 'assert';
+import React, { useCallback, useEffect, useState } from 'react';
+import { CoveyTownInfo, TownJoinResponse } from '../../classes/TownsServiceClient';
+import Video from '../../classes/Video/Video';
+import useCoveyAppState from '../../hooks/useCoveyAppState';
 import useUserAccount from '../../hooks/useUserAccount';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
-import Video from '../../classes/Video/Video';
-import { CoveyTownInfo, TownJoinResponse } from '../../classes/TownsServiceClient';
-import useCoveyAppState from '../../hooks/useCoveyAppState';
 
 interface TownSelectionProps {
   doLogin: (initData: TownJoinResponse) => Promise<boolean>;
@@ -163,41 +163,46 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     <>
       <form>
         <Stack>
-        <Box p='4' borderWidth='1px' borderRadius='lg'>
-        <Heading as='h2' size='lg'>
-          Profile
-        </Heading>
-        <Box marginTop={2} marginLeft={2}>
-          <Grid templateRows='repeat(1, 0fr)' templateColumns='repeat(5, 1fr)'>
-            <GridItem marginRight='10'>
-              <Avatar borderRadius='20' marginTop="12px" size='2xl' src={`/avatars/${userState.avatar}.jpg`} />
-            </GridItem >
-            <GridItem colSpan={4}>
-              <FormControl>
-                <FormLabel htmlFor='name'>Username: </FormLabel>
-                <Input
-                  name='name'
-                  placeholder='Your name'
-                  value={userName}
-                  onChange={e => setUserName(e.target.value)}
-                  isReadOnly
-                  fontWeight='bold'
-                  variant='filled'
-                />
-                <FormLabel htmlFor='name'>Email: </FormLabel>
-                <Input
-                  name='email'
-                  placeholder='Your email'
-                  value={userState.email}
-                  isReadOnly
-                  fontWeight='bold'
-                  variant='filled'
-                />
-              </FormControl>
-            </GridItem>
-          </Grid>
-        </Box>
-      </Box>
+          <Box p='4' borderWidth='1px' borderRadius='lg'>
+            <Heading as='h2' size='lg'>
+              Profile
+            </Heading>
+            <Box marginTop={2} marginLeft={2}>
+              <Grid templateRows='repeat(1, 0fr)' templateColumns='repeat(5, 1fr)'>
+                <GridItem marginRight='10'>
+                  <Avatar
+                    borderRadius='20'
+                    marginTop='12px'
+                    size='2xl'
+                    src={`/avatars/${userState.avatar}.jpg`}
+                  />
+                </GridItem>
+                <GridItem colSpan={4}>
+                  <FormControl>
+                    <FormLabel htmlFor='name'>Username: </FormLabel>
+                    <Input
+                      name='name'
+                      placeholder='Your name'
+                      value={userName}
+                      onChange={e => setUserName(e.target.value)}
+                      isReadOnly
+                      fontWeight='bold'
+                      variant='filled'
+                    />
+                    <FormLabel htmlFor='name'>Email: </FormLabel>
+                    <Input
+                      name='email'
+                      placeholder='Your email'
+                      value={userState.email}
+                      isReadOnly
+                      fontWeight='bold'
+                      variant='filled'
+                    />
+                  </FormControl>
+                </GridItem>
+              </Grid>
+            </Box>
+          </Box>
           <Box borderWidth='1px' borderRadius='lg'>
             <Heading p='4' as='h2' size='lg'>
               Create a New Town

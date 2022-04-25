@@ -5,7 +5,7 @@ import { render, RenderResult, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { nanoid } from 'nanoid';
 import React from 'react';
-import { Provider, Client } from 'urql';
+import { Client, Provider } from 'urql';
 import { never } from 'wonka';
 import Player from '../../classes/Player';
 import * as useCurrentPlayer from '../../hooks/useCurrentPlayer';
@@ -17,11 +17,11 @@ describe('FriendList', () => {
   const wrappedFriendListComponent = () => (
     <Provider
       value={
-        {
+        ({
           executeQuery: jest.fn(() => never),
           executeMutation: jest.fn(() => never),
           executeSubscription: jest.fn(() => never),
-        } as unknown as Client
+        } as unknown) as Client
       }>
       <ChakraProvider>
         <React.StrictMode>

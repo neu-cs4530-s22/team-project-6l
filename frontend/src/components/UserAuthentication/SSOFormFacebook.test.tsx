@@ -1,7 +1,7 @@
-import React from 'react';
+import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom'
 import { FacebookAuthProvider, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import React from 'react';
 import auth from '../../firebaseAuth/firebase-config';
 import SSOForm from './SSOForm';
 
@@ -18,40 +18,42 @@ jest.mock('../../firebaseAuth/firebase-config', () => ({
 }));
 
 jest.mock('firebase/auth', () => ({
-  signInWithPopup: jest.fn(() => Promise.resolve(
-    jest.fn().mockImplementation(() => ({
-      provider: {
-        providerId: 'facebook.com'
-      }
-    }))
-  )),
+  signInWithPopup: jest.fn(() =>
+    Promise.resolve(
+      jest.fn().mockImplementation(() => ({
+        provider: {
+          providerId: 'facebook.com',
+        },
+      })),
+    ),
+  ),
   GoogleAuthProvider: jest.fn(),
   FacebookAuthProvider: jest.fn(),
 }));
 
-describe('SSO Form - Facebook sign In',  () => {
+describe('SSO Form - Facebook sign In', () => {
   afterEach(() => {
     jest.clearAllMocks();
     mockHistoryPush.mockReset();
   });
-  it('should signIn using Facebook account successfully',async () => {
+  it('should signIn using Facebook account successfully', async () => {
     const facebookProvider = new FacebookAuthProvider();
-    const {getByTestId, queryByTestId} = render(<SSOForm />);
-    
+    const { getByTestId, queryByTestId } = render(<SSOForm />);
+
     fireEvent.click(getByTestId('facebook-btn'));
     await waitFor(() => {
       expect(signInWithPopup).toBeCalledWith(auth, facebookProvider);
       expect(queryByTestId('error')).toBeNull();
     });
-  })
-  it('should signIn using Google account fail, the error modal appears',async () => {
+  });
+  it('should signIn using Google account fail, the error modal appears', async () => {
     const googleProvider = new GoogleAuthProvider();
-    const {getByTestId, queryByTestId} = render(<SSOForm />);
-    
+    const { getByTestId, queryByTestId } = render(<SSOForm />);
+
     fireEvent.click(getByTestId('google-btn'));
     await waitFor(() => {
       expect(signInWithPopup).toBeCalledWith(auth, googleProvider);
       expect(queryByTestId('error')).toBeDefined();
     });
-  })
-})
+  });
+});

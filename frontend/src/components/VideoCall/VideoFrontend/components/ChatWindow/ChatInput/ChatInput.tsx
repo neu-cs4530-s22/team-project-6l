@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
-import TextConversation, { ChatMessage } from '../../../../../../classes/TextConversation';
-import clsx from 'clsx';
-import FileAttachmentIcon from '../../../icons/FileAttachmentIcon';
-import { isMobile } from '../../../utils';
-import SendMessageIcon from '../../../icons/SendMessageIcon';
-import Snackbar from '../../Snackbar/Snackbar';
+import { makeStyles } from '@material-ui/core';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import clsx from 'clsx';
+import React, { useEffect, useRef, useState } from 'react';
+import TextConversation from '../../../../../../classes/TextConversation';
 import useMaybeVideo from '../../../../../../hooks/useMaybeVideo';
+import { isMobile } from '../../../utils';
+import Snackbar from '../../Snackbar/Snackbar';
 
 const useStyles = makeStyles(theme => ({
   chatInputContainer: {
@@ -24,10 +22,10 @@ const useStyles = makeStyles(theme => ({
     outline: 'none',
   },
   button: {
-    padding: '0.56em',
-    minWidth: 'auto',
+    'padding': '0.56em',
+    'minWidth': 'auto',
     '&:disabled': {
-      background: 'none',
+      'background': 'none',
       '& path': {
         fill: '#d8d8d8',
       },
@@ -77,12 +75,12 @@ export default function ChatInput({ conversation, isChatWindowOpen }: ChatInputP
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
-  const video = useMaybeVideo()
+  const video = useMaybeVideo();
 
   useEffect(() => {
-    if(isTextareaFocused){
+    if (isTextareaFocused) {
       video?.pauseGame();
-    }else{
+    } else {
       video?.unPauseGame();
     }
   }, [isTextareaFocused, video]);
@@ -117,12 +115,15 @@ export default function ChatInput({ conversation, isChatWindowOpen }: ChatInputP
     <div className={classes.chatInputContainer}>
       <Snackbar
         open={Boolean(fileSendError)}
-        headline="Error"
+        headline='Error'
         message={fileSendError || ''}
-        variant="error"
+        variant='error'
         handleClose={() => setFileSendError(null)}
       />
-      <div className={clsx(classes.textAreaContainer, { [classes.isTextareaFocused]: isTextareaFocused })}>
+      <div
+        className={clsx(classes.textAreaContainer, {
+          [classes.isTextareaFocused]: isTextareaFocused,
+        })}>
         {/* 
         Here we add the "isTextareaFocused" class when the user is focused on the TextareaAutosize component.
         This helps to ensure a consistent appearance across all browsers. Adding padding to the TextareaAutosize
@@ -132,8 +133,8 @@ export default function ChatInput({ conversation, isChatWindowOpen }: ChatInputP
           minRows={1}
           maxRows={3}
           className={classes.textArea}
-          aria-label="chat input"
-          placeholder="Write a message..."
+          aria-label='chat input'
+          placeholder='Write a message...'
           onKeyPress={handleReturnKeyPress}
           onChange={handleChange}
           value={messageBody}

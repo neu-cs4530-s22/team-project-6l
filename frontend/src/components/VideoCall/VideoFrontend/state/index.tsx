@@ -1,16 +1,15 @@
+import UserContext, { UserUpdate } from 'contexts/UserContext';
+import { Avatar, InvitationMessage, User } from 'generated/graphql';
 import React, { createContext, useContext, useReducer, useState } from 'react';
-import { RecordingRules, RoomType } from '../types';
 import { TwilioError } from 'twilio-video';
+import { RecordingRules, RoomType } from '../types';
 import {
-  settingsReducer,
   initialSettings,
   Settings,
   SettingsAction,
+  settingsReducer,
 } from './settings/settingsReducer';
 import useActiveSinkId from './useActiveSinkId/useActiveSinkId';
-import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
-import { Avatar, User, InvitationMessage } from 'generated/graphql';
-import UserContext, { UserUpdate } from 'contexts/UserContext';
 
 function UserStateReducer(state: User, update: UserUpdate): User {
   const nextState = {

@@ -1,5 +1,3 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
 import {
   Button,
   Flex,
@@ -9,7 +7,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  useDisclosure
+  useDisclosure,
 } from '@chakra-ui/react';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import {
@@ -18,15 +16,17 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
+import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
-import authCheck from './authCheck';
+import { useHistory } from 'react-router-dom';
 import auth from '../../firebaseAuth/firebase-config';
+import authCheck from './authCheck';
 
 /**
- * a form which will handles google and facebook sign in 
+ * a form which will handles google and facebook sign in
  * also handles errors that may happen.
  */
-export default function SSOForm():JSX.Element {
+export default function SSOForm(): JSX.Element {
   const history = useHistory();
   const [errorMess, setErrorMess] = React.useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -39,13 +39,13 @@ export default function SSOForm():JSX.Element {
       provider = googleProvider;
     } else {
       provider = facebookProvider;
-    };
-    
+    }
+
     await signInWithPopup(auth, provider)
       .then(() => {
         history.push('/pre-join-screen');
       })
-      .catch((error) => {
+      .catch(error => {
         const { code } = error;
         if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
           onClose();

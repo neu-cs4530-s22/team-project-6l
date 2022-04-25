@@ -3,16 +3,20 @@ import { Maybe } from 'type-graphql';
 import createSchema from '../utils/createSchema';
 
 interface Options {
-  source: string,
+  source: string;
   variableValues?: Maybe<{
-    [key: string]: unknown,
+    [key: string]: unknown;
   }>;
-  contextValue: unknown,
+  contextValue: unknown;
 }
 
 let schema: GraphQLSchema;
 
-const gCall = async ({ source, variableValues, contextValue }: Options): Promise<ExecutionResult> => {
+const gCall = async ({
+  source,
+  variableValues,
+  contextValue,
+}: Options): Promise<ExecutionResult> => {
   if (!schema) {
     schema = await createSchema();
   }

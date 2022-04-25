@@ -3,12 +3,17 @@ import { faker } from '@mikro-orm/seeder';
 import dotenv from 'dotenv';
 import gCall from '../test-utils/gCall';
 import testConn from '../test-utils/testConn';
+import {
+  addFriendMutation,
+  deleteFriendInvitation,
+  registerMutation,
+  sendFriendInvitationMutation,
+} from '../test-utils/typeDef';
 import Avatar from '../types/Avatar';
 import InvitationMessage from '../types/InvitationMessage';
 import InvitationType from '../types/InvitationType';
 import User from '../types/User';
 import UserCreationInput from '../types/UserValidation/UserCreationInput';
-import { addFriendMutation, deleteFriendInvitation, registerMutation, sendFriendInvitationMutation } from '../test-utils/typeDef';
 
 dotenv.config();
 
@@ -45,7 +50,6 @@ describe('Covey Town GraphQL API', () => {
     afterEach(async () => {
       if (dbUser) await db.em.nativeDelete(User, { username: testUser.username });
     });
-
 
     it('register a valid user', async () => {
       const result = await gCall({
@@ -194,7 +198,11 @@ describe('Covey Town GraphQL API', () => {
         contextValue: db,
       });
 
-      dbTo = await db.em.findOneOrFail(User, { username: toUser.username }, { populate: ['invitations'] });
+      dbTo = await db.em.findOneOrFail(
+        User,
+        { username: toUser.username },
+        { populate: ['invitations'] },
+      );
 
       await gCall({
         source: registerMutation,
@@ -214,7 +222,6 @@ describe('Covey Town GraphQL API', () => {
     afterAll(async () => {
       await db.em.nativeDelete(User, { username: toUser.username });
       await db.em.nativeDelete(User, { username: fromUser.username });
-
     });
 
     it('successfully sent a friend invitation', async () => {
@@ -234,16 +241,17 @@ describe('Covey Town GraphQL API', () => {
         data: {
           sendFriendInvitation: {
             user: {
-              invitations: [{
-                to: {
-                  displayName: toUser.displayName,
-                  username: toUser.username,
+              invitations: [
+                {
+                  to: {
+                    displayName: toUser.displayName,
+                    username: toUser.username,
+                  },
+                  from: fromUser.displayName,
+                  fromEmail: fromUser.email,
+                  message: 'hello friend',
+                  invitationType: InvitationType[0],
                 },
-                from: fromUser.displayName,
-                fromEmail: fromUser.email,
-                message: 'hello friend',
-                invitationType: InvitationType[0],
-              },
               ],
             },
             errors: null,
@@ -292,7 +300,6 @@ describe('Covey Town GraphQL API', () => {
           },
         },
       });
-
 
       expect(dbFrom.invitations.getItems()).toEqual([]);
       expect(dbTo.invitations.getItems()).toEqual([dbInvitation]);
@@ -381,10 +388,11 @@ describe('Covey Town GraphQL API', () => {
         data: {
           update: {
             user: {
-              friends: [{
-                username: friend.username,
-                displayName: friend.displayName,
-              },
+              friends: [
+                {
+                  username: friend.username,
+                  displayName: friend.displayName,
+                },
               ],
             },
             errors: null,
@@ -436,5 +444,4 @@ describe('Covey Town GraphQL API', () => {
       expect(dbFriend.friends.getItems()).toEqual([]);
     });
   });
-
 });

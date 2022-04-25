@@ -1,20 +1,20 @@
+import { Collection } from '@mikro-orm/core';
 import CORS from 'cors';
 import Express from 'express';
 import http from 'http';
+import { mock, mockReset } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { AddressInfo } from 'net';
-import { mock, mockReset } from 'jest-mock-extended';
-import { Collection } from '@mikro-orm/core';
 import CoveyTownController from '../lib/CoveyTownController';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
-import addTownRoutes from '../router/towns';
-import * as requestHandlers from '../requestHandlers/CoveyTownRequestHandlers';
-import { createConversationForTesting } from './TestUtils';
-import TownsServiceClient, { ServerConversationArea } from './TownsServiceClient';
-import Avatar from '../types/Avatar';
 import DatabaseContext from '../lib/DatabaseContext';
+import * as requestHandlers from '../requestHandlers/CoveyTownRequestHandlers';
+import addTownRoutes from '../router/towns';
+import Avatar from '../types/Avatar';
 import InvitationMessage from '../types/InvitationMessage';
 import User from '../types/User';
+import { createConversationForTesting } from './TestUtils';
+import TownsServiceClient, { ServerConversationArea } from './TownsServiceClient';
 
 type TestTownData = {
   friendlyName: string;
@@ -52,17 +52,19 @@ describe('Create Conversation Area API', () => {
     // Set up a spy for CoveyTownsStore that will always return our mockCoveyTownsStore as the singleton instance
     jest.spyOn(CoveyTownsStore, 'getDatabase').mockReturnValue(mockCoveyTownDatabase);
 
-    mockCoveyTownDatabase.getUser.mockReturnValue(Promise.resolve({
-      _id: 999,
-      username: nanoid(),
-      email: nanoid(),
-      displayName: nanoid(),
-      avatar: Avatar.Dog,
-      createdAt: new Date(Date.now()),
-      lastOnline: new Date(Date.now()),
-      friends: new Collection<User>(this),
-      invitations: new Collection<InvitationMessage>(this),
-    }));
+    mockCoveyTownDatabase.getUser.mockReturnValue(
+      Promise.resolve({
+        _id: 999,
+        username: nanoid(),
+        email: nanoid(),
+        displayName: nanoid(),
+        avatar: Avatar.Dog,
+        createdAt: new Date(Date.now()),
+        lastOnline: new Date(Date.now()),
+        friends: new Collection<User>(this),
+        invitations: new Collection<InvitationMessage>(this),
+      }),
+    );
 
     const app = Express();
     app.use(CORS());
@@ -96,7 +98,6 @@ describe('Create Conversation Area API', () => {
   });
 });
 describe('conversationAreaCreateHandler', () => {
-
   const mockCoveyTownStore = mock<CoveyTownsStore>();
   const mockCoveyTownController = mock<CoveyTownController>();
   beforeAll(() => {
@@ -111,7 +112,12 @@ describe('conversationAreaCreateHandler', () => {
   });
   it('Checks for a valid session token before creating a conversation area', () => {
     const coveyTownID = nanoid();
-    const conversationArea: ServerConversationArea = { boundingBox: { height: 1, width: 1, x: 1, y: 1 }, label: nanoid(), occupantsByID: [], topic: nanoid() };
+    const conversationArea: ServerConversationArea = {
+      boundingBox: { height: 1, width: 1, x: 1, y: 1 },
+      label: nanoid(),
+      occupantsByID: [],
+      topic: nanoid(),
+    };
     const invalidSessionToken = nanoid();
 
     // Make sure to return 'undefined' regardless of what session token is passed

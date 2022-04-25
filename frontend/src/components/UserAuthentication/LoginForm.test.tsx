@@ -1,7 +1,7 @@
-import React from 'react';
 import '@testing-library/jest-dom';
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import auth from 'firebase/auth';
+import React from 'react';
 import LoginForm from './LoginForm';
 
 const mockHistoryPush = jest.fn();

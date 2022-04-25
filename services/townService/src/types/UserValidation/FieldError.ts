@@ -1,7 +1,7 @@
-import { ObjectType, Field } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 
-/** 
- * Each FieldError contains the field that is causing the error and a descriptive message. 
+/**
+ * Each FieldError contains the field that is causing the error and a descriptive message.
  * */
 @ObjectType({ description: 'Describes the field causing the error along with an error message' })
 export default class FieldError {

@@ -1,7 +1,5 @@
 {
-  "namespaces": [
-    "public"
-  ],
+  "namespaces": ["public"],
   "name": "public",
   "tables": [
     {
@@ -86,9 +84,7 @@
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "username"
-          ],
+          "columnNames": ["username"],
           "composite": false,
           "keyName": "user_username_unique",
           "primary": false,
@@ -96,9 +92,7 @@
         },
         {
           "keyName": "user_pkey",
-          "columnNames": [
-            "_id"
-          ],
+          "columnNames": ["_id"],
           "composite": false,
           "primary": true,
           "unique": true
@@ -133,10 +127,7 @@
       "indexes": [
         {
           "keyName": "user_friends_pkey",
-          "columnNames": [
-            "user_1__id",
-            "user_2__id"
-          ],
+          "columnNames": ["user_1__id", "user_2__id"],
           "composite": true,
           "primary": true,
           "unique": true
@@ -146,26 +137,18 @@
       "foreignKeys": {
         "user_friends_user_1__id_foreign": {
           "constraintName": "user_friends_user_1__id_foreign",
-          "columnNames": [
-            "user_1__id"
-          ],
+          "columnNames": ["user_1__id"],
           "localTableName": "public.user_friends",
-          "referencedColumnNames": [
-            "_id"
-          ],
+          "referencedColumnNames": ["_id"],
           "referencedTableName": "public.user",
           "deleteRule": "cascade",
           "updateRule": "cascade"
         },
         "user_friends_user_2__id_foreign": {
           "constraintName": "user_friends_user_2__id_foreign",
-          "columnNames": [
-            "user_2__id"
-          ],
+          "columnNames": ["user_2__id"],
           "localTableName": "public.user_friends",
-          "referencedColumnNames": [
-            "_id"
-          ],
+          "referencedColumnNames": ["_id"],
           "referencedTableName": "public.user",
           "deleteRule": "cascade",
           "updateRule": "cascade"

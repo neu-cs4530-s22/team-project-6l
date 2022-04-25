@@ -44,6 +44,4 @@ export default class FriendSystem {
    * to interact with the list of players that are online and send the friend request to any of them
    * online and present in the town activity based on the player's choice
    */
-
 }
-

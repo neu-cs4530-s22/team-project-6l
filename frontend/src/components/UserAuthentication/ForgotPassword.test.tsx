@@ -1,7 +1,7 @@
-import React from 'react';
 import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import React from 'react';
 import ForgotPassword from './ForgotPassword';
 
 const mockHistory = jest.fn();
@@ -58,10 +58,10 @@ describe('ForgotPassword', () => {
       expect(getByText('A reset link has been sent to your email.')).toBeDefined();
       expect(queryByTestId('signin-btn')).toBeInTheDocument();
       expect(queryByText('Reset')).toBeNull();
-    })
+    });
     const btnSignIn = getByTestId('signin-btn');
     fireEvent.click(btnSignIn);
     expect(mockHistory).toBeCalled();
-    expect(mockHistory).toHaveBeenCalledWith('/')
+    expect(mockHistory).toHaveBeenCalledWith('/');
   });
-})
+});

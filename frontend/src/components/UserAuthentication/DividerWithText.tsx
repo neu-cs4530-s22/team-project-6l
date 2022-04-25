@@ -1,18 +1,18 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles } from '@material-ui/core';
+import React from 'react';
 
 /**
  * The style of the DividerWithText component
  */
 const useStyles = makeStyles(theme => ({
   container: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent:"center",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   border: {
-    borderBottom: "2px solid lightgray",
-    width: "100%"
+    borderBottom: '2px solid lightgray',
+    width: '100%',
   },
   content: {
     paddingTop: theme.spacing(-0.5),
@@ -21,8 +21,8 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1),
     fontWeight: 500,
     fontSize: 14,
-    color: "lightgray"
-  }
+    color: 'lightgray',
+  },
 }));
 
 /**
@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
  * children is the prop which is ReactNode
  */
 interface IDividerWithTextProps {
-  children: React.ReactNode,
+  children: React.ReactNode;
 }
 
 const DividerWithText = ({ children }: IDividerWithTextProps) => {
@@ -38,7 +38,9 @@ const DividerWithText = ({ children }: IDividerWithTextProps) => {
   return (
     <div className={classes.container}>
       <div className={classes.border} />
-      <span data-testid='children' className={classes.content}>{children}</span>
+      <span data-testid='children' className={classes.content}>
+        {children}
+      </span>
       <div className={classes.border} />
     </div>
   );

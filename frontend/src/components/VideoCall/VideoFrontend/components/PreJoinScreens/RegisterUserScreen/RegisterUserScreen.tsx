@@ -1,34 +1,31 @@
 import {
+  Box,
   Button,
+  chakra,
   FormControl,
   FormLabel,
+  Image,
   Input,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
-  Image,
   Stack,
-  Box,
-  RadioGroup,
-  Radio,
+  useDisclosure,
   useRadio,
-  chakra,
   useRadioGroup,
 } from '@chakra-ui/react';
-import { useContext, useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import useUserAccount from 'hooks/useUserAccount';
+import { useEffect, useState } from 'react';
 import {
+  Avatar,
   InvitationMessage,
   User,
   useRegisterUserMutation,
 } from '../../../../../../generated/graphql';
-import { Avatar } from '../../../../../../generated/graphql';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import useUserAccount from 'hooks/useUserAccount';
 
 interface RegisterUserScreenProps {}
 
@@ -57,8 +54,9 @@ export default function RegisterUserScreen({}: RegisterUserScreenProps) {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: false });
   function AvatarRadio(props: any) {
     const { avatar, ...radioProps } = props;
-    const { state, getInputProps, getCheckboxProps, htmlProps, getLabelProps } =
-      useRadio(radioProps);
+    const { state, getInputProps, getCheckboxProps, htmlProps, getLabelProps } = useRadio(
+      radioProps,
+    );
 
     return (
       <chakra.label {...htmlProps} cursor='pointer'>

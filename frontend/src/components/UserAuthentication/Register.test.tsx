@@ -1,7 +1,7 @@
-import React from 'react'
+import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom'
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import React from 'react';
 import Register from './Register';
 
 const mockHistoryPush = jest.fn();
@@ -36,7 +36,7 @@ describe('Register Part1 - rendered properly', () => {
     expect(getByTestId('sign-in')).toBeDefined();
     expect(getByText('Already have an account?')).toBeDefined();
     expect(queryByTestId('error')).toBeNull();
-  })
+  });
   it('should successfully sign up', async () => {
     const { getByTestId } = render(<Register />);
     fireEvent.change(getByTestId('reg-email'), { target: { value: 'testing@gmail.com' } });
@@ -47,16 +47,16 @@ describe('Register Part1 - rendered properly', () => {
       expect(createUserWithEmailAndPassword).toBeCalled();
     });
     expect(mockHistoryPush).toBeCalled();
-    expect(mockHistoryPush).toHaveBeenCalledWith('/pre-join-screen')
-  })
-})
+    expect(mockHistoryPush).toHaveBeenCalledWith('/pre-join-screen');
+  });
+});
 
 describe('Register Part2 - check error handling', () => {
   afterEach(() => {
     jest.clearAllMocks();
     mockHistoryPush.mockReset();
   });
-  it('should render error message when the input is invalid',async () => {
+  it('should render error message when the input is invalid', async () => {
     const { getByTestId, queryByText } = render(<Register />);
     expect(queryByText('Please enter your email')).toBeNull();
 
@@ -66,7 +66,7 @@ describe('Register Part2 - check error handling', () => {
       expect(queryByText('Please enter your email')).toBeDefined();
     });
 
-    // error since this is invalid email 
+    // error since this is invalid email
     fireEvent.change(getByTestId('reg-email'), { target: { value: 'testing' } });
     fireEvent.click(getByTestId('sign-up'));
     await waitFor(() => {
@@ -74,15 +74,14 @@ describe('Register Part2 - check error handling', () => {
       expect(queryByText('Invalid email')).toBeDefined();
     });
 
-    // email passed 
+    // email passed
     fireEvent.change(getByTestId('reg-email'), { target: { value: 'testing@gmail.com' } });
     fireEvent.click(getByTestId('sign-up'));
     await waitFor(() => {
       expect(getByTestId('reg-email')).toHaveValue('testing@gmail.com');
       expect(queryByText('Please enter your password')).toBeDefined();
     });
-
-  })
+  });
   it('shouid render error when password is wrong/invalid', async () => {
     const { getByTestId, queryByText } = render(<Register />);
     fireEvent.change(getByTestId('reg-email'), { target: { value: 'testing@gmail.com' } });
@@ -107,8 +106,8 @@ describe('Register Part2 - check error handling', () => {
     await waitFor(() => {
       expect(queryByText('Weak password! Password length must be at least 6')).toBeDefined();
     });
-  })
-  it('should render error when confirm password is wrong',async () => {
+  });
+  it('should render error when confirm password is wrong', async () => {
     const { getByTestId, queryByText } = render(<Register />);
     fireEvent.change(getByTestId('reg-email'), { target: { value: 'testing@gmail.com' } });
     fireEvent.click(getByTestId('sign-up'));
@@ -123,7 +122,7 @@ describe('Register Part2 - check error handling', () => {
     await waitFor(() => {
       expect(queryByText('Passwords do not match')).toBeDefined();
     });
-  })
+  });
 });
 
 describe('Part3 - when the user decides to go back to log-in page', () => {
@@ -135,5 +134,5 @@ describe('Part3 - when the user decides to go back to log-in page', () => {
     const { getByTestId } = render(<Register />);
     fireEvent.click(getByTestId('sign-in'));
     expect(mockHistoryPush).toHaveBeenCalledWith('/');
-  })
-})
+  });
+});

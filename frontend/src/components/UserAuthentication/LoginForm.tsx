@@ -1,24 +1,24 @@
-import React from 'react';
 import {
-  Box,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
   Alert,
   AlertIcon,
   AlertTitle,
+  Box,
+  Button,
   CloseButton,
+  FormControl,
+  FormLabel,
+  Input,
 } from '@chakra-ui/react';
-import { useHistory } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
-import authCheck from './authCheck';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import React from 'react';
+import { useHistory } from 'react-router-dom';
 import auth from '../../firebaseAuth/firebase-config';
+import authCheck from './authCheck';
 
 /**
- * Displays a form which handles user's sign in 
- * navigate to prejoinscreen if user succesfully sign up 
+ * Displays a form which handles user's sign in
+ * navigate to prejoinscreen if user succesfully sign up
  * otherwise it will appear alert error which indicates what user can't log in
  */
 export default function LoginForm(): JSX.Element {
@@ -41,7 +41,7 @@ export default function LoginForm(): JSX.Element {
       setAlertMess(authCheck(code));
     }
   };
-  
+
   const onLoginClick = (event: React.MouseEvent) => {
     event.preventDefault();
     if (!email || !password) {

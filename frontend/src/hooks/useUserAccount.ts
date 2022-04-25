@@ -1,7 +1,7 @@
-import { useContext } from 'react';
 import assert from 'assert';
-import { User } from '../generated/graphql';
+import { useContext } from 'react';
 import UserContext, { UserUpdate } from '../contexts/UserContext';
+import { User } from '../generated/graphql';
 
 export default function useUserAccount(): {
   userState: User;

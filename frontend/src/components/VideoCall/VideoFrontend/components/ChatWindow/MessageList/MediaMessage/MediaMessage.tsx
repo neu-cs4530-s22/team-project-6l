@@ -1,7 +1,7 @@
-import React from 'react';
-import FileDownloadIcon from '../../../../icons/FileDownloadIcon';
 import { makeStyles } from '@material-ui/core/styles';
 import { Media } from '@twilio/conversations/lib/media';
+import React from 'react';
+import FileDownloadIcon from '../../../../icons/FileDownloadIcon';
 
 const useStyles = makeStyles({
   messageContainer: {
@@ -17,11 +17,11 @@ const useStyles = makeStyles({
     alignItems: 'center',
   },
   mediaInfo: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    marginLeft: '1.5em',
-    minWidth: 0,
+    'display': 'flex',
+    'flexDirection': 'column',
+    'justifyContent': 'center',
+    'marginLeft': '1.5em',
+    'minWidth': 0,
     '& p': {
       margin: 0,
       fontSize: '12px',

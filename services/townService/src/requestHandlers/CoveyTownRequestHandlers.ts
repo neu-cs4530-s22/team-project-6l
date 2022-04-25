@@ -1,15 +1,15 @@
 import assert from 'assert';
 import { Socket } from 'socket.io';
-import Player from '../types/Player';
-import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
-import CoveyTownListener from '../types/CoveyTownListener';
-import CoveyTownsStore from '../lib/CoveyTownsStore';
 import {
   ConversationAreaCreateRequest,
   ServerConversationArea,
 } from '../client/TownsServiceClient';
+import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
+import CoveyTownsStore from '../lib/CoveyTownsStore';
 import Avatar from '../types/Avatar';
+import CoveyTownListener from '../types/CoveyTownListener';
 import InvitationMessage from '../types/InvitationMessage';
+import Player from '../types/Player';
 
 export interface UserEmailOfUser {
   userName: string;
@@ -337,97 +337,100 @@ export async function FriendListHandler(
   };
 }
 
-/**
- * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
- * therefore updating the list of the friends based on the user choice
- * @param requestData
- * @returns
- */
-export async function friendIsAddedHandler(
-  requestData: FriendAdd,
-): Promise<ResponseEnvelope<Record<string, null>>> {
-  // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
-  // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
-  // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
-  // Represents connecting to the database to extract the information to use
-  // Represents fetching yourself through your own email
-  const playerUser = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
-  // check if the person with this email-id exists in the database
-  // Represents checking if the given friend exists with the user email given
-  const friendUser = await CoveyTownsStore.getDatabase().getUser(requestData.friendUserName);
+// IGNORE SECTION: See comment in RequestHandler.test.ts. We scratched the initial implementation
+// of friend and invitation handlers and revamped it.
 
-  // Represents if the friend is already a friend
-  if (friendUser) {
-    playerUser?.friends.add(friendUser);
-    return {
-      isOK: true,
-      response: {},
-      message: 'Friend is successfully added to your list of friends',
-    };
-  }
-  return {
-    isOK: false,
-    response: {},
-    message: 'Friend cannot added to your list of friends',
-  };
-}
+// /**
+//  * Represents the request handler to, based on the current presence of the username in the list of the current online
+//  * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
+//  * therefore updating the list of the friends based on the user choice
+//  * @param requestData
+//  * @returns
+//  */
+// export async function friendIsAddedHandler(
+//   requestData: FriendAdd,
+// ): Promise<ResponseEnvelope<Record<string, null>>> {
+//   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
+//   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
+//   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
+//   // Represents connecting to the database to extract the information to use
+//   // Represents fetching yourself through your own email
+//   const playerUser = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
+//   // check if the person with this email-id exists in the database
+//   // Represents checking if the given friend exists with the user email given
+//   const friendUser = await CoveyTownsStore.getDatabase().getUser(requestData.friendUserName);
 
-/**
- * Represents the request handler to, based on the current presence of the username in the list of the current online
- * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
- * therefore updating the list of the friends based on the user choice
- * @param requestData
- * @returns
- */
-export async function friendIsRemovedHandler(
-  requestData: FriendRemove,
-): Promise<ResponseEnvelope<Record<string, null>>> {
-  // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
-  // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
-  // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
-  // Represents connecting to the database to extract the information to use
-  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
-  const friend = await CoveyTownsStore.getDatabase().getUser(requestData.friendUserName);
+//   // Represents if the friend is already a friend
+//   if (friendUser) {
+//     playerUser?.friends.add(friendUser);
+//     return {
+//       isOK: true,
+//       response: {},
+//       message: 'Friend is successfully added to your list of friends',
+//     };
+//   }
+//   return {
+//     isOK: false,
+//     response: {},
+//     message: 'Friend cannot added to your list of friends',
+//   };
+// }
 
-  return {
-    isOK: true,
-    message: `Friend with username ${friend?.displayName} succesfully removed from ${player?.displayName}'list of friends.`,
-  };
-}
+// /**
+//  * Represents the request handler to, based on the current presence of the username in the list of the current online
+//  * players in the covey town, be able to have the feature of sending friend requests and accepting the friend requests and
+//  * therefore updating the list of the friends based on the user choice
+//  * @param requestData
+//  * @returns
+//  */
+// export async function friendIsRemovedHandler(
+//   requestData: FriendRemove,
+// ): Promise<ResponseEnvelope<Record<string, null>>> {
+//   // Represents fetching the instance of the given data base from the covey town store to use to extract the information of the user
+//   // from the data base produced that includes the names of the user and the friend that is trying to be added by creating an instance
+//   // of the MikroORM class and then using this to connect and extract from the database and working with qeuries
+//   // Represents connecting to the database to extract the information to use
+//   const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
+//   const friend = await CoveyTownsStore.getDatabase().getUser(requestData.friendUserName);
 
-// Represents the function that takes in the player into consideration and simply deletes a player based on if they are in the data base
-// in the case of which, this function will be used for testing purposes
-export async function deletesPlayer(
-  requestData: UserEmailOfUser,
-): Promise<ResponseEnvelope<Record<string, null>>> {
-  // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and deletes
-  // them from the list of players in the database
-  // await friendMigration.em.delete the user from the database
-  // friendMigration.close();
-  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
-  return {
-    isOK: true,
-    message: `Player ${player?.displayName} from the user database is deleted`,
-  };
-}
+//   return {
+//     isOK: true,
+//     message: `Friend with username ${friend?.displayName} succesfully removed from ${player?.displayName}'list of friends.`,
+//   };
+// }
 
-// Represents the function that takes in the player into consideration and simply adds a player based on if they are in the data base
-// in the case of which, this function will be used for testing purposes
-export async function addsPlayer(
-  requestData: UserEmailOfUser,
-): Promise<ResponseEnvelope<Record<string, null>>> {
-  // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and adds
-  // them from the list of players in the database
-  // Represents getting the player out and checking if they are already in the list
-  // Represents checking whether the player is already in the list and if not, add it into the database and close the friendMigration client
-  const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
+// // Represents the function that takes in the player into consideration and simply deletes a player based on if they are in the data base
+// // in the case of which, this function will be used for testing purposes
+// export async function deletesPlayer(
+//   requestData: UserEmailOfUser,
+// ): Promise<ResponseEnvelope<Record<string, null>>> {
+//   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and deletes
+//   // them from the list of players in the database
+//   // await friendMigration.em.delete the user from the database
+//   // friendMigration.close();
+//   const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
+//   return {
+//     isOK: true,
+//     message: `Player ${player?.displayName} from the user database is deleted`,
+//   };
+// }
 
-  return {
-    isOK: true,
-    message: `Player ${player?.displayName} has been added`,
-  };
-}
+// // Represents the function that takes in the player into consideration and simply adds a player based on if they are in the data base
+// // in the case of which, this function will be used for testing purposes
+// export async function addsPlayer(
+//   requestData: UserEmailOfUser,
+// ): Promise<ResponseEnvelope<Record<string, null>>> {
+//   // Represents fetching the playerClient that interacts with the data base and uses this to extract the player information and adds
+//   // them from the list of players in the database
+//   // Represents getting the player out and checking if they are already in the list
+//   // Represents checking whether the player is already in the list and if not, add it into the database and close the friendMigration client
+//   const player = await CoveyTownsStore.getDatabase().getUser(requestData.userName);
+
+//   return {
+//     isOK: true,
+//     message: `Player ${player?.displayName} has been added`,
+//   };
+// }
 
 /**
  * A handler to process a remote player's subscription to updates for a town
