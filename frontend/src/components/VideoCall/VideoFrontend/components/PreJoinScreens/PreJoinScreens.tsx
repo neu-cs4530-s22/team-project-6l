@@ -1,17 +1,17 @@
-import React, { useState, useEffect, FormEvent } from 'react';
-import DeviceSelectionScreen from './DeviceSelectionScreen/DeviceSelectionScreen';
-import IntroContainer from '../IntroContainer/IntroContainer';
-import MediaErrorSnackbar from './MediaErrorSnackbar/MediaErrorSnackbar';
-import { useHistory } from 'react-router-dom';
-import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
-import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import { Button, Center, Heading, Text } from '@chakra-ui/react';
-import TownSelection from '../../../../Login/TownSelection';
-import auth from '../../../../../firebaseAuth/firebase-config';
-import RegisterUserScreen from './RegisterUserScreen/RegisterUserScreen';
-import useUserAccount from 'hooks/useUserAccount';
 import { signOut } from 'firebase/auth';
 import { Avatar, InvitationMessage, useGetUserQuery, User } from 'generated/graphql';
+import useUserAccount from 'hooks/useUserAccount';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
+import auth from '../../../../../firebaseAuth/firebase-config';
+import TownSelection from '../../../../Login/TownSelection';
+import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import IntroContainer from '../IntroContainer/IntroContainer';
+import DeviceSelectionScreen from './DeviceSelectionScreen/DeviceSelectionScreen';
+import MediaErrorSnackbar from './MediaErrorSnackbar/MediaErrorSnackbar';
+import RegisterUserScreen from './RegisterUserScreen/RegisterUserScreen';
 
 export enum Steps {
   roomNameStep,
@@ -123,7 +123,7 @@ export default function PreJoinScreens(props: {
       </Text>
       <RegisterUserScreen />
       <DeviceSelectionScreen />
-      <TownSelection doLogin={props.doLogin}/>
+      <TownSelection doLogin={props.doLogin} />
       <div style={{ marginTop: 20 }}>
         <Center>
           <Button colorScheme='black' variant='outline' onClick={handleSignOut}>

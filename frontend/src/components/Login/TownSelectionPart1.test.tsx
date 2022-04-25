@@ -1,15 +1,15 @@
 /* eslint-disable no-await-in-loop,@typescript-eslint/no-loop-func,no-restricted-syntax */
-import React from 'react';
-import '@testing-library/jest-dom';
 import { ChakraProvider } from '@chakra-ui/react';
+import '@testing-library/jest-dom';
 import { render, waitFor, within } from '@testing-library/react';
 import { nanoid } from 'nanoid';
-import { Avatar } from '../../generated/graphql';
+import React from 'react';
 import TownsServiceClient from '../../classes/TownsServiceClient';
-import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
+import { Avatar } from '../../generated/graphql';
 import { ChatProvider } from '../VideoCall/VideoFrontend/components/ChatProvider';
+import TownSelection from './TownSelection';
 
 const mockConnect = jest.fn(() => Promise.resolve());
 

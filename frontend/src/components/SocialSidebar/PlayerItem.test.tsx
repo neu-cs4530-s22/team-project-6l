@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { render, waitFor } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 import React from 'react';
-import { Provider, Client } from 'urql';
+import { Client, Provider } from 'urql';
 import { never } from 'wonka';
 import Player from '../../classes/Player';
 import * as FriendRequest from './FriendRequest';
@@ -14,11 +14,11 @@ describe('PlayerItem', () => {
   const wrappedPlayerItemComponent = (player: Player) => (
     <Provider
       value={
-        {
+        ({
           executeQuery: jest.fn(() => never),
           executeMutation: jest.fn(() => never),
           executeSubscription: jest.fn(() => never),
-        } as unknown as Client
+        } as unknown) as Client
       }>
       <ChakraProvider>
         <React.StrictMode>

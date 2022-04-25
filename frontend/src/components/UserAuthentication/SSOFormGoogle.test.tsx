@@ -1,7 +1,7 @@
-import React from 'react';
+import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom'
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import React from 'react';
 import auth from '../../firebaseAuth/firebase-config';
 import SSOForm from './SSOForm';
 
@@ -18,13 +18,15 @@ jest.mock('../../firebaseAuth/firebase-config', () => ({
 }));
 
 jest.mock('firebase/auth', () => ({
-  signInWithPopup: jest.fn(() => Promise.resolve(
-    jest.fn().mockImplementation(() => ({
-      provider: {
-        providerId: 'google.com'
-      }
-    }))
-  )),
+  signInWithPopup: jest.fn(() =>
+    Promise.resolve(
+      jest.fn().mockImplementation(() => ({
+        provider: {
+          providerId: 'google.com',
+        },
+      })),
+    ),
+  ),
   GoogleAuthProvider: jest.fn(),
   FacebookAuthProvider: jest.fn(),
 }));
@@ -35,32 +37,32 @@ describe('SSO Form', () => {
     mockHistoryPush.mockReset();
   });
   it('should render properly', () => {
-    const {queryByTestId, getByText, getByTestId } = render(<SSOForm />);
+    const { queryByTestId, getByText, getByTestId } = render(<SSOForm />);
     expect(getByText('Sign in with Facebook')).toBeDefined();
     expect(getByText('Sign in with Google')).toBeDefined();
     expect(getByTestId('google-btn')).toBeDefined();
     expect(queryByTestId('error')).toBeNull();
-  })
+  });
 });
 
-describe('SSO Form Part 2 - Google sign In',  () => {
+describe('SSO Form Part 2 - Google sign In', () => {
   afterEach(() => {
     jest.clearAllMocks();
     mockHistoryPush.mockReset();
   });
-  it('should signIn using Google account successfully',async () => {
+  it('should signIn using Google account successfully', async () => {
     const googleProvider = new GoogleAuthProvider();
-    const {getByTestId} = render(<SSOForm />);
-    
+    const { getByTestId } = render(<SSOForm />);
+
     fireEvent.click(getByTestId('google-btn'));
     await waitFor(() => {
       expect(signInWithPopup).toBeCalledWith(auth, googleProvider);
     });
-  })
-  it('should signIn using Google account and then navigate to PreJoinScreen successfully',async () => {
+  });
+  it('should signIn using Google account and then navigate to PreJoinScreen successfully', async () => {
     const googleProvider = new GoogleAuthProvider();
-    const {getByTestId} = render(<SSOForm />);
-    
+    const { getByTestId } = render(<SSOForm />);
+
     fireEvent.click(getByTestId('google-btn'));
     await waitFor(() => {
       expect(signInWithPopup).toBeCalledWith(auth, googleProvider);
@@ -68,4 +70,4 @@ describe('SSO Form Part 2 - Google sign In',  () => {
     expect(mockHistoryPush).toBeCalled();
     expect(mockHistoryPush).toBeCalledWith('/pre-join-screen');
   });
-})
+});

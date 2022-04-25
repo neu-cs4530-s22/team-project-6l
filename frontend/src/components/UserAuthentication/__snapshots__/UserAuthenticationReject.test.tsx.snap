@@ -195,7 +195,9 @@ exports[`ForgotPassword should unsuccessfully send the reset email in ForgotPass
         class="chakra-button css-1fibvam"
         type="submit"
       >
-         Reset 
+         
+        Reset
+         
       </button>
     </div>
   </div>

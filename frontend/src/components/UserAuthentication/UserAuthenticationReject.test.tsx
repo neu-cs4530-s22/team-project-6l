@@ -1,8 +1,12 @@
-// tests for handling the catch method when calling Firebase. 
-import React from 'react';
+// tests for handling the catch method when calling Firebase.
 import '@testing-library/jest-dom';
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import { sendPasswordResetEmail, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
+import React from 'react';
 import ForgotPassword from './ForgotPassword';
 import LoginForm from './LoginForm';
 import Register from './Register';
@@ -42,7 +46,7 @@ describe('ForgotPassword', () => {
     await waitFor(() => {
       expect(signInWithEmailAndPassword).toBeCalled();
       expect(queryByTestId('alert-message')).toBeDefined();
-    })
+    });
     expect(container.firstChild).toMatchSnapshot();
     expect(mockHistoryPush).not.toBeCalled();
   });
@@ -55,11 +59,13 @@ describe('ForgotPassword', () => {
     await waitFor(() => {
       expect(createUserWithEmailAndPassword).toBeCalled();
       expect(queryByTestId('error')).toBeDefined();
-    })
+    });
     expect(mockHistoryPush).not.toBeCalled();
   });
   it('should unsuccessfully send the reset email in ForgotPassword', async () => {
-    const { getByTestId, getByText, queryByTestId, queryByText, container } = render(<ForgotPassword />);
+    const { getByTestId, getByText, queryByTestId, queryByText, container } = render(
+      <ForgotPassword />,
+    );
     const email = getByTestId('forgot-email');
     fireEvent.change(email, { target: { value: 'testing@gmail.com' } });
     const btn = getByText('Reset');
@@ -68,8 +74,8 @@ describe('ForgotPassword', () => {
       expect(queryByTestId('error-message')).toBeDefined();
       expect(queryByText('A reset link has been sent to your email.')).toBeNull();
       expect(sendPasswordResetEmail).toBeCalled();
-    })
+    });
     // the snapshot should show the error message
     expect(container.firstChild).toMatchSnapshot();
   });
-}) 
+});
